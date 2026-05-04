@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         @if(!app()->environment('local'))
-        <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://geowidget.inpost.pl; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; frame-src 'self' https://geowidget.inpost.pl https://geowidget-app.inpost.pl; connect-src 'self' https://geowidget.inpost.pl https://geowidget-app.inpost.pl https://*.easypack24.net https://api.inpost.pl;">
+        <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://geowidget.inpost.pl; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://geowidget.inpost.pl; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://geowidget.inpost.pl; frame-src 'self' https://geowidget.inpost.pl https://geowidget-app.inpost.pl; connect-src 'self' https://geowidget.inpost.pl https://geowidget-app.inpost.pl https://*.easypack24.net https://api.inpost.pl;">
         @endif
 
         <title inertia>{{ brand('name') }}</title>

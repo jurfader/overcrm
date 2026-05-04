@@ -78,6 +78,11 @@ const inboxUnreadCount = computed(() => page.props.inboxUnreadCount ?? 0);
 const environmentBanner = computed(() => page.props.environmentBanner || '');
 const activeModules = computed(() => page.props.activeModules || []);
 
+// Graceful — nie crashuj UI gdy moduł Email nie jest aktywny (route nie istnieje w Ziggy)
+const hasInboxRoute = computed(() => {
+    try { route('email.inbox.index'); return true; } catch { return false; }
+});
+
 function logout() { router.post(route('logout')); }
 
 // ====================== NAWIGACJA ======================
@@ -248,10 +253,10 @@ const visibleAdmin = computed(() => navAdmin.filter(canAccess));
 
                 <div class="flex-1" />
 
-                <!-- Inbox -->
+                <!-- Inbox — pokazuje się tylko gdy moduł Email jest aktywny i route istnieje -->
                 <Link
-                    v-if="currentUser"
-                    :href="route('mail.inbox.index')"
+                    v-if="currentUser && hasInboxRoute"
+                    :href="route('email.inbox.index')"
                     class="relative h-9 w-9 inline-flex items-center justify-center rounded-md text-foreground-muted hover:text-foreground hover:bg-surface-elevated transition-colors"
                     title="Skrzynka odbiorcza"
                 >
