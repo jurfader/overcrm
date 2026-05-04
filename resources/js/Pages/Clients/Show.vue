@@ -95,8 +95,8 @@ const hasProfile = computed(() => {
                             <Link :href="route('users.show', h.id)" class="text-brand-primary hover:underline font-medium">{{ h.name }}</Link>
                         </template>
                     </div>
-                    <div v-else class="mt-2 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-slate-800/50 border border-border w-fit">
-                        <Icons name="user" class="w-4 h-4 text-gray-400 dark:text-slate-500 flex-shrink-0" />
+                    <div v-else class="mt-2 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-2/50 border border-border w-fit">
+                        <Icons name="user" class="w-4 h-4 text-foreground-subtle flex-shrink-0" />
                         <span class="text-sm text-foreground-muted">Brak przypisanego opiekuna</span>
                     </div>
                 </div>
@@ -214,7 +214,7 @@ const hasProfile = computed(() => {
                 <!-- Podsumowania AI -->
                 <Card title="Podsumowania AI">
                     <div v-if="!summaries || summaries.length === 0" class="text-center py-8 text-foreground-muted">
-                        <Icons name="sparkles" class="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-slate-600" />
+                        <Icons name="sparkles" class="w-12 h-12 mx-auto mb-3 text-foreground-subtle opacity-50" />
                         <p class="text-sm">Brak zapisanych podsumowań</p>
                         <p class="text-xs mt-1">Generuj podsumowania w kalendarzu — otwórz wizytę, zakładka „Karta klienta”, przycisk „Generuj podsumowanie AI”</p>
                     </div>
@@ -235,7 +235,7 @@ const hasProfile = computed(() => {
                 <!-- Historia wysłanych maili -->
                 <Card title="Historia wysłanych maili">
                     <div v-if="sentEmails.length === 0" class="text-center py-8 text-foreground-muted">
-                        <Icons name="mail" class="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-slate-600" />
+                        <Icons name="mail" class="w-12 h-12 mx-auto mb-3 text-foreground-subtle opacity-50" />
                         <p class="text-sm">Brak wysłanych wiadomości do tego klienta</p>
                         <p class="text-xs mt-1">Emaile wysłane z kalendarza (oferty, szablony) pojawią się tutaj</p>
                     </div>
@@ -283,7 +283,7 @@ const hasProfile = computed(() => {
                                 <div class="text-xs text-foreground-muted mb-3 space-y-1">
                                     <div><span class="font-medium">Do:</span> {{ email.to_email }}</div>
                                     <div><span class="font-medium">Temat:</span> {{ email.subject }}</div>
-                                    <div v-if="email.error_message" class="text-red-600 dark:text-red-400"><span class="font-medium">Błąd:</span> {{ email.error_message }}</div>
+                                    <div v-if="email.error_message" class="text-destructive"><span class="font-medium">Błąd:</span> {{ email.error_message }}</div>
                                 </div>
                                 <div class="border-t dark:border-slate-700 pt-3">
                                     <div class="prose prose-sm max-w-none dark:prose-invert text-sm" v-html="email.html_content"></div>
@@ -420,7 +420,7 @@ const hasProfile = computed(() => {
                                 >
                                     <div class="flex items-center justify-between gap-2">
                                         <span class="text-sm font-semibold text-foreground truncate">{{ visit.title || 'Spotkanie' }}</span>
-                                        <span class="text-xs font-medium text-amber-700 dark:text-amber-400 shrink-0 flex items-center gap-1">
+                                        <span class="text-xs font-medium text-brand-primary shrink-0 flex items-center gap-1">
                                             <span v-if="formatVisitTime(visit.visit_time)" class="font-bold">{{ formatVisitTime(visit.visit_time) }}</span>
                                             <span>{{ new Date(visit.visit_date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short', year: 'numeric' }) }}</span>
                                         </span>

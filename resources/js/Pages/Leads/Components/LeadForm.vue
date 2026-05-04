@@ -47,7 +47,7 @@ function submit() {
         <div class="surface rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" @click.stop>
             <div class="sticky top-0 surface border-b border-border px-6 py-4 flex items-center justify-between">
                 <h2 class="text-lg font-bold text-foreground">Nowy lead</h2>
-                <button @click="emit('close')" class="text-slate-400 hover:text-slate-600">
+                <button @click="emit('close')" class="text-foreground-muted hover:text-foreground">
                     <Icons name="close" class="w-5 h-5" />
                 </button>
             </div>

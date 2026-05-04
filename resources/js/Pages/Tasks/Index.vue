@@ -203,19 +203,19 @@ function isOverdue(task) {
                 </div>
                 <div class="flex flex-wrap items-center gap-4">
                     <label class="flex items-center">
-                        <input type="checkbox" v-model="myTasks" class="rounded border-gray-300 text-amber-600 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                        <input type="checkbox" v-model="myTasks" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
                         <span class="ml-2 text-sm text-foreground">Tylko moje</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" v-model="today" class="rounded border-gray-300 text-amber-600 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                        <input type="checkbox" v-model="today" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
                         <span class="ml-2 text-sm text-foreground">Na dziś</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" v-model="overdue" class="rounded border-gray-300 text-amber-600 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                        <input type="checkbox" v-model="overdue" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
                         <span class="ml-2 text-sm text-foreground">Przeterminowane</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" v-model="trashed" class="rounded border-gray-300 text-amber-600 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                        <input type="checkbox" v-model="trashed" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
                         <span class="ml-2 text-sm text-foreground">Kosz</span>
                     </label>
                 </div>
@@ -223,10 +223,10 @@ function isOverdue(task) {
 
             <!-- Bulk actions bar -->
             <div v-if="hasSelection" class="px-4 py-3 gradient-subtle border-b border-brand-primary/30 flex items-center gap-3 flex-wrap">
-                <span class="text-sm font-medium text-amber-800 dark:text-amber-300">
+                <span class="text-sm font-medium text-brand-primary">
                     Zaznaczono {{ selectedIds.length }} {{ selectedIds.length === 1 ? 'zadanie' : selectedIds.length < 5 ? 'zadania' : 'zadań' }}
                 </span>
-                <span class="text-amber-300 dark:text-amber-700">|</span>
+                <span class="text-foreground-subtle">|</span>
 
                 <!-- Zmień status -->
                 <div class="relative group">
@@ -271,7 +271,7 @@ function isOverdue(task) {
                     <div class="hidden group-hover:block absolute top-full left-0 mt-1 surface rounded-lg shadow-xl border dark:border-slate-700 py-1 z-50 min-w-[180px] max-h-60 overflow-y-auto">
                         <button
                             @click="bulkAssign(null)"
-                            class="block w-full text-left px-4 py-2 text-sm text-gray-400 dark:text-slate-500 hover:bg-surface-elevated italic"
+                            class="block w-full text-left px-4 py-2 text-sm text-foreground-subtle hover:bg-surface-elevated italic"
                         >
                             — Brak —
                         </button>
@@ -286,12 +286,12 @@ function isOverdue(task) {
                     </div>
                 </div>
 
-                <span class="text-amber-300 dark:text-amber-700">|</span>
+                <span class="text-foreground-subtle">|</span>
 
                 <!-- Usuń -->
                 <button
                     @click="bulkDelete"
-                    class="text-sm px-3 py-1.5 rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
+                    class="text-sm px-3 py-1.5 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive hover:bg-destructive/20 transition-colors"
                 >
                     Usuń zaznaczone
                 </button>
@@ -307,8 +307,8 @@ function isOverdue(task) {
 
             <!-- Tabela -->
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-                    <thead class="bg-gray-50 dark:bg-slate-800">
+                <table class="min-w-full divide-y divide-border">
+                    <thead class="bg-surface-2">
                         <tr>
                             <th class="px-3 py-3 w-10">
                                 <input type="checkbox" v-model="allSelected" class="rounded border-border-bright text-amber-600 focus:ring-brand-primary dark:bg-slate-700" />
@@ -322,22 +322,22 @@ function isOverdue(task) {
                             <th class="px-6 py-3 text-right text-xs font-medium text-foreground-muted uppercase tracking-wider">Akcje</th>
                         </tr>
                     </thead>
-                    <tbody class="surface divide-y divide-gray-200 dark:divide-slate-700">
-                        <tr v-for="task in tasks.data" :key="task.id" class="hover:bg-surface-elevated" :class="{ 'bg-red-50 dark:bg-red-900/20': isOverdue(task) }">
+                    <tbody class="surface divide-y divide-border">
+                        <tr v-for="task in tasks.data" :key="task.id" class="hover:bg-surface-elevated" :class="{ 'bg-destructive/10': isOverdue(task) }">
                             <td class="px-3 py-4 w-10">
                                 <input type="checkbox" :value="task.id" v-model="selectedIds" class="rounded border-border-bright text-amber-600 focus:ring-brand-primary dark:bg-slate-700" />
                             </td>
                             <td class="px-6 py-4">
-                                <Link :href="route('tasks.show', task.id)" class="text-sm font-medium text-foreground hover:text-brand-primary dark:hover:text-amber-400">
+                                <Link :href="route('tasks.show', task.id)" class="text-sm font-medium text-foreground hover:text-brand-primary hover:text-brand-primary">
                                     {{ task.title }}
                                 </Link>
                                 <p v-if="task.description" class="text-xs text-foreground-muted mt-1 truncate max-w-xs">{{ task.description }}</p>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <Link v-if="task.client" :href="route('clients.show', task.client.id)" class="text-sm text-foreground hover:text-brand-primary dark:hover:text-amber-400">
+                                <Link v-if="task.client" :href="route('clients.show', task.client.id)" class="text-sm text-foreground hover:text-brand-primary hover:text-brand-primary">
                                     {{ task.client.short_name || task.client.name }}
                                 </Link>
-                                <span v-else class="text-sm text-gray-400 dark:text-slate-500">—</span>
+                                <span v-else class="text-sm text-foreground-subtle">—</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span v-if="task.status" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" :style="{ backgroundColor: task.status.color + '20', color: task.status.color }">
@@ -350,13 +350,13 @@ function isOverdue(task) {
                                 </Badge>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span :class="isOverdue(task) ? 'text-red-600 dark:text-red-400 font-medium' : 'text-sm text-foreground'">
+                                <span :class="isOverdue(task) ? 'text-destructive font-medium' : 'text-sm text-foreground'">
                                     {{ formatDate(task.due_date) }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span v-if="task.assignee" class="text-sm text-foreground">{{ task.assignee.name }}</span>
-                                <span v-else class="text-sm text-gray-400 dark:text-slate-500">—</span>
+                                <span v-else class="text-sm text-foreground-subtle">—</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end gap-2">
@@ -366,10 +366,10 @@ function isOverdue(task) {
                                         </button>
                                     </template>
                                     <template v-else>
-                                        <Link :href="route('tasks.show', task.id)" class="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300">
+                                        <Link :href="route('tasks.show', task.id)" class="text-foreground-muted hover:text-foreground">
                                             <Icons name="eye" class="w-5 h-5" />
                                         </Link>
-                                        <Link :href="route('tasks.edit', task.id)" class="text-slate-400 hover:text-brand-primary dark:text-slate-500 dark:hover:text-amber-400">
+                                        <Link :href="route('tasks.edit', task.id)" class="text-slate-400 hover:text-brand-primary dark:text-slate-500 hover:text-brand-primary">
                                             <Icons name="edit" class="w-5 h-5" />
                                         </Link>
                                         <button @click="confirmDelete(task)" class="text-slate-400 hover:text-red-600 dark:text-slate-500 dark:hover:text-red-400">
@@ -381,7 +381,7 @@ function isOverdue(task) {
                         </tr>
                         <tr v-if="tasks.data.length === 0">
                             <td colspan="8" class="px-6 py-12 text-center text-foreground-muted">
-                                <Icons name="tasks" class="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-slate-600" />
+                                <Icons name="tasks" class="w-12 h-12 mx-auto mb-3 text-foreground-subtle opacity-50" />
                                 <p>Nie znaleziono zadań</p>
                             </td>
                         </tr>

@@ -80,7 +80,7 @@ function formatDate(dateStr) {
                             </ul>
                         </div>
                         <div v-if="entry.removed?.length" class="space-y-2">
-                            <h3 class="text-xs font-semibold uppercase tracking-wider text-red-600 dark:text-red-400 flex items-center gap-2">
+                            <h3 class="text-xs font-semibold uppercase tracking-wider text-destructive flex items-center gap-2">
                                 <Icons name="trash" class="w-4 h-4" />
                                 Usunięte
                             </h3>

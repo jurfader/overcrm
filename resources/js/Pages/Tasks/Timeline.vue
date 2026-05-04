@@ -177,7 +177,7 @@ const todayPosition = computed(() => {
                 </button>
             </div>
 
-            <div class="h-6 w-px bg-gray-200 dark:bg-slate-700"></div>
+            <div class="h-6 w-px surface-elevated"></div>
 
             <!-- Filtry -->
             <label class="flex items-center gap-2">
@@ -210,7 +210,7 @@ const todayPosition = computed(() => {
                                 'bg-gray-50/50 dark:bg-slate-900/30': day.isWeekend && !day.isToday,
                             }"
                         >
-                            <div class="text-[10px] text-gray-400 dark:text-slate-500 leading-tight">{{ day.weekday }}</div>
+                            <div class="text-[10px] text-foreground-subtle leading-tight">{{ day.weekday }}</div>
                             <div 
                                 class="text-xs font-medium leading-tight"
                                 :class="day.isToday ? 'text-brand-primary font-bold' : 'text-foreground-muted'"
@@ -229,7 +229,7 @@ const todayPosition = computed(() => {
                     <div class="flex">
                         <div class="w-48 shrink-0 surface-2 border-r border-border px-3 py-2 flex items-center">
                             <span class="text-sm font-medium text-foreground truncate">{{ group.label }}</span>
-                            <span class="ml-auto text-xs text-gray-400 dark:text-slate-500">{{ group.tasks.length }}</span>
+                            <span class="ml-auto text-xs text-foreground-subtle">{{ group.tasks.length }}</span>
                         </div>
                         <div class="flex-1 relative min-h-[40px]">
                             <!-- Marker "dziś" -->
@@ -244,7 +244,7 @@ const todayPosition = computed(() => {
                     <!-- Zadania w grupie -->
                     <div v-for="task in group.tasks" :key="task.id" class="flex hover:bg-surface-elevated/30 transition-colors">
                         <div class="w-48 shrink-0 border-r border-border px-3 py-1.5 flex items-center">
-                            <Link :href="route('tasks.show', task.id)" class="text-xs text-foreground hover:text-brand-primary dark:hover:text-amber-400 truncate">
+                            <Link :href="route('tasks.show', task.id)" class="text-xs text-foreground hover:text-brand-primary hover:text-brand-primary truncate">
                                 {{ task.title }}
                             </Link>
                         </div>
@@ -278,9 +278,9 @@ const todayPosition = computed(() => {
 
             <!-- Empty state -->
             <div v-else class="px-6 py-12 text-center">
-                <Icons name="tasks" class="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-slate-600" />
+                <Icons name="tasks" class="w-12 h-12 mx-auto mb-3 text-foreground-subtle opacity-50" />
                 <p class="text-foreground-muted">Brak zadań w wybranym zakresie dat</p>
-                <p class="text-sm text-gray-400 dark:text-slate-500 mt-1">Zmień zakres lub filtry</p>
+                <p class="text-sm text-foreground-subtle mt-1">Zmień zakres lub filtry</p>
             </div>
         </div>
     </div>

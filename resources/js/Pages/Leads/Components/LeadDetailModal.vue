@@ -103,7 +103,7 @@ const activityColors = {
                 <h2 class="text-lg font-bold text-foreground">{{ lead.company_name || lead.name }}</h2>
                 <p v-if="lead.company_name" class="text-sm text-foreground-muted">{{ lead.name }}</p>
             </div>
-            <button @click="emit('close')" class="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+            <button @click="emit('close')" class="p-1 text-foreground-muted hover:text-foreground dark:hover:text-slate-200">
                 <Icons name="close" class="w-5 h-5" />
             </button>
         </div>
@@ -130,11 +130,11 @@ const activityColors = {
             <div class="grid grid-cols-2 gap-3">
                 <div v-if="lead.email">
                     <label class="text-xs text-foreground-muted">Email</label>
-                    <a :href="`mailto:${lead.email}`" class="block text-sm text-blue-600 dark:text-blue-400 hover:underline truncate">{{ lead.email }}</a>
+                    <a :href="`mailto:${lead.email}`" class="block text-sm text-info hover:underline truncate">{{ lead.email }}</a>
                 </div>
                 <div v-if="lead.phone">
                     <label class="text-xs text-foreground-muted">Telefon</label>
-                    <a :href="`tel:${lead.phone}`" class="block text-sm text-blue-600 dark:text-blue-400 hover:underline">{{ lead.phone }}</a>
+                    <a :href="`tel:${lead.phone}`" class="block text-sm text-info hover:underline">{{ lead.phone }}</a>
                 </div>
                 <div v-if="lead.nip">
                     <label class="text-xs text-foreground-muted">NIP</label>
@@ -146,7 +146,7 @@ const activityColors = {
                 </div>
                 <div v-if="lead.website" class="col-span-2">
                     <label class="text-xs text-foreground-muted">Strona www</label>
-                    <a :href="lead.website" target="_blank" class="block text-sm text-blue-600 dark:text-blue-400 hover:underline truncate">{{ lead.website }}</a>
+                    <a :href="lead.website" target="_blank" class="block text-sm text-info hover:underline truncate">{{ lead.website }}</a>
                 </div>
                 <div v-if="lead.address" class="col-span-2">
                     <label class="text-xs text-foreground-muted">Adres</label>

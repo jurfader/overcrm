@@ -185,9 +185,9 @@ function formatDate(dateStr) {
             </div>
 
             <!-- Błąd IMAP -->
-            <div v-if="error" class="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4">
+            <div v-if="error" class="rounded-lg bg-destructive/10 border border-destructive/30 p-4">
                 <p class="text-red-700 dark:text-red-300">{{ error }}</p>
-                <p class="text-sm text-red-600 dark:text-red-400 mt-1">
+                <p class="text-sm text-destructive mt-1">
                     Dla Gmaila: imap.gmail.com:993 (SSL). Użyj hasła aplikacji.
                 </p>
             </div>
@@ -292,7 +292,7 @@ function formatDate(dateStr) {
                     </button>
                 </div>
                 <form @submit.prevent="sendCompose" class="flex-1 overflow-auto p-4 space-y-4">
-                    <div v-if="composeError" class="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm">
+                    <div v-if="composeError" class="p-3 rounded-lg bg-destructive/10 text-red-700 dark:text-red-300 text-sm">
                         {{ composeError }}
                     </div>
                     <div>

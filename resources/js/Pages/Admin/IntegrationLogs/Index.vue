@@ -99,21 +99,21 @@ const serviceColors = {
 };
 
 const methodColors = {
-    GET: 'text-green-600 dark:text-green-400',
+    GET: 'text-success',
     POST: 'text-brand-primary',
-    PUT: 'text-blue-600 dark:text-blue-400',
-    DELETE: 'text-red-600 dark:text-red-400',
+    PUT: 'text-info',
+    DELETE: 'text-destructive',
 };
 
 const levelColors = {
-    ERROR: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
-    CRITICAL: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
-    ALERT: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
-    EMERGENCY: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
-    WARNING: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
-    INFO: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+    ERROR: 'bg-red-100 dark:bg-red-900/30 text-destructive',
+    CRITICAL: 'bg-red-100 dark:bg-red-900/30 text-destructive',
+    ALERT: 'bg-red-100 dark:bg-red-900/30 text-destructive',
+    EMERGENCY: 'bg-red-100 dark:bg-red-900/30 text-destructive',
+    WARNING: 'bg-amber-100 dark:bg-amber-900/30 text-brand-primary',
+    INFO: 'bg-blue-100 dark:bg-blue-900/30 text-info',
     DEBUG: 'bg-gray-100 dark:bg-slate-700 text-foreground',
-    NOTICE: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+    NOTICE: 'bg-blue-100 dark:bg-blue-900/30 text-info',
 };
 
 const levelDotColors = {
@@ -175,7 +175,7 @@ const levelDotColors = {
                     <div class="text-sm text-foreground-muted">Dzisiaj</div>
                 </div>
                 <div class="surface rounded-xl p-4 border border-border">
-                    <div class="text-2xl font-bold" :class="stats.errors_today > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'">
+                    <div class="text-2xl font-bold" :class="stats.errors_today > 0 ? 'text-destructive' : 'text-success'">
                         {{ stats.errors_today }}
                     </div>
                     <div class="text-sm text-foreground-muted">Błędy dzisiaj</div>
@@ -202,8 +202,8 @@ const levelDotColors = {
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-                        <thead class="bg-gray-50 dark:bg-slate-800">
+                    <table class="min-w-full divide-y divide-border">
+                        <thead class="bg-surface-2">
                             <tr>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-foreground-muted uppercase">Czas</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-foreground-muted uppercase">Serwis</th>
@@ -213,7 +213,7 @@ const levelDotColors = {
                                 <th class="px-4 py-3 text-left text-xs font-medium text-foreground-muted uppercase">Użytkownik</th>
                             </tr>
                         </thead>
-                        <tbody class="surface divide-y divide-gray-200 dark:divide-slate-700">
+                        <tbody class="surface divide-y divide-border">
                             <tr v-for="log in logs.data" :key="log.id" class="hover:bg-surface-elevated">
                                 <td class="px-4 py-3 whitespace-nowrap text-sm text-foreground-muted">
                                     {{ formatDate(log.created_at) }}
@@ -235,7 +235,7 @@ const levelDotColors = {
                                     <p v-if="log.error_message" class="text-xs text-red-500 dark:text-red-400 mt-1 truncate max-w-sm">
                                         {{ log.error_message }}
                                     </p>
-                                    <p v-else-if="log.response_summary" class="text-xs text-gray-400 dark:text-slate-500 mt-1">
+                                    <p v-else-if="log.response_summary" class="text-xs text-foreground-subtle mt-1">
                                         {{ log.response_summary }}
                                     </p>
                                 </td>
@@ -243,8 +243,8 @@ const levelDotColors = {
                                     <span
                                         class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
                                         :class="log.status === 'success'
-                                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                                            : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'"
+                                            ? 'bg-green-100 dark:bg-green-900/30 text-success'
+                                            : 'bg-red-100 dark:bg-red-900/30 text-destructive'"
                                     >
                                         <span class="w-1.5 h-1.5 rounded-full" :class="log.status === 'success' ? 'bg-green-500' : 'bg-red-500'"></span>
                                         {{ log.status === 'success' ? 'OK' : 'Błąd' }}
@@ -252,7 +252,7 @@ const levelDotColors = {
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap text-sm text-foreground">
-                                    <span v-if="log.duration_ms !== null" :class="log.duration_ms > 2000 ? 'text-red-600 dark:text-red-400 font-medium' : ''">
+                                    <span v-if="log.duration_ms !== null" :class="log.duration_ms > 2000 ? 'text-destructive font-medium' : ''">
                                         {{ log.duration_ms }} ms
                                     </span>
                                     <span v-else class="text-gray-400">—</span>
@@ -263,7 +263,7 @@ const levelDotColors = {
                             </tr>
                             <tr v-if="logs.data.length === 0">
                                 <td colspan="6" class="px-4 py-12 text-center text-foreground-muted">
-                                    <Icons name="settings" class="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-slate-600" />
+                                    <Icons name="settings" class="w-12 h-12 mx-auto mb-3 text-foreground-subtle opacity-50" />
                                     <p>Brak logów integracji</p>
                                 </td>
                             </tr>
@@ -283,7 +283,7 @@ const levelDotColors = {
                     <div class="text-sm text-foreground-muted">Wszystkie wpisy</div>
                 </div>
                 <div class="surface rounded-xl p-4 border border-border">
-                    <div class="text-2xl font-bold" :class="appLogStats.errors > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'">
+                    <div class="text-2xl font-bold" :class="appLogStats.errors > 0 ? 'text-destructive' : 'text-success'">
                         {{ appLogStats.errors }}
                     </div>
                     <div class="text-sm text-foreground-muted">Błędy</div>
@@ -293,7 +293,7 @@ const levelDotColors = {
                     <div class="text-sm text-foreground-muted">Ostrzeżenia</div>
                 </div>
                 <div class="surface rounded-xl p-4 border border-border">
-                    <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ appLogStats.info }}</div>
+                    <div class="text-2xl font-bold text-info">{{ appLogStats.info }}</div>
                     <div class="text-sm text-foreground-muted">Info / Debug</div>
                 </div>
             </div>
@@ -317,8 +317,8 @@ const levelDotColors = {
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-                        <thead class="bg-gray-50 dark:bg-slate-800">
+                    <table class="min-w-full divide-y divide-border">
+                        <thead class="bg-surface-2">
                             <tr>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-foreground-muted uppercase">Czas</th>
                                 <th class="px-4 py-3 text-left text-xs font-medium text-foreground-muted uppercase">Poziom</th>
@@ -326,7 +326,7 @@ const levelDotColors = {
                                 <th class="px-4 py-3 text-left text-xs font-medium text-foreground-muted uppercase w-10"></th>
                             </tr>
                         </thead>
-                        <tbody class="surface divide-y divide-gray-200 dark:divide-slate-700">
+                        <tbody class="surface divide-y divide-border">
                             <template v-for="(entry, idx) in appLogs" :key="idx">
                                 <tr class="hover:bg-surface-elevated cursor-pointer" @click="entry.stack_trace && toggleExpand(idx)">
                                     <td class="px-4 py-3 whitespace-nowrap text-sm text-foreground-muted">
@@ -345,7 +345,7 @@ const levelDotColors = {
                                         <p class="truncate max-w-2xl font-mono text-xs">{{ entry.message }}</p>
                                     </td>
                                     <td class="px-4 py-3 text-center">
-                                        <button v-if="entry.stack_trace" class="text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 transition-transform"
+                                        <button v-if="entry.stack_trace" class="text-foreground-muted hover:text-foreground dark:hover:text-slate-300 transition-transform"
                                             :class="expandedRows.has(idx) ? 'rotate-180' : ''">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                         </button>
@@ -359,7 +359,7 @@ const levelDotColors = {
                             </template>
                             <tr v-if="appLogs.length === 0">
                                 <td colspan="4" class="px-4 py-12 text-center text-foreground-muted">
-                                    <Icons name="document" class="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-slate-600" />
+                                    <Icons name="document" class="w-12 h-12 mx-auto mb-3 text-foreground-subtle opacity-50" />
                                     <p>Brak logów aplikacji</p>
                                 </td>
                             </tr>

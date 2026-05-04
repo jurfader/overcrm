@@ -154,7 +154,7 @@ const statusColors = {
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end gap-2">
-                                    <Link :href="route('users.show', user.id)" class="text-gray-400 hover:text-gray-600">
+                                    <Link :href="route('users.show', user.id)" class="text-foreground-muted hover:text-foreground">
                                         <Icons name="eye" class="w-5 h-5" />
                                     </Link>
                                     <Link :href="route('users.edit', user.id)" class="text-gray-400 hover:text-brand-primary">

@@ -253,7 +253,7 @@ function sourceTagClass(source) {
                             :key="i"
                             :class="[
                                 r.is_existing_client ? 'bg-yellow-50/50 dark:bg-yellow-900/10' : '',
-                                selectedResults.has(i) ? 'bg-blue-50 dark:bg-blue-900/20' : '',
+                                selectedResults.has(i) ? 'bg-info/10' : '',
                             ]"
                             class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors"
                         >
@@ -270,8 +270,8 @@ function sourceTagClass(source) {
                                 <div class="font-medium text-foreground">{{ r.name }}</div>
                                 <div v-if="r.address" class="text-xs text-foreground-muted truncate max-w-xs">{{ r.address }}</div>
                                 <div class="flex flex-wrap gap-3 mt-1">
-                                    <span v-if="r.phone" class="text-xs text-blue-600 dark:text-blue-400">{{ r.phone }}</span>
-                                    <span v-if="r.email" class="text-xs text-blue-600 dark:text-blue-400">{{ r.email }}</span>
+                                    <span v-if="r.phone" class="text-xs text-info">{{ r.phone }}</span>
+                                    <span v-if="r.email" class="text-xs text-info">{{ r.email }}</span>
                                 </div>
                             </td>
                             <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ r.city }}</td>

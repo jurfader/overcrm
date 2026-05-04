@@ -209,7 +209,7 @@ function deleteTask() {
                                     @keydown.ctrl.enter="submitComment"
                                 ></textarea>
                                 <div class="flex items-center justify-between mt-2">
-                                    <span class="text-xs text-gray-400 dark:text-slate-500">Ctrl+Enter aby wysłać</span>
+                                    <span class="text-xs text-foreground-subtle">Ctrl+Enter aby wysłać</span>
                                     <Button
                                         type="submit"
                                         size="sm"
@@ -233,7 +233,7 @@ function deleteTask() {
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-2">
                                         <span class="text-sm font-medium text-foreground">{{ comment.user?.name }}</span>
-                                        <span class="text-xs text-gray-400 dark:text-slate-500">{{ timeAgo(comment.created_at) }}</span>
+                                        <span class="text-xs text-foreground-subtle">{{ timeAgo(comment.created_at) }}</span>
                                     </div>
                                     <button
                                         v-if="comment.user_id === currentUser?.id || currentUser?.role === 'admin'"
@@ -251,7 +251,7 @@ function deleteTask() {
 
                     <!-- Brak komentarzy -->
                     <div v-else class="text-center py-4 border-t border-border mt-2 pt-4">
-                        <p class="text-sm text-gray-400 dark:text-slate-500">Brak komentarzy. Bądź pierwszy!</p>
+                        <p class="text-sm text-foreground-subtle">Brak komentarzy. Bądź pierwszy!</p>
                     </div>
                 </Card>
 
@@ -262,12 +262,12 @@ function deleteTask() {
                             @click="showHistory = !showHistory"
                             class="flex items-center gap-2 w-full text-left"
                         >
-                            <Icons name="activity" class="w-5 h-5 text-gray-400 dark:text-slate-500" />
+                            <Icons name="activity" class="w-5 h-5 text-foreground-subtle" />
                             <span class="text-lg font-semibold text-foreground">Historia zmian</span>
                             <Badge color="gray">{{ activityLogs.length }}</Badge>
                             <Icons 
                                 name="chevron-down" 
-                                class="w-4 h-4 text-gray-400 dark:text-slate-500 ml-auto transition-transform" 
+                                class="w-4 h-4 text-foreground-subtle ml-auto transition-transform" 
                                 :class="{ 'rotate-180': showHistory }"
                             />
                         </button>
@@ -280,7 +280,7 @@ function deleteTask() {
                             class="relative pl-6 pb-5 last:pb-0"
                         >
                             <!-- Linia osi czasu -->
-                            <div v-if="index < activityLogs.length - 1" class="absolute left-[9px] top-5 bottom-0 w-px bg-gray-200 dark:bg-slate-700"></div>
+                            <div v-if="index < activityLogs.length - 1" class="absolute left-[9px] top-5 bottom-0 w-px surface-elevated"></div>
 
                             <!-- Kropka -->
                             <div 
@@ -313,7 +313,7 @@ function deleteTask() {
                                         'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400': log.action === 'restore',
                                         'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300': !['create','update','delete','restore'].includes(log.action),
                                     }">{{ log.action_label }}</span>
-                                    <span class="text-xs text-gray-400 dark:text-slate-500">
+                                    <span class="text-xs text-foreground-subtle">
                                         {{ new Date(log.created_at).toLocaleString('pl-PL') }}
                                     </span>
                                 </div>
@@ -330,20 +330,20 @@ function deleteTask() {
                                         <span class="font-medium text-foreground-muted shrink-0 min-w-[80px]">{{ change.field }}:</span>
                                         <span class="text-red-500 dark:text-red-400 line-through">{{ change.old }}</span>
                                         <span class="text-gray-400 dark:text-slate-600">→</span>
-                                        <span class="text-green-600 dark:text-green-400 font-medium">{{ change.new }}</span>
+                                        <span class="text-success font-medium">{{ change.new }}</span>
                                     </div>
                                 </div>
 
                                 <!-- IP (dla szczegółowości) -->
                                 <div v-if="log.ip_address" class="mt-1">
-                                    <span class="text-[10px] text-gray-300 dark:text-slate-600 font-mono">IP: {{ log.ip_address }}</span>
+                                    <span class="text-[10px] text-foreground-subtle opacity-50 font-mono">IP: {{ log.ip_address }}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div v-else class="text-center py-2">
-                        <p class="text-xs text-gray-400 dark:text-slate-500">Kliknij aby rozwinąć historię zmian</p>
+                        <p class="text-xs text-foreground-subtle">Kliknij aby rozwinąć historię zmian</p>
                     </div>
                 </Card>
             </div>

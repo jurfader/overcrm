@@ -2238,7 +2238,7 @@ const invoiceStatusLabels = {
                                             v-if="form.client_id && !clientSearchOpen"
                                             type="button"
                                             @click="detachClient"
-                                            class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600"
+                                            class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-foreground-muted hover:text-foreground"
                                             title="Wyczyść"
                                         >
                                             <Icons name="close" class="w-4 h-4" />
@@ -2554,7 +2554,7 @@ const invoiceStatusLabels = {
                             <!-- Data wprowadzenia (kiedy spotkanie zostało pierwszy raz utworzone) -->
                             <div class="form-group">
                                 <label class="form-label">Data wprowadzenia</label>
-                                <div class="form-input bg-gray-50 dark:bg-slate-800 text-foreground py-2 px-3 rounded-lg">
+                                <div class="form-input bg-surface-2 text-foreground py-2 px-3 rounded-lg">
                                     {{ visitCreatedAtFormatted }}
                                 </div>
                                 <span class="form-hint">Data pierwszego utworzenia spotkania</span>
@@ -2920,7 +2920,7 @@ const invoiceStatusLabels = {
                                 <Icons name="refresh" class="w-3.5 h-3.5 mr-1" :class="{ 'animate-spin': productsLoading }" />
                                 {{ productsLoading ? 'Ładowanie...' : 'Odśwież bazę produktów' }}
                             </button>
-                            <span v-if="productsLoaded" class="text-xs px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+                            <span v-if="productsLoaded" class="text-xs px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-success">
                                 {{ apiloProducts.length }} produktów załadowanych
                             </span>
                             <span v-else-if="productsLoading" class="text-xs text-foreground-muted">
@@ -2946,7 +2946,7 @@ const invoiceStatusLabels = {
                                 <!-- Wiersz: input + ilość + vat + netto + brutto + usuń -->
                                 <div class="grid gap-2 p-3 items-center" style="grid-template-columns: 1fr 70px 70px 90px 90px 40px;">
                                     <div class="relative">
-                                        <Icons name="search" class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500 pointer-events-none" />
+                                        <Icons name="search" class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-foreground-subtle pointer-events-none" />
                                         <input 
                                             v-model="productSearchQuery[index]" 
                                             type="text" 
@@ -3007,7 +3007,7 @@ const invoiceStatusLabels = {
                                 </div>
                                 <!-- Wybrany produkt (info) -->
                                 <div v-if="product.name && !productDropdownOpen[index]" class="px-3 pb-2 text-xs text-foreground-muted truncate">
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-brand-primary">
                                         {{ product.name }}
                                         <span v-if="product.product_id" class="text-amber-500 dark:text-amber-500">#{{ product.product_id }}</span>
                                     </span>
@@ -3037,8 +3037,8 @@ const invoiceStatusLabels = {
                                             <span class="text-xs font-medium text-brand-primary">{{ formatCurrency(p.price) }} brutto</span>
                                             <span class="text-xs text-foreground-muted">{{ formatCurrency(p.price_net ?? (p.price / (1 + (p.tax_rate || 23) / 100))) }} netto</span>
                                             <span class="text-xs text-foreground-muted">{{ p.tax_rate ?? 23 }}% VAT</span>
-                                            <span v-if="p.sku" class="text-xs text-gray-400 dark:text-slate-500">SKU: {{ p.sku }}</span>
-                                            <span v-if="p.ean" class="text-xs text-gray-400 dark:text-slate-500">EAN: {{ p.ean }}</span>
+                                            <span v-if="p.sku" class="text-xs text-foreground-subtle">SKU: {{ p.sku }}</span>
+                                            <span v-if="p.ean" class="text-xs text-foreground-subtle">EAN: {{ p.ean }}</span>
                                         </div>
                                     </button>
                                 </div>
@@ -3064,7 +3064,7 @@ const invoiceStatusLabels = {
                                     <Icons name="plus" class="w-4 h-4" />
                                     Dodaj produkt
                                 </button>
-                                <button v-if="orderForm.products.length > 1" @click="clearAllProducts" class="btn-link text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
+                                <button v-if="orderForm.products.length > 1" @click="clearAllProducts" class="btn-link text-red-500 hover:text-destructive dark:hover:text-red-300">
                                     <Icons name="trash" class="w-4 h-4" />
                                     Wyczyść
                                 </button>
@@ -3099,7 +3099,7 @@ const invoiceStatusLabels = {
                                         {{ orderGusLoading ? 'Pobieram...' : 'Pobierz z GUS' }}
                                     </button>
                                 </div>
-                                <p v-if="orderGusError" class="text-xs text-red-600 dark:text-red-400 mb-2">{{ orderGusError }}</p>
+                                <p v-if="orderGusError" class="text-xs text-destructive mb-2">{{ orderGusError }}</p>
                                 <div class="space-y-2">
                                     <div>
                                         <label class="text-xs text-foreground-muted">Nazwa *</label>
@@ -3192,7 +3192,7 @@ const invoiceStatusLabels = {
                         </div>
 
                         <!-- Błąd -->
-                        <div v-if="orderError" class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg text-red-700 dark:text-red-400 text-sm">
+                        <div v-if="orderError" class="mt-4 p-3 bg-destructive/10 border border-red-200 dark:border-red-700 rounded-lg text-destructive text-sm">
                             {{ orderError }}
                         </div>
 
@@ -3966,7 +3966,7 @@ const invoiceStatusLabels = {
             <div class="modal-footer">
                 <div
                     v-if="Object.keys(form.errors).length || visitSaveErrorRef || visitSaveErrorMessage"
-                    class="w-full mb-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-300"
+                    class="w-full mb-3 p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-sm text-red-700 dark:text-red-300"
                 >
                     <p class="font-medium mb-1">Nie udało się zapisać wizyty</p>
                     <p v-if="visitSaveErrorMessage" class="mb-2">{{ visitSaveErrorMessage }}</p>
@@ -4073,7 +4073,7 @@ const invoiceStatusLabels = {
 
 .tab-btn {
     @apply px-6 py-3 text-sm font-medium text-gray-600 hover:text-brand-primary hover:bg-gray-50 border-b-2 border-transparent transition-all
-           dark:text-slate-400 dark:hover:text-amber-400 dark:hover:bg-slate-700;
+           dark:text-slate-400 hover:text-brand-primary dark:hover:bg-slate-700;
 }
 
 .tab-btn.active {
@@ -4146,7 +4146,7 @@ const invoiceStatusLabels = {
 
 .description-editor:empty::before {
     content: attr(data-placeholder);
-    @apply text-gray-400 dark:text-slate-500;
+    @apply text-foreground-subtle;
 }
 
 .color-picker-popover {

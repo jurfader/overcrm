@@ -824,7 +824,7 @@ watch(() => props.clients, (newClients) => {
                 <button @click="changeView('week')" class="view-btn" :class="{ active: currentView === 'week' }">Tydzień</button>
                 <button @click="changeView('day')" class="view-btn" :class="{ active: currentView === 'day' }">Dzień</button>
                 <label class="flex items-center gap-2 ml-2 cursor-pointer">
-                    <input type="checkbox" v-model="trashedFilter" class="rounded border-gray-300 text-amber-600 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                    <input type="checkbox" v-model="trashedFilter" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
                     <span class="text-sm text-foreground">Kosz</span>
                 </label>
             </div>
@@ -846,7 +846,7 @@ watch(() => props.clients, (newClients) => {
                 <button
                     v-if="calendarSearchQuery"
                     type="button"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted hover:text-foreground dark:hover:text-slate-300"
                     @click="calendarSearchQuery = ''; calendarSearchResults = { visits: [], clients: [] }; calendarSearchOpen = false"
                 >
                     <Icons name="close" class="w-4 h-4" />

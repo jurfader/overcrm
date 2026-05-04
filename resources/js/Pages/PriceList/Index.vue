@@ -76,7 +76,7 @@ function publicUrl(slug) {
                         <Icons name="eye" class="w-3 h-3" />
                         Publiczny
                     </span>
-                    <span v-if="pl.sync_from_fakturownia" class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
+                    <span v-if="pl.sync_from_fakturownia" class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-info">
                         <Icons name="refresh" class="w-3 h-3" />
                         Synchronizowany
                     </span>
