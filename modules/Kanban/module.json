@@ -3,7 +3,7 @@
     "display_name": "Kanban",
     "description": "Widok tablicy Kanban dla zadań — przeciąganie zadań między statusami",
     "version": "1.0.0",
-    "author": "CHICKENKING",
+    "author": "OVERMEDIA",
     "icon": "kanban",
     "is_core": false,
     "order": 3,

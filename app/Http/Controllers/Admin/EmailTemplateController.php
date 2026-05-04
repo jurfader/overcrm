@@ -120,7 +120,7 @@ class EmailTemplateController extends Controller
             'user_email' => auth()->user()->email,
             'user_phone' => '+48 987 654 321',
             'current_date' => now()->format('d.m.Y'),
-            'company_name' => config('app.name', 'CHICKENKING'),
+            'company_name' => config('app.name', 'OVERMEDIA'),
         ];
 
         return response()->json([

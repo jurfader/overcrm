@@ -1234,7 +1234,7 @@ class FakturowniaService
             'Filet z kurczaka 1kg', 'Udko kurczaka 2kg', 'Skrzydełka BBQ 1kg',
             'Pierś kurczaka 5kg', 'Kurczak cały 1.5kg', 'Stripsy panierowane 1kg',
             'Nuggetsy 0.5kg', 'Sos chipotle 0.3L', 'Frytki mrożone 2.5kg',
-            'Panierka TH 5kg', 'Marynata pikantna 1L', 'Bułki burger 8szt',
+            'Produkt A', 'Produkt B', 'Produkt C',
         ];
 
         $products = [];

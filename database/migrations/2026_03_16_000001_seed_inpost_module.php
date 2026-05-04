@@ -13,7 +13,7 @@ return new class extends Migration
                 'display_name' => 'InPost Geowidget',
                 'description' => 'Mapa wyboru paczkomatu InPost – przycisk „Wybierz na mapie” przy dostawie InPost',
                 'version' => '1.0.0',
-                'author' => 'CHICKENKING',
+                'author' => 'OVERMEDIA',
                 'icon' => 'map-pin',
                 'is_active' => true,
                 'is_core' => false,

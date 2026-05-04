@@ -44,7 +44,7 @@ class EmailTemplate extends Model
         '{{user_email}}' => 'Email wysyłającego',
         '{{user_phone}}' => 'Telefon wysyłającego',
         '{{current_date}}' => 'Aktualna data',
-        '{{company_name}}' => 'Nazwa firmy (CHICKENKING)',
+        '{{company_name}}' => 'Nazwa firmy (OVERMEDIA)',
     ];
 
     protected static function boot()

@@ -21,7 +21,7 @@ return new class extends Migration
                 'value' => '',
                 'type' => 'string',
                 'label' => 'Apilo Adres',
-                'description' => 'Nazwa konta Apilo (np. chickenking)',
+                'description' => 'Nazwa konta Apilo (np. overcrm)',
                 'order' => 3,
             ],
             [

@@ -1,6 +1,6 @@
 {
   "id": "flappy",
-  "name": "Flappy Chicken",
+  "name": "Flappy",
   "icon": "puzzle",
   "entry": "index.html"
 }

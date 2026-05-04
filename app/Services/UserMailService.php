@@ -242,7 +242,7 @@ class UserMailService
             'user_email' => $user->email,
             'user_phone' => $user->phone ?? '',
             'current_date' => now()->format('d.m.Y'),
-            'company_name' => config('app.name', 'CHICKENKING'),
+            'company_name' => config('app.name', 'OVERMEDIA'),
         ];
     }
 

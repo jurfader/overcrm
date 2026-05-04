@@ -115,7 +115,7 @@ function submit() {
                     type="text"
                     required
                     class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
-                    placeholder="np. Cennik Chicken King Family"
+                    placeholder="np. Cennik główny"
                 />
                 <p v-if="errors.name" class="mt-1 text-xs text-red-600">{{ errors.name[0] }}</p>
             </div>
@@ -129,7 +129,7 @@ function submit() {
                         v-model="form.slug"
                         type="text"
                         class="flex-1 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-3 py-2 text-sm focus:outline-none"
-                        placeholder="chicken-king"
+                        placeholder="cennik-glowny"
                     />
                 </div>
                 <p v-if="errors.slug" class="mt-1 text-xs text-red-600">{{ errors.slug[0] }}</p>

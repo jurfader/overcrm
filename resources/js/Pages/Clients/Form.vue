@@ -27,7 +27,6 @@ const defaultProfile = {
     concept: { specialty: '', cuisine: '', price_level: '' },
     sales: { delivery: false, delivery_volume: '', platforms: [], rush_hours: '' },
     customers: { profiles: [] },
-    chicken: { serves_chicken: false, serving_form: '', volume: '' },
     kitchen: { own_production: false, uses_semi_finished: false, suppliers: '' },
     organization: { decision_maker: '', ordering_person: '', ordering_frequency: '' },
     mental: { personality: [], approach_notes: '' },
@@ -94,7 +93,6 @@ const profileSections = [
     { id: 'concept', label: 'Profil lokalu', icon: 'document-text', fields: ['concept.specialty', 'concept.cuisine', 'concept.price_level'] },
     { id: 'sales', label: 'Sprzedaż', icon: 'shopping-cart', fields: ['sales.delivery', 'sales.rush_hours'] },
     { id: 'customers', label: 'Klienci', icon: 'users', fields: ['customers.profiles'] },
-    { id: 'chicken', label: 'Kurczak', icon: 'check-circle', fields: ['chicken.serves_chicken'] },
     { id: 'kitchen', label: 'Kuchnia', icon: 'dashboard', fields: ['kitchen.own_production', 'kitchen.uses_semi_finished', 'kitchen.suppliers'] },
     { id: 'organization', label: 'Organizacja', icon: 'settings', fields: ['organization.decision_maker', 'organization.ordering_person', 'organization.ordering_frequency'] },
     { id: 'mental', label: 'Mental i Potencjał', icon: 'user', fields: ['mental.personality', 'potential.menu_changes', 'potential.open_to_tests'] },
@@ -518,24 +516,6 @@ function submit() {
                         <p v-if="form.errors['profile.customers.profiles']" class="mt-1 text-sm text-red-600">{{ form.errors['profile.customers.profiles'] }}</p>
                     </div>
 
-                    <!-- CHICKEN -->
-                    <div v-if="section.id === 'chicken'" class="space-y-5 pt-4">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" v-model="form.profile.chicken.serves_chicken" class="rounded border-slate-300 text-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
-                            <span class="text-sm font-medium text-gray-700 dark:text-slate-300">Serwuje kurczaka</span>
-                        </label>
-                        <div v-if="form.profile.chicken.serves_chicken" class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Forma podawania</label>
-                                <Input v-model="form.profile.chicken.serving_form" placeholder="np. stripsy, burgery, panierowany" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Ilości sprzedawane</label>
-                                <Input v-model="form.profile.chicken.volume" placeholder="np. 30kg/tydzień" />
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- KITCHEN -->
                     <div v-if="section.id === 'kitchen'" class="space-y-5 pt-4">
                         <div class="flex flex-wrap gap-6">
@@ -606,7 +586,7 @@ function submit() {
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Co od nas kupują</label>
-                                    <Input v-model="form.profile.potential.current_products" placeholder="np. stripsy 3kg, panierka" />
+                                    <Input v-model="form.profile.potential.current_products" placeholder="np. produkt A, produkt B" />
                                 </div>
                                 <div class="flex flex-wrap gap-6 items-center">
                                     <label class="flex items-center gap-2 cursor-pointer">

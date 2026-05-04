@@ -13,7 +13,7 @@ return new class extends Migration
                 'display_name' => 'Skrzynka odbiorcza',
                 'description' => 'Odczyt maili z podłączonego serwera IMAP (te same dane logowania co SMTP)',
                 'version' => '1.0.0',
-                'author' => 'CHICKENKING',
+                'author' => 'OVERMEDIA',
                 'icon' => 'mail',
                 'is_active' => true,
                 'is_core' => false,

@@ -3,7 +3,7 @@
     "display_name": "Timeline",
     "description": "Widok osi czasu zadań — przegląd terminów i obciążenia pracowników",
     "version": "1.0.0",
-    "author": "CHICKENKING",
+    "author": "OVERMEDIA",
     "icon": "activity",
     "is_core": false,
     "order": 4,

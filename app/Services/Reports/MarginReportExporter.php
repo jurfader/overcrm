@@ -32,13 +32,15 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
  *   5. Trend dzienny — wykres liniowy w okresie
  *   6. Faktury       — lista wszystkich faktur (raw)
  *
- * Brand: pomarańcz #FFC000 + grafit #303030 (Chicken King Family).
+ * Brand: dynamicznie z config('brand.primary_color') + 'brand.secondary_color'.
+ * Hex pobrany z brand() helper, zamieniany na format dla PhpSpreadsheet (bez '#').
  * Kompatybilność: Excel desktop, Numbers (macOS), LibreOffice, Google Sheets.
  */
 class MarginReportExporter
 {
-    private const COLOR_PRIMARY     = 'FFC000';
-    private const COLOR_DARK        = '303030';
+    /** Brand colors czytane z config('brand.*') przez brand() helper, fallback do defaults. */
+    private string $colorPrimary;
+    private string $colorDark;
     private const COLOR_LIGHT_GRAY  = 'F4F4F4';
     private const COLOR_GREEN       = '10B981';
     private const COLOR_RED         = 'EF4444';
@@ -56,7 +58,10 @@ class MarginReportExporter
     public function generate(array $params): string
     {
         $this->params = $params;
-        $this->appName = (string) (Setting::get('app_name', 'Chicken King Family', 'core') ?: 'Chicken King Family');
+        $this->appName = (string) (Setting::get('app_name', brand('name'), 'core') ?: brand('name'));
+        // Konwersja hex z brand (#RRGGBB lub RRGGBB) na format PhpSpreadsheet (RRGGBB bez #)
+        $this->colorPrimary = ltrim((string) brand('primary_color', '#E91E8C'), '#');
+        $this->colorDark    = ltrim((string) brand('secondary_color', '#9B26D9'), '#');
         $this->logoPath = $this->resolveLogoPath();
 
         $this->spreadsheet = new Spreadsheet();
@@ -176,7 +181,7 @@ class MarginReportExporter
         $sheet->setCellValue('D3', $this->appName);
         $sheet->mergeCells('D3:K3');
         $sheet->getStyle('D3')->applyFromArray([
-            'font' => ['size' => 14, 'color' => ['rgb' => self::COLOR_PRIMARY]],
+            'font' => ['size' => 14, 'color' => ['rgb' => $this->colorPrimary]],
             'alignment' => ['vertical' => Alignment::VERTICAL_CENTER],
         ]);
 
@@ -199,7 +204,7 @@ class MarginReportExporter
 
         // Pasek brandingowy
         $sheet->getStyle('B7:K7')->applyFromArray([
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => self::COLOR_PRIMARY]],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $this->colorPrimary]],
         ]);
         $sheet->getRowDimension(7)->setRowHeight(4);
 
@@ -231,7 +236,7 @@ class MarginReportExporter
             $sheet->mergeCells("{$col}{$startRow}:{$endCol}{$startRow}");
             $sheet->getStyle("{$col}{$startRow}")->applyFromArray([
                 'font' => ['size' => 9, 'bold' => true, 'color' => ['rgb' => self::COLOR_HEADER_TEXT]],
-                'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => self::COLOR_DARK]],
+                'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $this->colorDark]],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
             ]);
             $sheet->getRowDimension($startRow)->setRowHeight(20);
@@ -288,7 +293,7 @@ class MarginReportExporter
         $sheet->setCellValue("F{$headerRow}", 'Marża %');
         $sheet->getStyle("B{$headerRow}:F{$headerRow}")->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => self::COLOR_HEADER_TEXT]],
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => self::COLOR_DARK]],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $this->colorDark]],
         ]);
 
         $row = $headerRow + 1;
@@ -386,7 +391,7 @@ class MarginReportExporter
         }
         $sheet->getStyle('B4:H4')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => self::COLOR_HEADER_TEXT]],
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => self::COLOR_DARK]],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $this->colorDark]],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
         ]);
         $sheet->getRowDimension(4)->setRowHeight(28);
@@ -415,7 +420,7 @@ class MarginReportExporter
             $sheet->setCellValue("H{$totalRow}", "=IF(D{$totalRow}>0,G{$totalRow}/D{$totalRow}*100,0)");
             $sheet->getStyle("B{$totalRow}:H{$totalRow}")->applyFromArray([
                 'font' => ['bold' => true, 'color' => ['rgb' => self::COLOR_DARK_TEXT]],
-                'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => self::COLOR_PRIMARY]],
+                'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $this->colorPrimary]],
             ]);
         }
 
@@ -523,7 +528,7 @@ class MarginReportExporter
         }
         $sheet->getStyle('B4:I4')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => self::COLOR_HEADER_TEXT]],
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => self::COLOR_DARK]],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $this->colorDark]],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ]);
         $sheet->getRowDimension(4)->setRowHeight(28);
@@ -624,7 +629,7 @@ class MarginReportExporter
         }
         $sheet->getStyle('B5:F5')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => self::COLOR_HEADER_TEXT]],
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => self::COLOR_DARK]],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $this->colorDark]],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ]);
         $sheet->getRowDimension(5)->setRowHeight(28);
@@ -722,7 +727,7 @@ class MarginReportExporter
         }
         $sheet->getStyle('B4:E4')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => self::COLOR_HEADER_TEXT]],
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => self::COLOR_DARK]],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $this->colorDark]],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ]);
         $sheet->getRowDimension(4)->setRowHeight(26);
@@ -817,7 +822,7 @@ class MarginReportExporter
         }
         $sheet->getStyle('B4:J4')->applyFromArray([
             'font' => ['bold' => true, 'color' => ['rgb' => self::COLOR_HEADER_TEXT]],
-            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => self::COLOR_DARK]],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $this->colorDark]],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ]);
         $sheet->getRowDimension(4)->setRowHeight(26);

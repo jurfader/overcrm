@@ -336,13 +336,6 @@ const hasProfile = computed(() => {
                         </div>
                     </Card>
 
-                    <Card v-if="p.chicken?.serves_chicken" title="Kurczak">
-                        <dl class="grid grid-cols-2 gap-4 text-sm">
-                            <div v-if="p.chicken.serving_form"><dt class="text-gray-500 dark:text-slate-400">Forma podawania</dt><dd class="mt-0.5 text-gray-900 dark:text-white font-medium">{{ p.chicken.serving_form }}</dd></div>
-                            <div v-if="p.chicken.volume"><dt class="text-gray-500 dark:text-slate-400">Ilości</dt><dd class="mt-0.5 text-gray-900 dark:text-white font-medium">{{ p.chicken.volume }}</dd></div>
-                        </dl>
-                    </Card>
-
                     <Card v-if="hasData(p.kitchen)" title="Kuchnia">
                         <dl class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
                             <div><dt class="text-gray-500 dark:text-slate-400">Własna produkcja</dt><dd class="mt-0.5 text-gray-900 dark:text-white font-medium">{{ p.kitchen.own_production ? 'Tak' : 'Nie' }}</dd></div>

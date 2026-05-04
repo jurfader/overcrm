@@ -12,7 +12,7 @@ class MakeModule extends Command
                             {--display= : Wyświetlana nazwa modułu}
                             {--description= : Opis modułu}
                             {--icon=puzzle : Ikona modułu}
-                            {--author=CHICKENKING : Autor modułu}
+                            {--author=OVERMEDIA : Autor modułu}
                             {--with-model= : Utwórz model z podaną nazwą}
                             {--with-migration : Utwórz przykładową migrację}';
 

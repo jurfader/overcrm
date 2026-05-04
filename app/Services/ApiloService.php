@@ -1733,7 +1733,7 @@ class ApiloService
                 'payment_method' => 'Przelew',
                 'payment_type_id' => 1,
                 'products' => [
-                    ['name' => 'TH_Panierka klasyczna 5kg', 'quantity' => 10, 'price' => 125.00],
+                    ['name' => 'Produkt A', 'quantity' => 10, 'price' => 125.00],
                 ],
             ],
             [
@@ -1745,7 +1745,7 @@ class ApiloService
                 'payment_method' => 'Za pobraniem',
                 'payment_type_id' => 2,
                 'products' => [
-                    ['name' => 'TH_Panierka pikantna 5kg', 'quantity' => 20, 'price' => 125.00],
+                    ['name' => 'Produkt B', 'quantity' => 20, 'price' => 125.00],
                 ],
             ],
         ];
@@ -1773,12 +1773,12 @@ class ApiloService
     private function getMockProducts(): array
     {
         $items = [
-            ['id' => 1, 'name' => 'TH_Panierka klasyczna 5kg', 'price' => 125.00, 'sku' => 'TH-PAN-KLA-5', 'ean' => ''],
-            ['id' => 2, 'name' => 'TH_Panierka pikantna 5kg', 'price' => 125.00, 'sku' => 'TH-PAN-PIK-5', 'ean' => ''],
-            ['id' => 3, 'name' => 'TH_Panierka złocista 5kg', 'price' => 130.00, 'sku' => 'TH-PAN-ZLO-5', 'ean' => ''],
-            ['id' => 4, 'name' => 'TH_Marynata uniwersalna 5L', 'price' => 89.00, 'sku' => 'TH-MAR-UNI-5', 'ean' => ''],
+            ['id' => 1, 'name' => 'Produkt A', 'price' => 125.00, 'sku' => 'SKU-A', 'ean' => ''],
+            ['id' => 2, 'name' => 'Produkt B', 'price' => 125.00, 'sku' => 'SKU-B', 'ean' => ''],
+            ['id' => 3, 'name' => 'Produkt C', 'price' => 130.00, 'sku' => 'SKU-C', 'ean' => ''],
+            ['id' => 4, 'name' => 'Produkt E', 'price' => 89.00, 'sku' => 'SKU-E', 'ean' => ''],
             ['id' => 5, 'name' => 'TH_Sos BBQ 5L', 'price' => 95.00, 'sku' => 'TH-SOS-BBQ-5', 'ean' => ''],
-            ['id' => 6, 'name' => 'TH_Panierka chrupiąca 5kg', 'price' => 135.00, 'sku' => 'TH-PAN-CHR-5', 'ean' => ''],
+            ['id' => 6, 'name' => 'Produkt D', 'price' => 135.00, 'sku' => 'SKU-D', 'ean' => ''],
             ['id' => 7, 'name' => 'TH_Przyprawa do kurczaka 1kg', 'price' => 45.00, 'sku' => 'TH-PRZ-KUR-1', 'ean' => ''],
             ['id' => 8, 'name' => 'TH_Sos czosnkowy 5L', 'price' => 85.00, 'sku' => 'TH-SOS-CZO-5', 'ean' => ''],
             ['id' => 100, 'name' => 'Opakowanie kartonowe', 'price' => 5.00, 'sku' => 'OPK-KAR', 'ean' => ''],

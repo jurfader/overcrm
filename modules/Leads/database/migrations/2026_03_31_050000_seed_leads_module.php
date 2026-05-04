@@ -13,7 +13,7 @@ return new class extends Migration
                 'display_name' => 'Leady',
                 'description' => 'Zarządzanie leadami sprzedażowymi — tablica Kanban, automatyczne statusy, konwersja do klientów',
                 'version' => '1.0.0',
-                'author' => 'CHICKENKING',
+                'author' => 'OVERMEDIA',
                 'icon' => 'leads',
                 'is_active' => true,
                 'is_core' => false,

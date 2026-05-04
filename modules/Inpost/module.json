@@ -3,7 +3,7 @@
     "display_name": "InPost Geowidget",
     "description": "Mapa wyboru paczkomatu InPost – przycisk „Wybierz na mapie” przy dostawie InPost w formularzu zamówienia",
     "version": "1.0.0",
-    "author": "CHICKENKING",
+    "author": "OVERMEDIA",
     "icon": "map-pin",
     "is_core": false,
     "order": 15,
@@ -15,7 +15,7 @@
                 "type": "string",
                 "label": "Token Geowidgetu",
                 "default": "",
-                "description": "Token z manager.paczkomaty.pl (Moje konto → API → Geowidget). Przypisz domenę crm.chickenking.co."
+                "description": "Token z manager.paczkomaty.pl (Moje konto → API → Geowidget). Przypisz domenę crm.overmedia.pl."
             },
             "organization_id": {
                 "type": "string",

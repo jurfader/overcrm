@@ -3,7 +3,7 @@
     "display_name": "Play Centrala",
     "description": "Integracja z Play Wirtualną Centralką — połączenia telefoniczne, click-to-call, analiza AI nagrań",
     "version": "2.0.0",
-    "author": "CHICKENKING",
+    "author": "OVERMEDIA",
     "icon": "phone",
     "is_core": false,
     "order": 10,

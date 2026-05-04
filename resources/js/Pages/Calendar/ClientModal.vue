@@ -1148,7 +1148,6 @@ const defaultProfile = {
     concept: { specialty: '', cuisine: '', price_level: '' },
     sales: { delivery: false, delivery_volume: '', platforms: [], rush_hours: '' },
     customers: { profiles: [] },
-    chicken: { serves_chicken: false, serving_form: '', volume: '' },
     kitchen: { own_production: false, uses_semi_finished: false, suppliers: '' },
     organization: { decision_maker: '', ordering_person: '', ordering_frequency: '' },
     mental: { personality: [], approach_notes: '' },
@@ -3791,32 +3790,6 @@ const invoiceStatusLabels = {
                                                 <input type="checkbox" :value="val" v-model="clientForm.profile.customers.profiles" class="rounded border-gray-300 text-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
                                                 <span class="text-sm text-gray-700 dark:text-slate-300">{{ label }}</span>
                                             </label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Kurczak -->
-                                <div class="profile-accordion">
-                                    <button type="button" @click="toggleProfileSection('chicken')" class="profile-accordion-btn">
-                                        <span>Kurczak</span>
-                                        <Icons :name="openProfileSections.chicken ? 'chevron-up' : 'chevron-down'" class="w-4 h-4" />
-                                    </button>
-                                    <div v-if="openProfileSections.chicken" class="profile-accordion-body">
-                                        <div class="space-y-3">
-                                            <label class="flex items-center gap-2">
-                                                <input type="checkbox" v-model="clientForm.profile.chicken.serves_chicken" class="rounded border-gray-300 text-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
-                                                <span class="text-sm text-gray-700 dark:text-slate-300">Serwuje kurczaka</span>
-                                            </label>
-                                            <div v-if="clientForm.profile.chicken.serves_chicken" class="grid grid-cols-2 gap-3">
-                                                <div>
-                                                    <label class="form-label">Forma podania</label>
-                                                    <input v-model="clientForm.profile.chicken.serving_form" class="form-input" />
-                                                </div>
-                                                <div>
-                                                    <label class="form-label">Wolumen</label>
-                                                    <input v-model="clientForm.profile.chicken.volume" class="form-input" />
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>

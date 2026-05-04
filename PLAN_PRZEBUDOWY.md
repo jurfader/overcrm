@@ -4,10 +4,10 @@
 
 ## Kontekst
 
-- Fork z `planner-v2` (CRM Chicken King Family — dostawca panierki dla gastronomii B2B)
+- Fork z `planner-v2` (CRM stary CRM gastronomiczny)
 - Cel: produkt sprzedawany innym klientom (małe/średnie firmy B2B, niezależne od branży)
 - Stack: Laravel 12 + Vue 3 + Inertia.js + MySQL + AI (Gemini cloud / LM Studio Gemma + Whisper.cpp lokalnie)
-- Stan: pełny CRM produkcyjny, działający 8+ miesięcy. **Bardzo dużo hardkodów Chicken King** — głównie w promptach AI, kolorach marki, modułach Cenniki/Reports oraz integracjach PL-specific.
+- Stan: pełny CRM produkcyjny, działający 8+ miesięcy. **Bardzo dużo hardkodów baza historyczna** — głównie w promptach AI, kolorach marki, modułach Cenniki/Reports oraz integracjach PL-specific.
 
 ---
 
@@ -54,18 +54,18 @@
 
 ### Etap 1 — Branding extraction (PRIORYTET 1)
 
-**Cel:** zero stringów "Chicken King", zero hardkodowanych kolorów marki w kodzie. Wszystko z `config/brand.php` + UI Settings → Branding.
+**Cel:** zero stringów "stara nazwa firmy", zero hardkodowanych kolorów marki w kodzie. Wszystko z `config/brand.php` + UI Settings → Branding.
 
 #### Pliki do refaktoru
 
 **Backend (PHP) — najgorsze hardkody:**
-- `modules/Ringostat/src/Services/CallAiAnalyzer.php` — gigantyczny system prompt opisujący Chicken King, produkty, filozofię sprzedaży, KFC-style breading, listę produktów (Pakiet Startowy, Marynaty, Dobra Szama, frytury…)
+- `modules/Ringostat/src/Services/CallAiAnalyzer.php` — gigantyczny system prompt opisujący baza historyczna, produkty, filozofię sprzedaży, stara branża, listę produktów (stare produkty firmowe…)
 - `modules/Ringostat/src/Services/GeminiCallAnalyzer.php` — to samo, drugi analyzer
-- `modules/Leads/src/Services/LeadScoringService.php` — kontekst gastronomii (B2B chicken supplier)
+- `modules/Leads/src/Services/LeadScoringService.php` — kontekst branżowy (stara baza)
 - `modules/Leads/src/Services/GoogleMapsScraperService.php` — typy szukane: kebab, burgerownia, food truck
 - `modules/Leads/src/Services/DeliveryPlatformScraperService.php` — Pyszne/Glovo/Uber/Wolt-specific
 - `app/Services/CallReminderService.php` — kontekst rozmów handlowych
-- `app/Services/Reports/MarginReportExporter.php` — kolory `#FFC000` + `#303030` w XLSX, hardkodowane logo
+- `app/Services/Reports/MarginReportExporter.php` — kolory hardkodowane brand + hardkodowane logo
 - `app/Services/VisitProfileAnalyzer.php` — prompt dla AI
 
 **Frontend (Vue) — branding wizualny:**
@@ -130,8 +130,8 @@ Tailwind klasy `text-brand-primary`, `bg-brand-primary` przez `tailwind.config.j
 #### Co teraz hardcoded w promptach
 
 System prompt CallAiAnalyzer zawiera (~50 linii):
-- Nazwę firmy ("Chicken King Family")
-- Branżę ("dostawca panierki dla gastronomii B2B")
+- Nazwę firmy ("stara baza CRM")
+- Branżę ("dostawca stara branża B2B")
 - Listę produktów z cenami i pakami
 - Filozofię "DOBRA rozmowa" / "ZŁA rozmowa" z konkretnymi przykładami pytań
 - Korzyści produktu ("marża 70%", "chrupiący kurczak w 3 minuty")
@@ -266,9 +266,9 @@ W tym kopiu już jest wykluczone:
 
 - [ ] `127_0_0_1.sql` — lokalny dump bazy z danymi CK. **PRZECZYTAJ i USUŃ.**
 - [ ] `cennik.html` — sprawdź czy ma CK content; jeśli tak, usuń lub przerób na neutralny szablon
-- [ ] `planner.chickenking.co.code-workspace` — usuń lub przemianuj na `overcrm.code-workspace`
-- [ ] `database/migrations/*chicken_king_price_list*` — wszystkie migracje wstawiające HTML cennika CK do `price_lists`. Usuń lub zachowaj jako "example seed" (opcjonalny)
-- [ ] `database/seeders/` — przejrzyj WSZYSTKIE seedery, usuń te z CK content (chicken_king_*, panierka_*, dobra_szama_*)
+- [ ] `stary-workspace.code-workspace` — usuń lub przemianuj na `overcrm.code-workspace`
+- [ ] `database/migrations/*stary_cennik*` — wszystkie migracje wstawiające HTML cennika starego do `price_lists`. Usuń lub zachowaj jako "example seed" (opcjonalny)
+- [ ] `database/seeders/` — przejrzyj WSZYSTKIE seedery, usuń te ze starymi danymi
 - [ ] Email templates w seederach — szablony powitalne, follow-upy mogą zawierać CK branding
 - [ ] `.env.example` — wyzeruj klucze API (zostaw tylko stub'y bez wartości):
   ```
@@ -313,7 +313,7 @@ Skip na początku — możesz dodać później jak będzie zapotrzebowanie:
 ## Sugerowany prompt dla pierwszej rozmowy z Claude w nowym projekcie
 
 ```
-Mam fork CRM-a z planner-v2 (Chicken King Family — dostawca panierki dla gastronomii).
+Mam fork CRM-a z planner-v2 (stara baza CRM — dostawca stara branża).
 Cel: zrobić z niego uniwersalny CRM dla różnych klientów B2B (małe/średnie firmy).
 
 PRZECZYTAJ: PLAN_PRZEBUDOWY.md w korzeniu projektu.
@@ -325,7 +325,7 @@ Pokazuj mi co planujesz usunąć/zmienić zanim ruszysz dane.
 Po cleanup zrób initial commit "chore: clean fork from planner-v2".
 
 Potem przejdź do Etapu 1 (Branding extraction):
-1. Audyt — wylistuj wszystkie pliki z hardkodami "Chicken King", "panierka", #FFC000
+1. Audyt — wylistuj wszystkie pliki z hardkodami z poprzedniej marki
 2. Zaproponuj config/brand.php + UI Settings → Branding
 3. Refaktor pliku po pliku, zaczynając od najbardziej widocznych (login, layout, dashboard)
 

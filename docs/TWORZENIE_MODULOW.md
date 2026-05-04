@@ -1,4 +1,4 @@
-# 📦 System Modułów CHICKENKING Planner
+# 📦 System Modułów OVERCRM
 
 ## Spis treści
 1. [Wprowadzenie](#wprowadzenie)
@@ -18,7 +18,7 @@
 
 ## Wprowadzenie
 
-System modułów pozwala rozszerzać funkcjonalność CHICKENKING Planner bez modyfikacji kodu głównej aplikacji. Każdy moduł jest samodzielną jednostką zawierającą:
+System modułów pozwala rozszerzać funkcjonalność OVERCRM bez modyfikacji kodu głównej aplikacji. Każdy moduł jest samodzielną jednostką zawierającą:
 
 - Kontrolery i logikę biznesową
 - Modele i migracje bazy danych
@@ -94,7 +94,7 @@ Plik `module.json` to serce każdego modułu. Definiuje metadane, zależności, 
     "display_name": "Faktury",
     "description": "Moduł do zarządzania fakturami",
     "version": "1.0.0",
-    "author": "CHICKENKING",
+    "author": "OVERMEDIA",
     "icon": "document-text",
     "is_core": false,
     "order": 10,

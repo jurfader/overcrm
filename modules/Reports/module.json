@@ -1,9 +1,9 @@
 {
     "name": "reports",
     "display_name": "Raporty",
-    "description": "Moduł raportów i statystyk dla CHICKENKING Planner",
+    "description": "Moduł raportów i statystyk dla OVERCRM",
     "version": "1.0.0",
-    "author": "CHICKENKING",
+    "author": "OVERMEDIA",
     "icon": "reports",
     "is_core": false,
     "order": 50,
