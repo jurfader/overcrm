@@ -101,7 +101,7 @@ function widthClass(width) {
 <template>
     <Head title="Dashboard" />
 
-    <div class="p-6 space-y-6 animate-fade-in">
+    <div class="space-y-6 animate-fade-in">
         <!-- Header -->
         <div class="flex items-center justify-between gap-4 flex-wrap">
             <div>

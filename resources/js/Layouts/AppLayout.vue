@@ -322,7 +322,7 @@ const visibleAdmin = computed(() => navAdmin.filter(canAccess));
             </header>
 
             <!-- ====================== CONTENT ====================== -->
-            <main class="flex-1 relative">
+            <main class="flex-1 relative p-4 sm:p-6">
                 <FlashMessages />
                 <slot />
             </main>
