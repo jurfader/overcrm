@@ -1,0 +1,6 @@
+{
+  "id": "breakout",
+  "name": "Breakout",
+  "icon": "puzzle",
+  "entry": "index.html"
+}

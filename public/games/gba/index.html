@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GBA Emulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0c1222;
+      color: #e4e8f0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    .game-wrapper { display: flex; flex-direction: column; align-items: center; gap: 20px; max-width: 480px; width: 100%; }
+    .title { font-size: 1.25rem; font-weight: 600; color: #94a3b8; }
+    .info {
+      font-size: 0.8125rem;
+      color: #64748b;
+      text-align: center;
+      line-height: 1.5;
+      padding: 12px 16px;
+      background: #111827;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+    }
+    .rom-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+    .rom-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: #111827;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .rom-item:hover {
+      background: #1e293b;
+      border-color: #334155;
+    }
+    .rom-name { font-weight: 500; color: #e2e8f0; }
+    .rom-ext { font-size: 0.75rem; color: #64748b; }
+    .rom-play {
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      background: #3b82f6;
+      color: #fff;
+    }
+    .rom-play:hover { background: #2563eb; }
+    .empty {
+      padding: 32px;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.875rem;
+      background: #111827;
+      border: 1px dashed #334155;
+      border-radius: 8px;
+    }
+    .empty strong { color: #94a3b8; display: block; margin-bottom: 8px; }
+    .folder-path { font-family: monospace; font-size: 0.75rem; margin-top: 8px; color: #475569; }
+  </style>
+</head>
+<body>
+  <div class="game-wrapper">
+    <h1 class="title">GBA Emulator</h1>
+    <p class="info">
+      Wybierz grę z listy. Stan gry zapisuj na serwerze przyciskiem dyskietki w emulatorze.
+    </p>
+    <div class="rom-list" id="romList">
+      <div class="empty">Ładowanie…</div>
+    </div>
+  </div>
+
+  <script>
+    function csrf() {
+      return decodeURIComponent((document.cookie.match(/XSRF-TOKEN=([^;]+)/) || [])[1] || '');
+    }
+
+    function api(path) {
+      return fetch(path, {
+        headers: { 'Accept': 'application/json', 'X-XSRF-TOKEN': csrf() },
+        credentials: 'include'
+      });
+    }
+
+    const romList = document.getElementById('romList');
+
+    api('/games/gba/roms')
+      .then(r => r.json())
+      .then(data => {
+        const roms = data.roms || [];
+        if (roms.length === 0) {
+          romList.innerHTML = '<div class="empty"><strong>Brak gier</strong>Wrzuć pliki .gba, .gbc lub .gb do folderu <span class="folder-path">storage/app/gba-roms/</span> na serwerze.</div>';
+          return;
+        }
+        romList.innerHTML = roms.map(function(r) {
+          return '<div class="rom-item" data-key="' + r.key + '">' +
+            '<span class="rom-name">' + (r.name || r.key) + '</span>' +
+            '<button type="button" class="rom-play">Graj</button>' +
+            '</div>';
+        }).join('');
+        romList.querySelectorAll('.rom-item').forEach(function(el) {
+          el.addEventListener('click', function(e) {
+            if (e.target.classList.contains('rom-play') || e.target.closest('.rom-play')) {
+              var key = el.dataset.key;
+              window.location.href = '/games/gba/play/' + encodeURIComponent(key);
+            }
+          });
+        });
+      })
+      .catch(function() {
+        romList.innerHTML = '<div class="empty"><strong>Błąd</strong>Nie udało się załadować listy gier. Zaloguj się.</div>';
+      });
+  </script>
+</body>
+</html>

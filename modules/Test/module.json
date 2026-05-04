@@ -1,0 +1,37 @@
+{
+    "name": "test",
+    "display_name": "test",
+    "description": "test",
+    "version": "1.0.0",
+    "author": "CHICKENKING",
+    "icon": "mail",
+    "is_core": false,
+    "order": 100,
+    "dependencies": [],
+    "permissions": {
+        "test_view": "Podgląd modułu Test",
+        "test_manage": "Zarządzanie modułem Test"
+    },
+    "settings": {
+        "general": {
+            "enabled": {
+                "type": "boolean",
+                "label": "Włączony",
+                "default": true,
+                "description": "Czy moduł jest włączony"
+            }
+        }
+    },
+    "routes": {
+        "web": "routes\/web.php",
+        "api": "routes\/api.php"
+    },
+    "menu": [
+        {
+            "label": "Test",
+            "route": "test.index",
+            "icon": "mail",
+            "permission": "test_view"
+        }
+    ]
+}

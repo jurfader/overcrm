@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reakcja</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0c1222;
+      color: #e4e8f0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    .game-wrapper { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 400px;
+    }
+    .title { font-size: 1.25rem; font-weight: 600; color: #94a3b8; letter-spacing: -0.02em; }
+    .stats { display: flex; gap: 24px; font-size: 0.875rem; font-weight: 500; color: #64748b; }
+    .stats span { color: #e2e8f0; font-weight: 600; }
+    .arena {
+      position: relative;
+      width: 400px;
+      height: 300px;
+      background: #111827;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .arena.waiting { background: #1e293b; }
+    .arena.ready { background: #ef4444; cursor: wait; }
+    .arena.go { background: #22c55e; cursor: pointer; }
+    .arena.too-early { background: #64748b; }
+    .arena-text {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #64748b;
+      text-align: center;
+      padding: 24px;
+    }
+    .arena.ready .arena-text { color: rgba(255,255,255,0.95); font-size: 1.125rem; }
+    .arena.go .arena-text { color: #fff; font-size: 1.25rem; }
+    .arena.too-early .arena-text { color: #94a3b8; }
+    .result-ms { font-size: 3rem; font-weight: 700; color: #22c55e; letter-spacing: -0.03em; margin-top: 8px; }
+    .btn {
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-primary { background: #3b82f6; color: #fff; }
+    .btn-primary:hover { background: #2563eb; }
+  </style>
+</head>
+<body>
+  <div class="game-wrapper">
+    <div class="header">
+      <h1 class="title">Reakcja</h1>
+      <div class="stats">
+        <span>Najlepszy: <strong id="best">—</strong> ms</span>
+        <span>Próby: <strong id="attempts">0</strong></span>
+      </div>
+    </div>
+    <div class="arena waiting" id="arena">
+      <div class="arena-text" id="arenaText">Kliknij aby rozpocząć</div>
+    </div>
+    <p class="stats" style="margin-top:-8px">Kliknij gdy ekran stanie się zielony. Im szybciej, tym lepiej!</p>
+  </div>
+
+  <script>
+    const GAME_ID = 'reaction';
+    const arena = document.getElementById('arena');
+    const arenaText = document.getElementById('arenaText');
+    const bestEl = document.getElementById('best');
+    const attemptsEl = document.getElementById('attempts');
+
+    let state = 'waiting';
+    let best = null;
+    let attempts = 0;
+    let goAt = 0;
+    let timeoutId = null;
+
+    function toScore(ms) {
+      return Math.max(0, 10000 - ms);
+    }
+
+    function startRound() {
+      if (state !== 'waiting') return;
+      state = 'waiting';
+      arena.className = 'arena waiting';
+      arenaText.textContent = 'Czekaj na zielony...';
+      const delay = 1500 + Math.random() * 2500;
+      timeoutId = setTimeout(() => {
+        state = 'go';
+        arena.className = 'arena go';
+        goAt = performance.now();
+        arenaText.innerHTML = 'KLIKNIJ!<br><span class="result-ms" style="display:none"></span>';
+      }, delay);
+    }
+
+    function onClick() {
+      if (state === 'result') return;
+      if (state === 'waiting') {
+        clearTimeout(timeoutId);
+        state = 'ready';
+        arena.className = 'arena ready';
+        arenaText.textContent = 'Czekaj na zielony...';
+        const delay = 500 + Math.random() * 1500;
+        timeoutId = setTimeout(() => {
+          state = 'go';
+          arena.className = 'arena go';
+          goAt = performance.now();
+          arenaText.innerHTML = 'KLIKNIJ!';
+        }, delay);
+      } else if (state === 'ready') {
+        clearTimeout(timeoutId);
+        state = 'too-early';
+        arena.className = 'arena too-early';
+        arenaText.textContent = 'Za wcześnie! Kliknij ponownie.';
+        timeoutId = setTimeout(startRound, 1500);
+      } else if (state === 'go') {
+        const ms = Math.round(performance.now() - goAt);
+        attempts++;
+        attemptsEl.textContent = attempts;
+        if (best === null || ms < best) best = ms;
+        bestEl.textContent = best;
+
+        arena.className = 'arena go';
+        arenaText.innerHTML = `+${ms} ms<br><span class="result-ms">${ms} ms</span>`;
+
+        const score = toScore(ms);
+        const csrf = decodeURIComponent((document.cookie.match(/XSRF-TOKEN=([^;]+)/) || [])[1] || '');
+        fetch('/games/scores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-XSRF-TOKEN': csrf },
+          credentials: 'include',
+          body: JSON.stringify({ game_id: GAME_ID, score })
+        }).then(() => {
+          try { window.parent.postMessage({ type: 'gameScoreSubmitted', gameId: GAME_ID, score }, '*'); } catch (_) {}
+        }).catch(() => {});
+
+        state = 'result';
+        timeoutId = setTimeout(() => {
+          state = 'waiting';
+          arena.className = 'arena waiting';
+          arenaText.textContent = 'Kliknij aby zagrać ponownie';
+        }, 2000);
+      }
+    }
+
+    arena.addEventListener('click', onClick);
+  </script>
+</body>
+</html>

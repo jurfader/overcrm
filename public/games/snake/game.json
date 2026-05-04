@@ -1,0 +1,6 @@
+{
+  "id": "snake",
+  "name": "Snake",
+  "icon": "puzzle",
+  "entry": "index.html"
+}

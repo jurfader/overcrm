@@ -1,0 +1,6 @@
+{
+  "id": "gba",
+  "name": "GBA Emulator",
+  "icon": "game",
+  "entry": "index.html"
+}

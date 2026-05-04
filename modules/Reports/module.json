@@ -1,0 +1,46 @@
+{
+    "name": "reports",
+    "display_name": "Raporty",
+    "description": "Moduł raportów i statystyk dla CHICKENKING Planner",
+    "version": "1.0.0",
+    "author": "CHICKENKING",
+    "icon": "reports",
+    "is_core": false,
+    "order": 50,
+    "dependencies": [],
+    "permissions": {
+        "reports_view": "Podgląd raportów",
+        "reports_export": "Eksport raportów"
+    },
+    "settings": {
+        "general": {
+            "default_period": {
+                "type": "select",
+                "label": "Domyślny okres raportów",
+                "default": "month",
+                "options": {
+                    "week": "Tydzień",
+                    "month": "Miesiąc",
+                    "quarter": "Kwartał",
+                    "year": "Rok"
+                }
+            },
+            "show_charts": {
+                "type": "boolean",
+                "label": "Pokaż wykresy",
+                "default": true
+            }
+        }
+    },
+    "routes": {
+        "web": "routes/web.php"
+    },
+    "menu": [
+        {
+            "label": "Raporty",
+            "route": "reports.index",
+            "icon": "reports",
+            "permission": "reports_view"
+        }
+    ]
+}

@@ -1,0 +1,13 @@
+{
+    "entries": [
+        {
+            "date": "2026-05-04",
+            "version": "1.0.0",
+            "added": [
+                "Initial fork from planner-v2 (Chicken King Family CRM) — start of OVERCRM, universal CRM for small and medium B2B companies"
+            ],
+            "fixed": [],
+            "removed": []
+        }
+    ]
+}

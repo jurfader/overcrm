@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CHICKENKING Theme */
+@layer components {
+    .btn-primary {
+        @apply px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors;
+    }
+    .btn-secondary {
+        @apply px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors
+               dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600;
+    }
+    .card {
+        @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6
+               dark:bg-slate-800 dark:border-slate-700;
+    }
+}
+
+/* Dark mode global overrides */
+@layer base {
+    /* Smooth transition for dark mode */
+    html {
+        @apply transition-colors duration-200;
+    }
+
+    /* Default text color in dark mode */
+    .dark body {
+        @apply text-slate-200;
+    }
+
+    /* Headings */
+    .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+        @apply text-slate-100;
+    }
+
+    /* Tables */
+    .dark table {
+        @apply text-slate-300;
+    }
+    .dark thead {
+        @apply bg-slate-800 text-slate-300;
+    }
+    .dark th {
+        @apply border-slate-700 text-slate-300;
+    }
+    .dark td {
+        @apply border-slate-700;
+    }
+    .dark tbody tr {
+        @apply border-slate-700 hover:bg-slate-800/50;
+    }
+
+    /* Forms */
+    .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    .dark select,
+    .dark textarea {
+        @apply bg-slate-800 border-slate-600 text-slate-200 placeholder-slate-500;
+    }
+    .dark input:focus,
+    .dark select:focus,
+    .dark textarea:focus {
+        @apply ring-amber-500 border-amber-500;
+    }
+
+    /* Cards & panels — catch-all for bg-white elements */
+    .dark .bg-white {
+        @apply !bg-slate-800;
+    }
+
+    /* Slate backgrounds */
+    .dark .bg-slate-50 {
+        @apply !bg-slate-800/50;
+    }
+    .dark .bg-gray-50 {
+        @apply !bg-slate-800/50;
+    }
+    .dark .bg-gray-100 {
+        @apply !bg-slate-700;
+    }
+
+    /* Hover backgrounds */
+    .dark .hover\:bg-gray-50:hover,
+    .dark .hover\:bg-slate-50:hover {
+        @apply !bg-slate-700;
+    }
+    .dark .hover\:bg-gray-100:hover,
+    .dark .hover\:bg-slate-100:hover {
+        @apply !bg-slate-700;
+    }
+
+    /* Text overrides */
+    .dark .text-slate-800,
+    .dark .text-slate-900,
+    .dark .text-gray-900,
+    .dark .text-gray-800 {
+        @apply !text-slate-200;
+    }
+    .dark .text-slate-600,
+    .dark .text-slate-500,
+    .dark .text-gray-600,
+    .dark .text-gray-500,
+    .dark .text-gray-700,
+    .dark .text-slate-700 {
+        @apply !text-slate-400;
+    }
+
+    /* Borders */
+    .dark .border-slate-200,
+    .dark .border-gray-200,
+    .dark .border-gray-100,
+    .dark .border-slate-100 {
+        @apply !border-slate-700;
+    }
+    .dark .border-slate-300,
+    .dark .border-gray-300 {
+        @apply !border-slate-600;
+    }
+
+    /* Divide */
+    .dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+    .dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+        @apply !border-slate-700;
+    }
+
+    /* Shadows — subtler in dark mode */
+    .dark .shadow-sm,
+    .dark .shadow {
+        @apply !shadow-slate-900/50;
+    }
+
+    /* Ring colors */
+    .dark .ring-black {
+        @apply !ring-slate-600;
+    }
+}

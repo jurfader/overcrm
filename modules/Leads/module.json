@@ -1,0 +1,20 @@
+{
+    "name": "leads",
+    "display_name": "Leady",
+    "description": "Zarządzanie leadami sprzedażowymi — tablica Kanban, automatyczne statusy, konwersja do klientów",
+    "version": "1.0.0",
+    "author": "CHICKENKING",
+    "icon": "leads",
+    "is_core": false,
+    "order": 6,
+    "dependencies": [],
+    "permissions": {},
+    "settings": {},
+    "menu": [
+        {
+            "label": "Leady",
+            "route": "leads.index",
+            "icon": "leads"
+        }
+    ]
+}

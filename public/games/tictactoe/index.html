@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kółko i krzyżyk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0c1222;
+      color: #e4e8f0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    .game-wrapper { display: flex; flex-direction: column; align-items: center; gap: 20px; max-width: 400px; width: 100%; }
+    .title { font-size: 1.25rem; font-weight: 600; color: #94a3b8; letter-spacing: -0.02em; }
+    .lobby {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+      padding: 24px;
+      background: #111827;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+    }
+    .lobby.hidden { display: none; }
+    .lobby-btns { display: flex; gap: 12px; }
+    .btn {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-primary { background: #3b82f6; color: #fff; }
+    .btn-primary:hover { background: #2563eb; }
+    .btn-secondary { background: #334155; color: #e2e8f0; }
+    .btn-secondary:hover { background: #475569; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .join-form { display: flex; gap: 8px; margin-top: 8px; }
+    .join-form input {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #e2e8f0;
+      font-size: 0.875rem;
+      font-family: inherit;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .join-form input::placeholder { color: #64748b; text-transform: none; letter-spacing: 0; }
+    .code-display {
+      padding: 16px;
+      background: #1e293b;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      color: #3b82f6;
+    }
+    .code-label { font-size: 0.75rem; color: #64748b; margin-bottom: 8px; }
+    .game-area { display: none; flex-direction: column; align-items: center; gap: 16px; width: 100%; }
+    .game-area.show { display: flex; }
+    .players {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      font-size: 0.8125rem;
+      color: #64748b;
+    }
+    .players span { color: #e2e8f0; font-weight: 500; }
+    .players .active { color: #3b82f6; }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      width: 240px;
+      aspect-ratio: 1;
+      background: #1e293b;
+      padding: 8px;
+      border-radius: 8px;
+    }
+    .cell {
+      background: #0f172a;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      transition: all 0.15s;
+    }
+    .cell:hover:not(:disabled) { background: #1e293b; }
+    .cell:disabled { cursor: default; }
+    .cell.x { color: #3b82f6; }
+    .cell.o { color: #22c55e; }
+    .status { font-size: 0.875rem; color: #94a3b8; text-align: center; min-height: 24px; }
+    .status.waiting { color: #f59e0b; }
+    .status.won { color: #22c55e; }
+    .status.lost { color: #ef4444; }
+    .status.draw { color: #94a3b8; }
+    .error { color: #ef4444; font-size: 0.8125rem; margin-top: 4px; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="game-wrapper">
+    <h1 class="title">Kółko i krzyżyk</h1>
+
+    <div class="lobby" id="lobby">
+      <div class="lobby-btns">
+        <button type="button" class="btn btn-primary" id="btnCreate">Utwórz grę</button>
+        <button type="button" class="btn btn-secondary" id="btnJoin">Dołącz do gry</button>
+      </div>
+      <div id="createSection" class="hidden">
+        <p class="code-label">Kod do udostępnienia przeciwnikowi:</p>
+        <div class="code-display" id="roomCode">—</div>
+        <p class="code-label" style="margin-top:12px">Czekam na drugiego gracza…</p>
+      </div>
+      <div id="joinSection" class="hidden">
+        <p class="code-label">Wpisz kod gry:</p>
+        <div class="join-form">
+          <input type="text" id="joinCode" placeholder="np. AB12" maxlength="4" autocomplete="off">
+          <button type="button" class="btn btn-primary" id="btnDoJoin">Dołącz</button>
+        </div>
+        <p class="error" id="joinError"></p>
+      </div>
+    </div>
+
+    <div class="game-area" id="gameArea">
+      <div class="players">
+        <span id="player1">—</span>
+        <span id="player2">—</span>
+      </div>
+      <div class="board" id="board"></div>
+      <p class="status" id="status"></p>
+      <button type="button" class="btn btn-secondary" id="btnBack">Powrót</button>
+    </div>
+  </div>
+
+  <script>
+    const csrf = () => decodeURIComponent((document.cookie.match(/XSRF-TOKEN=([^;]+)/) || [])[1] || '');
+
+    let roomCode = null;
+    let yourMark = null;
+    let pollInterval = null;
+    let moveInProgress = false;
+
+    const lobby = document.getElementById('lobby');
+    const createSection = document.getElementById('createSection');
+    const joinSection = document.getElementById('joinSection');
+    const gameArea = document.getElementById('gameArea');
+    const roomCodeEl = document.getElementById('roomCode');
+    const joinCodeInput = document.getElementById('joinCode');
+    const joinError = document.getElementById('joinError');
+    const boardEl = document.getElementById('board');
+    const statusEl = document.getElementById('status');
+    const player1El = document.getElementById('player1');
+    const player2El = document.getElementById('player2');
+
+    function api(path, method = 'GET', body = null) {
+      const opts = {
+        method,
+        headers: { 'Accept': 'application/json', 'X-XSRF-TOKEN': csrf() },
+        credentials: 'include',
+        cache: 'no-store',
+      };
+      if (body) {
+        opts.headers['Content-Type'] = 'application/json';
+        opts.body = JSON.stringify(body);
+      }
+      const url = '/games/multiplayer' + path + (method === 'GET' ? '?t=' + Date.now() : '');
+      return fetch(url, opts).then(r => r.json());
+    }
+
+    function showLobby() {
+      roomCode = null;
+      yourMark = null;
+      if (pollInterval) clearInterval(pollInterval);
+      lobby.classList.remove('hidden');
+      gameArea.classList.remove('show');
+      createSection.classList.add('hidden');
+      joinSection.classList.add('hidden');
+    }
+
+    function showGame(room, mark) {
+      roomCode = room.code;
+      yourMark = mark || yourMark;
+      lobby.classList.add('hidden');
+      gameArea.classList.add('show');
+
+      player1El.textContent = (room.player1?.name || 'Gracz 1') + ' (X)';
+      player2El.textContent = room.player2 ? (room.player2.name || 'Gracz 2') + ' (O)' : 'Czekam…';
+
+      renderBoard(room.board);
+      updateStatus(room);
+
+      if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+      if (room.status === 'waiting' || room.status === 'playing') {
+        pollInterval = setInterval(poll, 1200);
+      }
+    }
+
+    function renderBoard(board) {
+      boardEl.innerHTML = '';
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('button');
+        cell.className = 'cell' + (board[i] ? ' ' + board[i] : '');
+        cell.textContent = board[i] === 'x' ? '×' : board[i] === 'o' ? '○' : '';
+        cell.disabled = !!board[i];
+        cell.dataset.cell = i;
+        cell.addEventListener('click', () => makeMove(i));
+        boardEl.appendChild(cell);
+      }
+    }
+
+    function updateStatus(room) {
+      statusEl.className = 'status';
+      if (room.status === 'waiting') {
+        statusEl.textContent = 'Czekam na drugiego gracza…';
+        statusEl.classList.add('waiting');
+      } else if (room.status === 'finished') {
+        if (room.winner_id) {
+          const won = (room.winner_id === room.player1?.id && yourMark === 'x') || (room.winner_id === room.player2?.id && yourMark === 'o');
+          statusEl.textContent = won ? 'Wygrałeś!' : 'Przegrałeś.';
+          statusEl.classList.add(won ? 'won' : 'lost');
+        } else {
+          statusEl.textContent = 'Remis!';
+          statusEl.classList.add('draw');
+        }
+      } else {
+        statusEl.textContent = room.is_your_turn ? 'Twój ruch' : 'Ruch przeciwnika…';
+      }
+
+      const cells = boardEl.querySelectorAll('.cell');
+      cells.forEach((c, i) => {
+        c.disabled = !!room.board[i] || room.status !== 'playing' || !room.is_your_turn;
+      });
+    }
+
+    function poll() {
+      if (!roomCode || moveInProgress) return;
+      api('/rooms/' + roomCode).then(data => {
+        if (data.room && !moveInProgress) {
+          showGame(data.room, data.your_mark || yourMark);
+        }
+      });
+    }
+
+    function makeMove(cell) {
+      if (!roomCode || !yourMark || moveInProgress) return;
+      const cells = boardEl.querySelectorAll('.cell');
+      if (cells[cell]?.disabled) return;
+      moveInProgress = true;
+      cells[cell].disabled = true;
+      cells[cell].textContent = yourMark === 'x' ? '×' : '○';
+      cells[cell].classList.add(yourMark);
+      api('/rooms/' + roomCode + '/move', 'POST', { cell, mark: yourMark }).then(data => {
+        moveInProgress = false;
+        if (data.room) {
+          showGame(data.room, data.your_mark || yourMark);
+        } else if (data.message) {
+          poll();
+        }
+      }).catch(() => {
+        moveInProgress = false;
+        poll();
+      });
+    }
+
+    document.getElementById('btnCreate').addEventListener('click', () => {
+      if (pollInterval) clearInterval(pollInterval);
+      createSection.classList.remove('hidden');
+      joinSection.classList.add('hidden');
+      joinError.textContent = '';
+      api('/rooms', 'POST').then(data => {
+        if (data.room) {
+          roomCodeEl.textContent = data.room.code;
+          roomCode = data.room.code;
+          yourMark = 'x';
+          pollInterval = setInterval(() => {
+            api('/rooms/' + roomCode).then(res => {
+              if (res.room && res.room.status === 'playing') {
+                clearInterval(pollInterval);
+                showGame(res.room, 'x');
+              }
+            });
+          }, 1500);
+        }
+      });
+    });
+
+    document.getElementById('btnJoin').addEventListener('click', () => {
+      if (pollInterval) clearInterval(pollInterval);
+      joinSection.classList.remove('hidden');
+      createSection.classList.add('hidden');
+      joinError.textContent = '';
+    });
+
+    document.getElementById('btnDoJoin').addEventListener('click', () => {
+      const code = joinCodeInput.value.trim().toUpperCase();
+      if (!code || code.length !== 4) {
+        joinError.textContent = 'Wpisz 4-znakowy kod';
+        return;
+      }
+      joinError.textContent = '';
+      api('/rooms/' + code + '/join', 'POST').then(data => {
+        if (data.room) {
+          showGame(data.room, data.your_mark);
+        } else if (data.message) {
+          joinError.textContent = data.message;
+        }
+      });
+    });
+
+    joinCodeInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('btnDoJoin').click();
+    });
+
+    document.getElementById('btnBack').addEventListener('click', showLobby);
+
+  </script>
+</body>
+</html>

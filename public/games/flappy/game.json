@@ -1,0 +1,6 @@
+{
+  "id": "flappy",
+  "name": "Flappy Chicken",
+  "icon": "puzzle",
+  "entry": "index.html"
+}

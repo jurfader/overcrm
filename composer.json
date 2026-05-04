@@ -1,0 +1,87 @@
+{
+    "name": "overmedia/overcrm",
+    "type": "project",
+    "description": "OVERCRM — universal CRM for small and medium B2B companies",
+    "keywords": ["crm", "b2b", "laravel", "inertia", "vue"],
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2",
+        "bacon/bacon-qr-code": "^3.0",
+        "barryvdh/laravel-dompdf": "^3.1",
+        "google-gemini-php/laravel": "^2.0",
+        "inertiajs/inertia-laravel": "^2.0",
+        "laravel/framework": "^12.0",
+        "laravel/sanctum": "^4.0",
+        "laravel/tinker": "^2.9",
+        "openai-php/laravel": "^0.19.0",
+        "phpoffice/phpspreadsheet": "^5.7",
+        "pragmarx/google2fa-laravel": "^2.3",
+        "spatie/browsershot": "^5.2",
+        "spatie/laravel-activitylog": "^4.8",
+        "spatie/laravel-permission": "^6.0",
+        "tightenco/ziggy": "^2.0",
+        "webklex/php-imap": "^6.2"
+    },
+    "require-dev": {
+        "fakerphp/faker": "^1.23",
+        "laravel/pint": "^1.13",
+        "mockery/mockery": "^1.6",
+        "nunomaduro/collision": "^8.0",
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/",
+            "Modules\\Email\\": ["modules/Email/", "modules/Email/src/"],
+            "Modules\\Ringostat\\": ["modules/Ringostat/", "modules/Ringostat/src/"],
+            "Modules\\Reports\\": ["modules/Reports/", "modules/Reports/src/"],
+            "Modules\\Inpost\\": ["modules/Inpost/", "modules/Inpost/src/"],
+            "Modules\\Kanban\\": ["modules/Kanban/", "modules/Kanban/src/"],
+            "Modules\\Timeline\\": ["modules/Timeline/", "modules/Timeline/src/"],
+            "Modules\\Test\\": ["modules/Test/", "modules/Test/src/"],
+            "Modules\\Leads\\": ["modules/Leads/", "modules/Leads/src/"]
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi"
+        ],
+        "post-update-cmd": [
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
+        ],
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php artisan key:generate --ansi"
+        ],
+        "pint": "vendor/bin/pint",
+        "test": "vendor/bin/pest",
+        "analyse": "vendor/bin/phpstan analyse"
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": []
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
