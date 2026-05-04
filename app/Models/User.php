@@ -32,6 +32,7 @@ class User extends Authenticatable
         'fakturownia_department_name',
         'apilo_default_platform_id',
         'play_phone',
+        'dashboard_layout',
     ];
 
     protected $hidden = [
@@ -48,6 +49,7 @@ class User extends Authenticatable
             'last_login_at' => 'datetime',
             'password' => 'hashed',
             'apilo_default_platform_id' => 'integer',
+            'dashboard_layout' => 'array',
         ];
     }
 

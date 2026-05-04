@@ -54,6 +54,8 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/dashboard/layout', [DashboardController::class, 'saveLayout'])->name('dashboard.save-layout');
+    Route::delete('/dashboard/layout', [DashboardController::class, 'resetLayout'])->name('dashboard.reset-layout');
 
     // Changelog
     Route::get('/changelog', [ChangelogController::class, 'index'])->name('changelog.index');

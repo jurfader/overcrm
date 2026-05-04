@@ -8,6 +8,13 @@ export default {
         './modules/*/resources/js/**/*.{vue,js}',
         './modules/*/resources/views/**/*.blade.php',
     ],
+    // Dashboard widget grid — dynamiczne col-span budowane runtime z layoutu usera.
+    // JIT nie może ich wykryć w źródle, więc safelistujemy wszystkie warianty.
+    safelist: [
+        ...Array.from({ length: 12 }, (_, i) => `col-span-${i + 1}`),
+        ...Array.from({ length: 12 }, (_, i) => `md:col-span-${i + 1}`),
+        ...Array.from({ length: 12 }, (_, i) => `xl:col-span-${i + 1}`),
+    ],
     // dark mode sterowany atrybutem `data-theme="dark"` na <html> (ustawiany w app.blade.php)
     darkMode: ['selector', '[data-theme="dark"]'],
     theme: {
