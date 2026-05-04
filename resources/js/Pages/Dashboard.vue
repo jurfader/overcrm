@@ -188,49 +188,6 @@ const priorityColors = {
     urgent: 'red',
 };
 
-// AI sugestia rozmówki
-const aiReminderClientId = ref(null);
-const aiReminderLoading = ref(false);
-const aiReminderError = ref('');
-const aiReminderText = ref('');
-
-async function fetchAiReminder(clientId) {
-    if (aiReminderLoading.value) return;
-    aiReminderClientId.value = clientId;
-    aiReminderLoading.value = true;
-    aiReminderError.value = '';
-    aiReminderText.value = '';
-    try {
-        const r = await fetch(route('dashboard.call-reminder', clientId), {
-            credentials: 'same-origin',
-            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-        });
-        if (r.status === 419) {
-            aiReminderError.value = 'Sesja wygasła — odśwież stronę.';
-            return;
-        }
-        if (!r.ok) {
-            aiReminderError.value = `Błąd serwera (${r.status}).`;
-            return;
-        }
-        const data = await r.json().catch(() => ({}));
-        if (data.success) {
-            aiReminderText.value = data.reminder;
-        } else {
-            aiReminderError.value = data.message || 'Błąd generowania';
-        }
-    } catch (e) {
-        aiReminderError.value = 'Błąd połączenia';
-    } finally {
-        aiReminderLoading.value = false;
-    }
-}
-
-function closeAiReminder() {
-    aiReminderClientId.value = null;
-    aiReminderText.value = '';
-    aiReminderError.value = '';
-}
 </script>
 
 <template>
@@ -560,15 +517,6 @@ function closeAiReminder() {
                                 </p>
                             </div>
                             <div class="flex items-center gap-1 flex-shrink-0">
-                                <button
-                                    @click="fetchAiReminder(item.id)"
-                                    :disabled="aiReminderLoading"
-                                    class="p-1.5 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30 text-amber-600 dark:text-amber-400 transition-colors disabled:opacity-50"
-                                    title="Sugestia AI – rozmówka przed połączeniem"
-                                >
-                                    <Icons v-if="aiReminderLoading && aiReminderClientId === item.id" name="spinner" class="w-4 h-4 animate-spin" />
-                                    <Icons v-else name="sparkles" class="w-4 h-4" />
-                                </button>
                                 <ClickToCall v-if="item.phone" :phone="item.phone" size="md" />
                             </div>
                         </li>
@@ -589,15 +537,6 @@ function closeAiReminder() {
                                 </p>
                             </div>
                             <div class="flex items-center gap-1 flex-shrink-0">
-                                <button
-                                    @click="fetchAiReminder(item.id)"
-                                    :disabled="aiReminderLoading"
-                                    class="p-1.5 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30 text-amber-600 dark:text-amber-400 transition-colors disabled:opacity-50"
-                                    title="Sugestia AI – rozmówka przed połączeniem"
-                                >
-                                    <Icons v-if="aiReminderLoading && aiReminderClientId === item.id" name="spinner" class="w-4 h-4 animate-spin" />
-                                    <Icons v-else name="sparkles" class="w-4 h-4" />
-                                </button>
                                 <ClickToCall v-if="item.phone" :phone="item.phone" size="md" />
                             </div>
                         </li>
@@ -610,27 +549,6 @@ function closeAiReminder() {
                 </Link>
             </div>
         </div>
-
-        <!-- Modal: Sugestia AI rozmówki -->
-        <Teleport to="body">
-            <div v-if="aiReminderClientId" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50" @click.self="closeAiReminder">
-                <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-md w-full max-h-[70vh] overflow-auto" @click.stop>
-                    <div class="p-4 border-b border-slate-200 dark:border-slate-600 flex justify-between items-center">
-                        <span class="text-sm font-medium text-amber-600 dark:text-amber-400 flex items-center gap-2">
-                            <Icons name="sparkles" class="w-4 h-4" />
-                            Sugestia AI – rozmówka przed połączeniem
-                        </span>
-                        <button @click="closeAiReminder" class="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                            <Icons name="close" class="w-5 h-5" />
-                        </button>
-                    </div>
-                    <div class="p-4">
-                        <p v-if="aiReminderError" class="text-sm text-red-600 dark:text-red-400">{{ aiReminderError }}</p>
-                        <p v-else class="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">{{ aiReminderText || 'Ładowanie...' }}</p>
-                    </div>
-                </div>
-            </div>
-        </Teleport>
 
         <!-- Zadania i klienci -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -4,15 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
 use App\Models\Client;
-use App\Models\ClientSummary;
 use App\Models\ClientVisit;
 use App\Models\EmailTemplate;
 use App\Models\Status;
 use App\Services\ApiloService;
 use App\Services\FakturowniaService;
 use App\Services\GusService;
-use App\Services\VisitPhoneExtractor;
-use App\Services\VisitProfileAnalyzer;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -961,98 +958,7 @@ class CalendarController extends Controller
     }
 
     /**
-     * Analiza opisu wizyty przez AI – uzupełnienie profilu klienta
-     */
-    public function analyzeProfile(Request $request)
-    {
-        $validated = $request->validate([
-            'description' => 'nullable|string|max:100000',
-            'notes' => 'nullable|string|max:50000',
-        ]);
-
-        try {
-            $analyzer = app(VisitProfileAnalyzer::class);
-            $profile = $analyzer->analyze(
-                $validated['description'] ?? '',
-                $validated['notes'] ?? ''
-            );
-
-            return response()->json([
-                'success' => true,
-                'profile' => $profile,
-            ]);
-        } catch (\RuntimeException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 422);
-        } catch (\Exception $e) {
-            \Log::error('VisitProfileAnalyzer error', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Błąd analizy: '.$e->getMessage(),
-            ], 500);
-        }
-    }
-
-    /**
-     * Generowanie podsumowania wizyty przez AI (opis + notatki + profil lokalu).
-     * Zapisuje podsumowanie w client_summaries gdy podano client_id.
-     */
-    public function generateSummary(Request $request)
-    {
-        $validated = $request->validate([
-            'description' => 'nullable|string|max:100000',
-            'notes' => 'nullable|string|max:50000',
-            'profile' => 'nullable|array',
-            'client_id' => 'nullable|exists:clients,id',
-            'visit_id' => 'nullable|exists:client_visits,id',
-        ]);
-
-        try {
-            $analyzer = app(VisitProfileAnalyzer::class);
-            $summary = $analyzer->generateSummary(
-                $validated['description'] ?? '',
-                $validated['notes'] ?? '',
-                $validated['profile'] ?? []
-            );
-
-            $clientId = $validated['client_id'] ?? null;
-            $saved = false;
-            if ($clientId && $summary !== '') {
-                ClientSummary::create([
-                    'client_id' => $clientId,
-                    'client_visit_id' => $validated['visit_id'] ?? null,
-                    'summary' => $summary,
-                    'generated_at' => now(),
-                ]);
-                $saved = true;
-            }
-
-            return response()->json([
-                'success' => true,
-                'summary' => $summary,
-                'saved' => $saved,
-            ]);
-        } catch (\RuntimeException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 422);
-        } catch (\Exception $e) {
-            \Log::error('VisitProfileAnalyzer generateSummary error', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Błąd generowania podsumowania: '.$e->getMessage(),
-            ], 500);
-        }
-    }
-
-    /**
-     * Składa listę telefonów wizyty z ręcznych wpisów + wyciągniętych regexem z opisu.
-     * Dedupliakcja po znormalizowanym numerze.
+     * Składa listę telefonów wizyty z ręcznych wpisów. Dedupliakcja po znormalizowanym numerze.
      */
     private function processVisitPhones(array $manual, string $description = ''): array
     {
@@ -1066,16 +972,6 @@ class CalendarController extends Controller
             if (strlen($key) < 7 || isset($seen[$key])) continue;
             $seen[$key] = true;
             $all[] = $trimmed;
-        }
-
-        if (!empty($description)) {
-            $extractor = app(VisitPhoneExtractor::class);
-            foreach ($extractor->extract($description) as $phone) {
-                $key = ClientVisit::normalizePhone($phone);
-                if (isset($seen[$key])) continue;
-                $seen[$key] = true;
-                $all[] = $phone;
-            }
         }
 
         return $all;

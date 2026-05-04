@@ -7,10 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Modules\Leads\Models\Lead;
 use Modules\Leads\Models\LeadStatus;
-use Modules\Leads\Services\DeliveryPlatformScraperService;
-use Modules\Leads\Services\GoogleMapsScraperService;
 use Modules\Leads\Services\OpenStreetMapScraperService;
-use Modules\Leads\Services\LeadScoringService;
 use Modules\Leads\Services\LeadService;
 use Modules\Leads\Services\PolishRegions;
 use Modules\Leads\Services\PyszneScraperService;
@@ -25,8 +22,7 @@ class LeadSearchController extends Controller
     }
 
     /**
-     * Szukaj leadów w wybranym mieście.
-     * Scrapuje Pyszne.pl + Google Maps, ocenia GPT, filtruje Fakturownia.
+     * Szukaj leadów w wybranym mieście. Scrapuje Pyszne.pl + OpenStreetMap.
      */
     public function search(Request $request)
     {
@@ -36,14 +32,13 @@ class LeadSearchController extends Controller
             'types' => 'nullable|array',
             'types.*' => 'string|max:50',
             'sources' => 'nullable|array',
-            'sources.*' => 'in:pyszne,google_maps,delivery,openstreetmap',
+            'sources.*' => 'in:pyszne,openstreetmap',
             'limit' => 'nullable|integer|min:10|max:500',
         ]);
 
         set_time_limit(600);
 
-        $types = $request->types ?? [];
-        $sources = $request->sources ?? ['pyszne', 'google_maps'];
+        $sources = $request->sources ?? ['pyszne', 'openstreetmap'];
         $limit = $request->limit ?? 200;
 
         // Zbierz listę miast do przeszukania
@@ -83,28 +78,6 @@ class LeadSearchController extends Controller
                     $debugLog[] = "OpenStreetMap [{$city}]: BŁĄD — {$e->getMessage()}";
                 }
             }
-
-            if (in_array('google_maps', $sources)) {
-                try {
-                    $gmaps = app(GoogleMapsScraperService::class);
-                    $gmapsResults = $gmaps->searchCity($city, $types, min(15, $perCity));
-                    $debugLog[] = "Google Maps [{$city}]: " . count($gmapsResults) . " wyników";
-                    $rawResults = array_merge($rawResults, $gmapsResults);
-                } catch (\Throwable $e) {
-                    $debugLog[] = "Google Maps [{$city}]: BŁĄD — {$e->getMessage()}";
-                }
-            }
-
-            if (in_array('delivery', $sources)) {
-                try {
-                    $delivery = app(DeliveryPlatformScraperService::class);
-                    $deliveryResults = $delivery->searchCity($city, min(15, $perCity));
-                    $debugLog[] = "Glovo/Uber/Wolt [{$city}]: " . count($deliveryResults) . " wyników";
-                    $rawResults = array_merge($rawResults, $deliveryResults);
-                } catch (\Throwable $e) {
-                    $debugLog[] = "Glovo/Uber/Wolt [{$city}]: BŁĄD — {$e->getMessage()}";
-                }
-            }
         }
 
         // Deduplikacja po nazwie
@@ -117,18 +90,13 @@ class LeadSearchController extends Controller
             $unique[] = $r;
         }
 
-        // Nie ograniczaj unikatów — GPT scoring obsłuży max 20 na batch
-
-        // Scoring GPT + filtr Fakturownia (DI — LeadScoringService wymaga AiClientFactory)
-        $scoring = app(LeadScoringService::class);
-        $scored = $scoring->scoreAndFilter($unique);
+        $unique = array_slice($unique, 0, $limit);
 
         return response()->json([
             'success' => true,
-            'results' => $scored,
+            'results' => $unique,
             'total_scraped' => count($rawResults),
             'total_unique' => count($unique),
-            'total_scored' => count($scored),
             'cities_searched' => $cities,
             'debug' => $debugLog,
         ]);

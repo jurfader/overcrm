@@ -6,7 +6,6 @@ use App\Models\Client;
 use App\Models\Module;
 use App\Models\Task;
 use App\Models\User;
-use App\Services\CallReminderService;
 use App\Services\FakturowniaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -239,28 +238,4 @@ class DashboardController extends Controller
         ]);
     }
 
-    /**
-     * AI: sugestia rozmówki przed połączeniem z klientem
-     */
-    public function callReminder(Client $client, CallReminderService $service)
-    {
-        try {
-            $reminder = $service->generate($client);
-            return response()->json([
-                'success' => true,
-                'reminder' => $reminder,
-            ]);
-        } catch (\RuntimeException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 422);
-        } catch (\Exception $e) {
-            \Log::error('CallReminderService error', ['client_id' => $client->id, 'message' => $e->getMessage()]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Błąd generowania sugestii: ' . $e->getMessage(),
-            ], 500);
-        }
-    }
 }

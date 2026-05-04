@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Admin\AiTrainingController;
 use App\Http\Controllers\Admin\PriceListController as AdminPriceListController;
 use App\Http\Controllers\PriceListController;
 use App\Http\Controllers\GameController;
@@ -76,7 +75,6 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
 
     // Cenniki (lista dla zalogowanych)
     Route::get('/cenniki', [PriceListController::class, 'index'])->name('price-lists.index');
-    Route::get('/dashboard/call-reminder/{client}', [DashboardController::class, 'callReminder'])->name('dashboard.call-reminder');
 
     // Zadania (Tasks/Planner)
     Route::prefix('tasks')->name('tasks.')->group(function () {
@@ -163,8 +161,6 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
         Route::get('/invoice/{id}/pdf', [CalendarController::class, 'invoicePdf'])->name('invoice-pdf');
         Route::get('/orders/{orderId}/tracking', [CalendarController::class, 'orderTracking'])->name('order-tracking');
         Route::put('/client/{client}', [CalendarController::class, 'updateClient'])->name('update-client');
-        Route::post('/analyze-profile', [CalendarController::class, 'analyzeProfile'])->name('analyze-profile');
-        Route::post('/generate-summary', [CalendarController::class, 'generateSummary'])->name('generate-summary');
         Route::post('/restore/{id}', [CalendarController::class, 'restore'])->name('restore');
         Route::delete('/force/{id}', [CalendarController::class, 'forceDelete'])->name('force-delete');
         Route::get('/{visit}', [CalendarController::class, 'show'])->name('show');
@@ -272,16 +268,6 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
             Route::put('/{priceList}', [AdminPriceListController::class, 'update'])->name('update');
             Route::delete('/{priceList}', [AdminPriceListController::class, 'destroy'])->name('destroy');
             Route::post('/{priceList}/sync', [AdminPriceListController::class, 'sync'])->name('sync');
-        });
-
-        // Uczenie AI (pamięć analizy rozmów)
-        Route::prefix('ai-training')->name('ai-training.')->group(function () {
-            Route::get('/', [AiTrainingController::class, 'index'])->name('index');
-            Route::post('/chat', [AiTrainingController::class, 'chat'])->name('chat');
-            Route::get('/messages', [AiTrainingController::class, 'messages'])->name('messages');
-            Route::post('/messages/clear', [AiTrainingController::class, 'clearMessages'])->name('messages.clear');
-            Route::get('/memory', [AiTrainingController::class, 'getMemory'])->name('memory');
-            Route::post('/reset', [AiTrainingController::class, 'resetMemory'])->name('reset');
         });
 
         // Szablony email

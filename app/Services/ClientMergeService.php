@@ -17,7 +17,6 @@ class ClientMergeService
         'client_visits'    => 'client_id',
         'tasks'            => 'client_id',
         'sent_emails'      => 'client_id',
-        'client_summaries' => 'client_id',
         'ringostat_calls'  => 'client_id',
         'leads'            => 'converted_to_client_id',
     ];

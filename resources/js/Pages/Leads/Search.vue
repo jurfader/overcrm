@@ -57,7 +57,6 @@ async function search() {
             searchStats.value = {
                 scraped: data.total_scraped,
                 unique: data.total_unique,
-                scored: data.total_scored,
                 cities: data.cities_searched || [],
                 debug: data.debug || [],
             };
@@ -80,9 +79,9 @@ function toggleSelect(index) {
     selectedResults.value = new Set(selectedResults.value); // trigger reactivity
 }
 
-function selectAllGood() {
+function selectAllAvailable() {
     results.value.forEach((r, i) => {
-        if ((r.ai_score ?? 0) >= 6 && !r.is_existing_client) {
+        if (!r.is_existing_client) {
             selectedResults.value.add(i);
         }
     });
@@ -121,27 +120,16 @@ async function importSelected() {
 }
 
 function sourceTagLabel(source) {
-    const map = { pyszne: 'Pyszne.pl', openstreetmap: 'OSM', google_maps: 'Google', glovo: 'Glovo', ubereats: 'Uber Eats', wolt: 'Wolt' };
+    const map = { pyszne: 'Pyszne.pl', openstreetmap: 'OSM' };
     return map[source] || source;
 }
 
 function sourceTagClass(source) {
     const map = {
         pyszne: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-        google_maps: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
         openstreetmap: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
-        glovo: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-        ubereats: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-        wolt: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400',
     };
     return map[source] || 'bg-slate-100 text-slate-700';
-}
-
-function scoreColor(score) {
-    if (score >= 8) return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400';
-    if (score >= 6) return 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400';
-    if (score >= 4) return 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
-    return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
 }
 </script>
 
@@ -211,21 +199,12 @@ function scoreColor(score) {
                     <input type="checkbox" value="openstreetmap" v-model="sources" class="rounded border-slate-300 text-amber-500" />
                     OpenStreetMap
                 </label>
-                <label class="flex items-center gap-1.5 text-sm cursor-pointer">
-                    <input type="checkbox" value="google_maps" v-model="sources" class="rounded border-slate-300 text-amber-500" />
-                    Google
-                </label>
-                <label class="flex items-center gap-1.5 text-sm cursor-pointer">
-                    <input type="checkbox" value="delivery" v-model="sources" class="rounded border-slate-300 text-amber-500" />
-                    Glovo/Uber/Wolt
-                </label>
             </div>
 
             <!-- Stats -->
             <div v-if="searchStats" class="mt-4 flex flex-wrap gap-6 text-sm text-slate-500 dark:text-slate-400">
                 <span>Znaleziono: {{ searchStats.scraped }}</span>
                 <span>Unikalne: {{ searchStats.unique }}</span>
-                <span>Po ocenie: {{ searchStats.scored }}</span>
                 <span v-if="searchStats.cities">Miasta: {{ searchStats.cities.join(', ') }}</span>
             </div>
             <div v-if="searchStats?.debug?.length" class="mt-2 text-xs text-slate-400 dark:text-slate-500 font-mono space-y-0.5">
@@ -238,8 +217,8 @@ function scoreColor(score) {
             <!-- Actions bar -->
             <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900/50">
                 <div class="flex items-center gap-3">
-                    <button @click="selectAllGood" class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400">
-                        Zaznacz score 6+
+                    <button @click="selectAllAvailable" class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400">
+                        Zaznacz wszystkie nowe
                     </button>
                     <button @click="deselectAll" class="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400">
                         Odznacz wszystko
@@ -262,11 +241,9 @@ function scoreColor(score) {
                     <thead>
                         <tr class="text-left text-slate-500 dark:text-slate-400 border-b dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30">
                             <th class="px-4 py-3 w-10"></th>
-                            <th class="px-4 py-3 w-14">Score</th>
                             <th class="px-4 py-3">Nazwa</th>
                             <th class="px-4 py-3">Miasto</th>
                             <th class="px-4 py-3">Źródło</th>
-                            <th class="px-4 py-3">Ocena AI</th>
                             <th class="px-4 py-3">Status</th>
                         </tr>
                     </thead>
@@ -290,11 +267,6 @@ function scoreColor(score) {
                                 />
                             </td>
                             <td class="px-4 py-3">
-                                <span :class="scoreColor(r.ai_score ?? 0)" class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold">
-                                    {{ r.ai_score ?? '—' }}
-                                </span>
-                            </td>
-                            <td class="px-4 py-3">
                                 <div class="font-medium text-slate-900 dark:text-white">{{ r.name }}</div>
                                 <div v-if="r.address" class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs">{{ r.address }}</div>
                                 <div class="flex flex-wrap gap-3 mt-1">
@@ -308,7 +280,6 @@ function scoreColor(score) {
                                     {{ sourceTagLabel(r.source) }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-xs text-slate-600 dark:text-slate-300 max-w-xs">{{ r.ai_reason }}</td>
                             <td class="px-4 py-3">
                                 <span v-if="r.is_existing_client" class="text-xs px-2 py-0.5 rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
                                     Już klient

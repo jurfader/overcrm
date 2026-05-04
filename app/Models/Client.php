@@ -82,14 +82,6 @@ class Client extends Model
         return $this->hasMany(ClientVisit::class);
     }
 
-    /**
-     * Podsumowania AI wygenerowane dla klienta
-     */
-    public function summaries(): HasMany
-    {
-        return $this->hasMany(ClientSummary::class);
-    }
-
     // ==================== SCOPES ====================
 
     /**

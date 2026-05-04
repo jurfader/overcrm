@@ -235,7 +235,6 @@ const orderClient = computed(() => props.visit?.client || {});
 // Ringostat - połączenia klienta
 const clientCalls = ref([]);
 const loadingCalls = ref(false);
-const expandedCallAiId = ref(null);
 
 function loadClientCalls() {
     const visitId = props.visit?.id;
@@ -996,9 +995,6 @@ watch(() => props.visit?.id, (newId, oldId) => {
     // Reset form gdy zmienia się wizyta (np. przełączenie między panelami)
     if (newId && newId !== oldId && props.visit) {
         if (props.visit.client?.id) initClientForm();
-        aiSummary.value = '';
-        aiSummaryError.value = '';
-        aiSummarySaved.value = false;
         const v = props.visit;
         form.title = v.title || '';
         form.client_id = v.client_id || '';
@@ -1219,115 +1215,6 @@ function toggleProfileSection(section) {
 }
 
 const clientCardError = ref('');
-const aiAnalyzing = ref(false);
-const aiAnalyzeError = ref('');
-const aiSummaryGenerating = ref(false);
-const aiSummary = ref('');
-const aiSummaryError = ref('');
-const aiSummarySaved = ref(false);
-
-async function generateSummaryWithAi() {
-    if (descriptionEditorRef.value && !showDescriptionSource.value) {
-        form.description = descriptionEditorRef.value.innerHTML || '';
-    }
-    const hasVisit = [form.description, form.notes].filter(Boolean).join('').trim().length > 0;
-    const hasProfile = clientForm.value && Object.values(clientForm.value.profile || {}).some(s => {
-        if (!s || typeof s !== 'object') return false;
-        return Object.values(s).some(v => v !== null && v !== '' && v !== false && (Array.isArray(v) ? v.length > 0 : true));
-    });
-    if (!hasVisit && !hasProfile) {
-        aiSummaryError.value = 'Dodaj opis wizyty lub wypełnij profil lokalu, aby wygenerować podsumowanie.';
-        return;
-    }
-    aiSummaryGenerating.value = true;
-    aiSummaryError.value = '';
-    aiSummary.value = '';
-    try {
-        const csrfToken = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('XSRF-TOKEN='))
-            ?.split('=')[1];
-        const response = await fetch(route('calendar.generate-summary'), {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-XSRF-TOKEN': csrfToken ? decodeURIComponent(csrfToken) : '',
-            },
-            body: JSON.stringify({
-                description: form.description,
-                notes: form.notes,
-                profile: clientForm.value?.profile || {},
-                client_id: props.visit?.client?.id || null,
-                visit_id: props.visit?.id || null,
-            }),
-        });
-        const data = await response.json();
-        if (data.success && data.summary != null) {
-            aiSummary.value = data.summary;
-            aiSummarySaved.value = !!data.saved;
-        } else if (data.message) {
-            aiSummaryError.value = data.message;
-        } else {
-            aiSummaryError.value = 'Nie udało się wygenerować podsumowania.';
-        }
-    } catch (err) {
-        aiSummaryError.value = 'Błąd połączenia: ' + (err.message || 'Nieznany błąd');
-    } finally {
-        aiSummaryGenerating.value = false;
-    }
-}
-
-async function analyzeWithAi() {
-    const text = [form.description, form.notes].filter(Boolean).join('\n\n');
-    if (!text.trim()) {
-        aiAnalyzeError.value = 'Wpisz opis lub notatki wizyty, aby AI mogło je przeanalizować.';
-        return;
-    }
-    aiAnalyzing.value = true;
-    aiAnalyzeError.value = '';
-    try {
-        const csrfToken = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('XSRF-TOKEN='))
-            ?.split('=')[1];
-        const response = await fetch(route('calendar.analyze-profile'), {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-XSRF-TOKEN': csrfToken ? decodeURIComponent(csrfToken) : '',
-            },
-            body: JSON.stringify({
-                description: form.description,
-                notes: form.notes,
-            }),
-        });
-        const data = await response.json();
-        if (data.success && data.profile && clientForm.value) {
-            for (const section in data.profile) {
-                if (!clientForm.value.profile[section]) continue;
-                for (const key in data.profile[section]) {
-                    const val = data.profile[section][key];
-                    if (val !== null && val !== '' && val !== false && (Array.isArray(val) ? val.length > 0 : true)) {
-                        clientForm.value.profile[section][key] = val;
-                    }
-                }
-            }
-            Object.keys(openProfileSections.value).forEach(k => { openProfileSections.value[k] = true; });
-        } else if (data.message) {
-            aiAnalyzeError.value = data.message;
-        } else {
-            aiAnalyzeError.value = 'Nie udało się przeanalizować opisu.';
-        }
-    } catch (err) {
-        aiAnalyzeError.value = 'Błąd połączenia: ' + (err.message || 'Nieznany błąd');
-    } finally {
-        aiAnalyzing.value = false;
-    }
-}
 
 /** @returns {Promise<boolean>} true gdy zapis OK lub pominięty; false gdy błąd API */
 async function saveClientCard(silent = false) {
@@ -3687,45 +3574,7 @@ const invoiceStatusLabels = {
 
                             <!-- PRAWA KOLUMNA: profil lokalu -->
                             <div class="space-y-2">
-                                <!-- Podsumowanie AI -->
-                                <div class="p-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30">
-                                    <div class="flex items-center justify-between gap-2 mb-2">
-                                        <h4 class="section-title mb-0 text-sm">Podsumowanie wizyty</h4>
-                                        <button
-                                            type="button"
-                                            @click="generateSummaryWithAi"
-                                            :disabled="aiSummaryGenerating"
-                                            class="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                            title="Wygeneruj podsumowanie z opisu spotkania i profilu lokalu"
-                                        >
-                                            <Icons v-if="aiSummaryGenerating" name="spinner" class="w-4 h-4 animate-spin" />
-                                            <Icons v-else name="sparkles" class="w-4 h-4" />
-                                            {{ aiSummaryGenerating ? 'Generuję...' : 'Generuj podsumowanie AI' }}
-                                        </button>
-                                    </div>
-                                    <p v-if="aiSummaryError" class="text-sm text-red-600 dark:text-red-400">{{ aiSummaryError }}</p>
-                                    <div v-else-if="aiSummary">
-                                        <div class="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{{ aiSummary }}</div>
-                                        <p v-if="aiSummarySaved" class="mt-2 text-xs text-green-600 dark:text-green-400">Zapisano w karcie klienta</p>
-                                    </div>
-                                    <p v-else class="text-sm text-slate-500 dark:text-slate-400 italic">Kliknij przycisk, aby AI wygenerowało podsumowanie na podstawie opisu wizyty i danych z karty klienta.</p>
-                                </div>
-
-                                <div class="flex items-center justify-between gap-2">
-                                    <h4 class="section-title mb-0">Profil lokalu gastronomicznego</h4>
-                                    <button
-                                        type="button"
-                                        @click="analyzeWithAi"
-                                        :disabled="aiAnalyzing"
-                                        class="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                        title="Przeanalizuj opis i notatki wizyty, aby uzupełnić profil"
-                                    >
-                                        <Icons v-if="aiAnalyzing" name="spinner" class="w-4 h-4 animate-spin" />
-                                        <Icons v-else name="sparkles" class="w-4 h-4" />
-                                        {{ aiAnalyzing ? 'Analizuję...' : 'Uzupełnij z AI' }}
-                                    </button>
-                                </div>
-                                <p v-if="aiAnalyzeError" class="text-sm text-red-600 dark:text-red-400">{{ aiAnalyzeError }}</p>
+                                <h4 class="section-title mb-0">Profil lokalu gastronomicznego</h4>
 
                                 <!-- Organizacja -->
                                 <div class="profile-accordion">
@@ -4124,18 +3973,6 @@ const invoiceStatusLabels = {
                                     </div>
                                 </div>
                                 <button
-                                    v-if="call.has_ai_data"
-                                    @click="expandedCallAiId = expandedCallAiId === call.id ? null : call.id"
-                                    :class="[
-                                        'inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition',
-                                        expandedCallAiId === call.id ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' : 'bg-violet-100 text-violet-700 hover:bg-violet-200 dark:bg-violet-900/30 dark:text-violet-400'
-                                    ]"
-                                    title="Zobacz analizę AI"
-                                >
-                                    <Icons name="sparkles" class="h-3.5 w-3.5" />
-                                    <Icons :name="expandedCallAiId === call.id ? 'chevron-up' : 'chevron-down'" class="h-3 w-3" />
-                                </button>
-                                <button
                                     v-if="call.has_recording"
                                     @click="toggleCallPlay(call)"
                                     :class="[
@@ -4147,48 +3984,6 @@ const invoiceStatusLabels = {
                                 </button>
                             </div>
 
-                            <!-- Panel AI analizy -->
-                            <div v-if="expandedCallAiId === call.id" class="border-t border-slate-200 dark:border-slate-600 px-4 py-3 bg-white dark:bg-slate-800 space-y-3">
-                                <div v-if="call.ai_summary">
-                                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1 flex items-center gap-1.5">
-                                        <Icons name="sparkles" class="h-3 w-3 text-violet-500" /> Podsumowanie
-                                    </p>
-                                    <p class="text-sm text-slate-700 dark:text-slate-300">{{ call.ai_summary }}</p>
-                                </div>
-                                <div v-if="call.ai_recommendations">
-                                    <p class="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase mb-1">Rekomendacje</p>
-                                    <p class="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">{{ call.ai_recommendations }}</p>
-                                </div>
-                                <div v-if="call.ai_customer_mood || call.ai_employee_mood" class="flex gap-3 text-xs">
-                                    <span v-if="call.ai_customer_mood">
-                                        <span class="text-slate-500 dark:text-slate-400">Klient:</span>
-                                        <span class="ml-1 font-semibold text-blue-700 dark:text-blue-400">{{ call.ai_customer_mood }}</span>
-                                    </span>
-                                    <span v-if="call.ai_employee_mood">
-                                        <span class="text-slate-500 dark:text-slate-400">Pracownik:</span>
-                                        <span class="ml-1 font-semibold text-emerald-700 dark:text-emerald-400">{{ call.ai_employee_mood }}</span>
-                                    </span>
-                                </div>
-                                <details v-if="call.ai_transcript" class="text-xs">
-                                    <summary class="cursor-pointer text-slate-500 dark:text-slate-400 font-medium hover:text-slate-700 dark:hover:text-slate-200">
-                                        📄 Pokaż transkrypcję
-                                    </summary>
-                                    <div class="mt-2 max-h-64 overflow-y-auto bg-slate-50 dark:bg-slate-900/50 p-3 rounded space-y-1">
-                                        <div v-for="(line, i) in call.ai_transcript.split('\n').filter(l => l.trim())" :key="i"
-                                             :class="['py-1 px-2 rounded text-xs',
-                                                line.startsWith('Pracownik:') ? 'bg-blue-50 dark:bg-blue-900/20'
-                                                : line.startsWith('Klient:') ? 'bg-amber-50 dark:bg-amber-900/20'
-                                                : '']">
-                                            {{ line }}
-                                        </div>
-                                    </div>
-                                </details>
-                                <Link :href="route('ringostat.index') + '?search=' + encodeURIComponent(call.caller || call.destination || '')"
-                                      target="_blank"
-                                      class="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 dark:text-indigo-400">
-                                    Otwórz w Play Centrali →
-                                </Link>
-                            </div>
                         </div>
                     </div>
                 </div>
