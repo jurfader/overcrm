@@ -186,9 +186,8 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
             Route::post('/{module}/config', [ModuleController::class, 'saveConfig'])->name('config');
         });
         
-        // Branding (kolory, logo, nazwy)
+        // Branding — embedded w Settings → Wygląd. Tylko endpointy zapisu/uploadu, bez GET.
         Route::prefix('branding')->name('branding.')->group(function () {
-            Route::get('/', [BrandingController::class, 'index'])->name('index');
             Route::post('/', [BrandingController::class, 'update'])->name('update');
             Route::post('/upload', [BrandingController::class, 'uploadAsset'])->name('upload');
             Route::delete('/asset', [BrandingController::class, 'removeAsset'])->name('remove-asset');

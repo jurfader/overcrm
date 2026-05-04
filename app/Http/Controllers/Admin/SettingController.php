@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use App\Services\ApiloService;
 use App\Services\FakturowniaService;
+use App\Support\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -27,11 +28,15 @@ class SettingController extends Controller
         return Inertia::render('Admin/Settings/Index', [
             'settings' => $settings,
             'groups' => [
-                'general' => 'Ogólne',
-                'company' => 'Dane firmy',
-                'mail' => 'Poczta',
-                'integrations' => 'Integracje',
+                'general'    => 'Ogólne',
+                'company'    => 'Dane firmy',
+                'mail'       => 'Poczta',
                 'appearance' => 'Wygląd',
+            ],
+            'brand' => Brand::all(),
+            'brandDefaults' => [
+                'primary_color'   => '#E91E8C',
+                'secondary_color' => '#9B26D9',
             ],
         ]);
     }

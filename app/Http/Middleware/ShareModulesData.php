@@ -43,25 +43,28 @@ class ShareModulesData
             return $modules;
         }
 
-        // Pobierz aktywne moduły z bazy
+        // Pobierz aktywne moduły z bazy.
+        // $dbAvailable = mamy tabelę `modules`. Wtedy filtrujemy po `is_active`.
+        // Bez tabeli (świeża instalacja) — fall-through, pokazujemy wszystko z manifestu.
         $activeNames = [];
+        $dbAvailable = false;
         try {
             if (Schema::hasTable('modules')) {
+                $dbAvailable = true;
                 $activeNames = Module::where('is_active', true)
                     ->pluck('name')
                     ->toArray();
             }
         } catch (\Exception $e) {
-            // Baza danych nie jest dostępna
-            $activeNames = [];
+            $dbAvailable = false;
         }
 
         foreach (File::directories($modulesPath) as $modulePath) {
             $moduleName = basename($modulePath);
             $lowerName = strtolower($moduleName);
 
-            // Sprawdź czy moduł jest aktywny (w bazie lub jeśli brak tabeli - wszystkie są aktywne)
-            if (!empty($activeNames) && !in_array($lowerName, $activeNames)) {
+            // Gdy baza dostępna — pokaż TYLKO is_active=true. Pusta lista = pusta nawigacja.
+            if ($dbAvailable && !in_array($lowerName, $activeNames)) {
                 continue;
             }
 

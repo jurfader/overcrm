@@ -149,6 +149,32 @@
     ::-webkit-scrollbar-track   { background: transparent; }
     ::-webkit-scrollbar-thumb   { background: var(--color-border-bright); border-radius: 99px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--color-subtle); }
+
+    /* Native form controls — wymuszamy DS tokens, inaczej OS rysuje białe popupy w dark mode */
+    select,
+    input[type="date"],
+    input[type="time"],
+    input[type="datetime-local"] {
+        background-color: var(--color-surface-elevated);
+        color: var(--color-foreground);
+        border-color: var(--color-border-bright);
+        color-scheme: var(--color-scheme, light);
+    }
+
+    /* Opcje w popup'ach — Safari respektuje tylko bg/color */
+    select option,
+    select optgroup {
+        background-color: var(--color-surface-elevated);
+        color: var(--color-foreground);
+    }
+
+    /* Native date/time pickerom też mówimy z jakim motywem mają się renderować */
+    [data-theme="dark"] {
+        color-scheme: dark;
+    }
+    [data-theme="light"] {
+        color-scheme: light;
+    }
 }
 
 /* =========================================================================

@@ -4,25 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
-use App\Support\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
-use Inertia\Inertia;
 
 class BrandingController extends Controller
 {
-    public function index()
-    {
-        return Inertia::render('Admin/Branding/Index', [
-            'brand' => Brand::all(),
-            'defaults' => [
-                'primary_color'   => '#E91E8C',
-                'secondary_color' => '#9B26D9',
-            ],
-        ]);
-    }
-
     public function update(Request $request)
     {
         $data = $request->validate([
