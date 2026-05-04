@@ -96,12 +96,12 @@ const activityColors = {
     <div class="fixed inset-0 bg-black/50 z-40" @click="emit('close')" />
 
     <!-- Slide-over -->
-    <div class="fixed inset-y-0 right-0 w-full max-w-lg z-50 bg-white dark:bg-slate-900 shadow-2xl overflow-y-auto">
+    <div class="fixed inset-y-0 right-0 w-full max-w-lg z-50 surface shadow-2xl overflow-y-auto">
         <!-- Header -->
-        <div class="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between z-10">
+        <div class="sticky top-0 surface border-b border-border px-6 py-4 flex items-center justify-between z-10">
             <div>
-                <h2 class="text-lg font-bold text-slate-900 dark:text-white">{{ lead.company_name || lead.name }}</h2>
-                <p v-if="lead.company_name" class="text-sm text-slate-500 dark:text-slate-400">{{ lead.name }}</p>
+                <h2 class="text-lg font-bold text-foreground">{{ lead.company_name || lead.name }}</h2>
+                <p v-if="lead.company_name" class="text-sm text-foreground-muted">{{ lead.name }}</p>
             </div>
             <button @click="emit('close')" class="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                 <Icons name="close" class="w-5 h-5" />
@@ -111,7 +111,7 @@ const activityColors = {
         <div class="px-6 py-4 space-y-6">
             <!-- Status -->
             <div>
-                <label class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase mb-2 block">Status</label>
+                <label class="text-xs font-medium text-foreground-muted uppercase mb-2 block">Status</label>
                 <div class="flex flex-wrap gap-2">
                     <button
                         v-for="s in statuses"
@@ -129,41 +129,41 @@ const activityColors = {
             <!-- Contact Info -->
             <div class="grid grid-cols-2 gap-3">
                 <div v-if="lead.email">
-                    <label class="text-xs text-slate-500 dark:text-slate-400">Email</label>
+                    <label class="text-xs text-foreground-muted">Email</label>
                     <a :href="`mailto:${lead.email}`" class="block text-sm text-blue-600 dark:text-blue-400 hover:underline truncate">{{ lead.email }}</a>
                 </div>
                 <div v-if="lead.phone">
-                    <label class="text-xs text-slate-500 dark:text-slate-400">Telefon</label>
+                    <label class="text-xs text-foreground-muted">Telefon</label>
                     <a :href="`tel:${lead.phone}`" class="block text-sm text-blue-600 dark:text-blue-400 hover:underline">{{ lead.phone }}</a>
                 </div>
                 <div v-if="lead.nip">
-                    <label class="text-xs text-slate-500 dark:text-slate-400">NIP</label>
-                    <p class="text-sm text-slate-900 dark:text-white">{{ lead.nip }}</p>
+                    <label class="text-xs text-foreground-muted">NIP</label>
+                    <p class="text-sm text-foreground">{{ lead.nip }}</p>
                 </div>
                 <div v-if="lead.city">
-                    <label class="text-xs text-slate-500 dark:text-slate-400">Miasto</label>
-                    <p class="text-sm text-slate-900 dark:text-white">{{ lead.city }}</p>
+                    <label class="text-xs text-foreground-muted">Miasto</label>
+                    <p class="text-sm text-foreground">{{ lead.city }}</p>
                 </div>
                 <div v-if="lead.website" class="col-span-2">
-                    <label class="text-xs text-slate-500 dark:text-slate-400">Strona www</label>
+                    <label class="text-xs text-foreground-muted">Strona www</label>
                     <a :href="lead.website" target="_blank" class="block text-sm text-blue-600 dark:text-blue-400 hover:underline truncate">{{ lead.website }}</a>
                 </div>
                 <div v-if="lead.address" class="col-span-2">
-                    <label class="text-xs text-slate-500 dark:text-slate-400">Adres</label>
-                    <p class="text-sm text-slate-900 dark:text-white">{{ lead.address }}</p>
+                    <label class="text-xs text-foreground-muted">Adres</label>
+                    <p class="text-sm text-foreground">{{ lead.address }}</p>
                 </div>
             </div>
 
             <!-- Notes -->
             <div>
-                <label class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase mb-2 block">Notatki</label>
-                <p v-if="lead.notes" class="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap mb-3">{{ lead.notes }}</p>
+                <label class="text-xs font-medium text-foreground-muted uppercase mb-2 block">Notatki</label>
+                <p v-if="lead.notes" class="text-sm text-foreground whitespace-pre-wrap mb-3">{{ lead.notes }}</p>
                 <div class="flex gap-2">
                     <input
                         v-model="newNote"
                         type="text"
                         placeholder="Dodaj notatkę..."
-                        class="flex-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        class="flex-1 rounded-lg border border-border-bright surface text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-primary"
                         @keyup.enter="addNote"
                     />
                     <button
@@ -193,14 +193,14 @@ const activityColors = {
 
             <!-- Activity Timeline -->
             <div>
-                <label class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase mb-3 block">Historia aktywności</label>
+                <label class="text-xs font-medium text-foreground-muted uppercase mb-3 block">Historia aktywności</label>
                 <div v-if="lead.activities?.length" class="space-y-3">
                     <div v-for="a in lead.activities" :key="a.id" class="flex gap-3">
                         <div class="flex-shrink-0 mt-0.5">
                             <Icons :name="activityIcons[a.type] || 'document-text'" :class="activityColors[a.type] || 'text-slate-400'" class="w-4 h-4" />
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p class="text-sm text-slate-700 dark:text-slate-300">{{ a.description }}</p>
+                            <p class="text-sm text-foreground">{{ a.description }}</p>
                             <p class="text-xs text-slate-400 mt-0.5">
                                 {{ a.user?.name || 'System' }} · {{ formatDate(a.created_at) }}
                             </p>

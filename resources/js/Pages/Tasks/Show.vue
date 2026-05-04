@@ -189,7 +189,7 @@ function deleteTask() {
 
                 <!-- Notatki -->
                 <Card v-if="task.notes" title="Notatki wewnętrzne">
-                    <p class="text-gray-700 dark:text-slate-300 whitespace-pre-wrap">{{ task.notes }}</p>
+                    <p class="text-foreground whitespace-pre-wrap">{{ task.notes }}</p>
                 </Card>
 
                 <!-- Komentarze -->
@@ -204,7 +204,7 @@ function deleteTask() {
                                 <textarea
                                     v-model="commentForm.body"
                                     rows="2"
-                                    class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 dark:placeholder-slate-400 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm resize-none"
+                                    class="w-full px-3 py-2 border border-border-bright dark:bg-slate-700 dark:text-slate-200 dark:placeholder-slate-400 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary text-sm resize-none"
                                     placeholder="Dodaj komentarz..."
                                     @keydown.ctrl.enter="submitComment"
                                 ></textarea>
@@ -224,7 +224,7 @@ function deleteTask() {
                     </form>
 
                     <!-- Lista komentarzy -->
-                    <div v-if="task.comments && task.comments.length > 0" class="space-y-4 border-t border-gray-200 dark:border-slate-700 pt-4">
+                    <div v-if="task.comments && task.comments.length > 0" class="space-y-4 border-t border-border pt-4">
                         <div v-for="comment in task.comments" :key="comment.id" class="flex gap-3">
                             <div class="flex-shrink-0 w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-sm font-bold text-slate-600 dark:text-slate-300">
                                 {{ comment.user?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() }}
@@ -232,7 +232,7 @@ function deleteTask() {
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-2">
-                                        <span class="text-sm font-medium text-gray-900 dark:text-slate-200">{{ comment.user?.name }}</span>
+                                        <span class="text-sm font-medium text-foreground">{{ comment.user?.name }}</span>
                                         <span class="text-xs text-gray-400 dark:text-slate-500">{{ timeAgo(comment.created_at) }}</span>
                                     </div>
                                     <button
@@ -244,13 +244,13 @@ function deleteTask() {
                                         <Icons name="trash" class="w-4 h-4" />
                                     </button>
                                 </div>
-                                <p class="text-sm text-gray-700 dark:text-slate-300 mt-1 whitespace-pre-wrap">{{ comment.body }}</p>
+                                <p class="text-sm text-foreground mt-1 whitespace-pre-wrap">{{ comment.body }}</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Brak komentarzy -->
-                    <div v-else class="text-center py-4 border-t border-gray-200 dark:border-slate-700 mt-2 pt-4">
+                    <div v-else class="text-center py-4 border-t border-border mt-2 pt-4">
                         <p class="text-sm text-gray-400 dark:text-slate-500">Brak komentarzy. Bądź pierwszy!</p>
                     </div>
                 </Card>
@@ -263,7 +263,7 @@ function deleteTask() {
                             class="flex items-center gap-2 w-full text-left"
                         >
                             <Icons name="activity" class="w-5 h-5 text-gray-400 dark:text-slate-500" />
-                            <span class="text-lg font-semibold text-gray-900 dark:text-slate-200">Historia zmian</span>
+                            <span class="text-lg font-semibold text-foreground">Historia zmian</span>
                             <Badge color="gray">{{ activityLogs.length }}</Badge>
                             <Icons 
                                 name="chevron-down" 
@@ -305,7 +305,7 @@ function deleteTask() {
                             <!-- Treść -->
                             <div>
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="text-sm font-medium text-gray-900 dark:text-slate-200">{{ log.user_name }}</span>
+                                    <span class="text-sm font-medium text-foreground">{{ log.user_name }}</span>
                                     <span class="text-xs px-1.5 py-0.5 rounded font-medium" :class="{
                                         'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': log.action === 'create',
                                         'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400': log.action === 'update',
@@ -318,16 +318,16 @@ function deleteTask() {
                                     </span>
                                 </div>
 
-                                <p v-if="log.description" class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">{{ log.description }}</p>
+                                <p v-if="log.description" class="text-xs text-foreground-muted mt-0.5">{{ log.description }}</p>
 
                                 <!-- Zmienione pola -->
                                 <div v-if="log.action === 'update' && getChangedFields(log).length > 0" class="mt-2 space-y-1">
                                     <div 
                                         v-for="change in getChangedFields(log)" 
                                         :key="change.key"
-                                        class="text-xs bg-gray-50 dark:bg-slate-900/50 rounded-lg px-3 py-1.5 flex items-start gap-2"
+                                        class="text-xs surface-2 rounded-lg px-3 py-1.5 flex items-start gap-2"
                                     >
-                                        <span class="font-medium text-gray-600 dark:text-slate-400 shrink-0 min-w-[80px]">{{ change.field }}:</span>
+                                        <span class="font-medium text-foreground-muted shrink-0 min-w-[80px]">{{ change.field }}:</span>
                                         <span class="text-red-500 dark:text-red-400 line-through">{{ change.old }}</span>
                                         <span class="text-gray-400 dark:text-slate-600">→</span>
                                         <span class="text-green-600 dark:text-green-400 font-medium">{{ change.new }}</span>

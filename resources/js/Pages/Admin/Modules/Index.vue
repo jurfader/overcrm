@@ -112,7 +112,7 @@ const iconOptions = [
                             @click="toggleModule(module)"
                             :disabled="module.is_core"
                             :class="[
-                                'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2',
+                                'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2',
                                 module.is_active ? 'bg-indigo-600' : 'bg-gray-200',
                                 module.is_core ? 'opacity-50 cursor-not-allowed' : ''
                             ]"
@@ -215,7 +215,7 @@ const iconOptions = [
                         v-model="generateForm.name"
                         type="text"
                         placeholder="np. crm, invoices, reports"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary"
                         required
                     />
                     <p class="text-xs text-gray-500 mt-1">Tylko małe litery, bez spacji</p>
@@ -227,7 +227,7 @@ const iconOptions = [
                         v-model="generateForm.display_name"
                         type="text"
                         placeholder="np. CRM, Faktury, Raporty"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary"
                         required
                     />
                 </div>
@@ -238,7 +238,7 @@ const iconOptions = [
                         v-model="generateForm.description"
                         rows="2"
                         placeholder="Krótki opis funkcjonalności modułu"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary"
                     ></textarea>
                 </div>
                 

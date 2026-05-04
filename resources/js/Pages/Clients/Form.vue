@@ -213,8 +213,8 @@ function submit() {
     <div class="max-w-4xl mx-auto space-y-6">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ isEditing ? 'Edytuj klienta' : 'Nowy klient' }}</h1>
-                <p class="text-gray-600 dark:text-slate-400">{{ isEditing ? 'Zaktualizuj dane klienta' : 'Dodaj nowego klienta do systemu' }}</p>
+                <h1 class="text-2xl font-bold text-foreground">{{ isEditing ? 'Edytuj klienta' : 'Nowy klient' }}</h1>
+                <p class="text-foreground-muted">{{ isEditing ? 'Zaktualizuj dane klienta' : 'Dodaj nowego klienta do systemu' }}</p>
             </div>
             <Link :href="route('clients.index')">
                 <Button variant="secondary">
@@ -228,53 +228,53 @@ function submit() {
 
             <!-- ============ ACCORDION SECTION COMPONENT ============ -->
             <!-- Basic info -->
-            <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="surface rounded-xl border border-border overflow-hidden">
                 <button type="button" @click="toggleSection('basic')" class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
                     <div class="flex items-center gap-3">
                         <Icons name="user" class="w-5 h-5 text-amber-500" />
-                        <span class="font-semibold text-slate-800 dark:text-white">Podstawowe informacje</span>
+                        <span class="font-semibold text-foreground">Podstawowe informacje</span>
                     </div>
                     <Icons :name="isSectionOpen('basic') ? 'chevron-up' : 'chevron-down'" class="w-4 h-4 text-slate-400" />
                 </button>
                 <div v-show="isSectionOpen('basic')" class="px-5 pb-5 border-t border-slate-100 dark:border-slate-700">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Typ *</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Typ *</label>
                             <Select v-model="form.type" :options="types" />
                             <p v-if="form.errors.type" class="mt-1 text-sm text-red-600">{{ form.errors.type }}</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Status *</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Status *</label>
                             <Select v-model="form.status" :options="statuses" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Status klienta</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Status klienta</label>
                             <Select
                                 v-model="form.client_status"
                                 :options="Object.fromEntries([['', '—']].concat((clientStatusOptions || []).map(s => [String(s), s])))"
                             />
-                            <p class="mt-0.5 text-xs text-gray-500 dark:text-slate-400">np. Stripsiak, Test, Allegro</p>
+                            <p class="mt-0.5 text-xs text-foreground-muted">np. Stripsiak, Test, Allegro</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Opiekun handlowy</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Opiekun handlowy</label>
                             <Select
                                 v-model="form.assigned_to"
                                 :options="Object.fromEntries([['', '— Brak przypisania']].concat((users || []).map(u => [u.id.toString(), u.name])))"
                             />
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
+                            <label class="block text-sm font-medium text-foreground mb-1">
                                 {{ form.type === 'company' ? 'Nazwa firmy' : 'Imię i nazwisko' }} *
                             </label>
                             <Input v-model="form.name" />
                             <p v-if="form.errors.name" class="mt-1 text-sm text-red-600">{{ form.errors.name }}</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Skrócona nazwa</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Skrócona nazwa</label>
                             <Input v-model="form.short_name" />
                         </div>
                         <div v-if="form.type === 'company'">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">NIP</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">NIP</label>
                             <div class="flex gap-2">
                                 <Input v-model="form.nip" class="flex-1" placeholder="0000000000" />
                                 <Button type="button" variant="secondary" @click="fetchFromGus" :loading="gusLoading" :disabled="!form.nip" class="whitespace-nowrap">
@@ -285,11 +285,11 @@ function submit() {
                             <p v-if="gusSuccess" class="mt-1 text-sm text-green-600">{{ gusSuccess }}</p>
                         </div>
                         <div v-if="form.type === 'company'">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">REGON</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">REGON</label>
                             <Input v-model="form.regon" />
                         </div>
                         <div v-if="form.type === 'person'">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Data urodzenia</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Data urodzenia</label>
                             <Input v-model="form.birthday" type="date" />
                         </div>
                     </div>
@@ -297,72 +297,72 @@ function submit() {
             </div>
 
             <!-- Contact -->
-            <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="surface rounded-xl border border-border overflow-hidden">
                 <button type="button" @click="toggleSection('contact')" class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
                     <div class="flex items-center gap-3">
                         <Icons name="phone" class="w-5 h-5 text-amber-500" />
-                        <span class="font-semibold text-slate-800 dark:text-white">Dane kontaktowe i adres</span>
+                        <span class="font-semibold text-foreground">Dane kontaktowe i adres</span>
                     </div>
                     <Icons :name="isSectionOpen('contact') ? 'chevron-up' : 'chevron-down'" class="w-4 h-4 text-slate-400" />
                 </button>
                 <div v-show="isSectionOpen('contact')" class="px-5 pb-5 border-t border-slate-100 dark:border-slate-700">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Email</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Email</label>
                             <Input v-model="form.email" type="email" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Telefon</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Telefon</label>
                             <Input v-model="form.phone" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Telefon dodatkowy</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Telefon dodatkowy</label>
                             <Input v-model="form.phone2" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Strona WWW</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Strona WWW</label>
                             <Input v-model="form.website" placeholder="https://" />
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5 pt-5 border-t border-slate-100 dark:border-slate-700">
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Ulica</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Ulica</label>
                             <Input v-model="form.street" />
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Nr bud.</label>
+                                <label class="block text-sm font-medium text-foreground mb-1">Nr bud.</label>
                                 <Input v-model="form.building_number" />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Nr lok.</label>
+                                <label class="block text-sm font-medium text-foreground mb-1">Nr lok.</label>
                                 <Input v-model="form.apartment_number" />
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Kod pocztowy</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Kod pocztowy</label>
                             <Input v-model="form.postal_code" placeholder="00-000" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Miasto</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Miasto</label>
                             <Input v-model="form.city" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Kraj</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Kraj</label>
                             <Input v-model="form.country" />
                         </div>
                     </div>
                     <div v-if="form.type === 'company'" class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5 pt-5 border-t border-slate-100 dark:border-slate-700">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Osoba kontaktowa</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Osoba kontaktowa</label>
                             <Input v-model="form.contact_person" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Email kontaktowy</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Email kontaktowy</label>
                             <Input v-model="form.contact_email" type="email" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Telefon kontaktowy</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Telefon kontaktowy</label>
                             <Input v-model="form.contact_phone" />
                         </div>
                     </div>
@@ -379,13 +379,13 @@ function submit() {
             <!-- ============ PROFILE ACCORDION SECTIONS ============ -->
 
             <div v-for="section in profileSections" :key="section.id"
-                class="bg-white dark:bg-slate-800 rounded-xl border overflow-hidden transition-colors"
-                :class="sectionHasErrors(section.id) ? 'border-red-300 dark:border-red-700' : 'border-slate-200 dark:border-slate-700'"
+                class="surface rounded-xl border overflow-hidden transition-colors"
+                :class="sectionHasErrors(section.id) ? 'border-red-300 dark:border-red-700' : 'border-border'"
             >
                 <button type="button" @click="toggleSection(section.id)" class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
                     <div class="flex items-center gap-3">
                         <Icons :name="section.icon" class="w-5 h-5 text-amber-500" />
-                        <span class="font-semibold text-slate-800 dark:text-white">{{ section.label }}</span>
+                        <span class="font-semibold text-foreground">{{ section.label }}</span>
                     </div>
                     <div class="flex items-center gap-3">
                         <span class="text-xs px-2 py-0.5 rounded-full"
@@ -404,49 +404,49 @@ function submit() {
                     <!-- VENUE -->
                     <div v-if="section.id === 'venue'" class="grid grid-cols-1 md:grid-cols-3 gap-5 pt-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Wielkość miejscowości</label>
-                            <select v-model="form.profile.venue.city_size" class="block w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm">
+                            <label class="block text-sm font-medium text-foreground mb-1">Wielkość miejscowości</label>
+                            <select v-model="form.profile.venue.city_size" class="block w-full rounded-lg border-border-bright dark:bg-slate-700 dark:text-white text-sm">
                                 <option value="">— wybierz —</option>
                                 <option v-for="(label, val) in profileOptions.city_sizes" :key="val" :value="val">{{ label }}</option>
                             </select>
                             <p v-if="form.errors['profile.venue.city_size']" class="mt-1 text-sm text-red-600">{{ form.errors['profile.venue.city_size'] }}</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Położenie</label>
-                            <select v-model="form.profile.venue.location" class="block w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm">
+                            <label class="block text-sm font-medium text-foreground mb-1">Położenie</label>
+                            <select v-model="form.profile.venue.location" class="block w-full rounded-lg border-border-bright dark:bg-slate-700 dark:text-white text-sm">
                                 <option value="">— wybierz —</option>
                                 <option v-for="(label, val) in profileOptions.locations" :key="val" :value="val">{{ label }}</option>
                             </select>
                             <p v-if="form.errors['profile.venue.location']" class="mt-1 text-sm text-red-600">{{ form.errors['profile.venue.location'] }}</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Typ lokalu</label>
-                            <select v-model="form.profile.venue.venue_type" class="block w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm">
+                            <label class="block text-sm font-medium text-foreground mb-1">Typ lokalu</label>
+                            <select v-model="form.profile.venue.venue_type" class="block w-full rounded-lg border-border-bright dark:bg-slate-700 dark:text-white text-sm">
                                 <option value="">— wybierz —</option>
                                 <option v-for="(label, val) in profileOptions.venue_types" :key="val" :value="val">{{ label }}</option>
                             </select>
                             <p v-if="form.errors['profile.venue.venue_type']" class="mt-1 text-sm text-red-600">{{ form.errors['profile.venue.venue_type'] }}</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Wielkość lokalu</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Wielkość lokalu</label>
                             <Input v-model="form.profile.venue.venue_size" placeholder="np. 80m2" />
                             <p v-if="form.errors['profile.venue.venue_size']" class="mt-1 text-sm text-red-600">{{ form.errors['profile.venue.venue_size'] }}</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Pracownicy kuchni</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Pracownicy kuchni</label>
                             <Input v-model="form.profile.venue.kitchen_staff" type="number" min="0" />
                             <p v-if="form.errors['profile.venue.kitchen_staff']" class="mt-1 text-sm text-red-600">{{ form.errors['profile.venue.kitchen_staff'] }}</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Łącznie pracowników</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Łącznie pracowników</label>
                             <Input v-model="form.profile.venue.total_staff" type="number" min="0" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Lata działania</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Lata działania</label>
                             <Input v-model="form.profile.venue.years_in_business" type="number" min="0" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Data urodzin lokalu</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Data urodzin lokalu</label>
                             <Input v-model="form.profile.venue.venue_birthday" type="date" />
                             <p v-if="form.errors['profile.venue.venue_birthday']" class="mt-1 text-sm text-red-600">{{ form.errors['profile.venue.venue_birthday'] }}</p>
                         </div>
@@ -455,17 +455,17 @@ function submit() {
                     <!-- CONCEPT -->
                     <div v-if="section.id === 'concept'" class="grid grid-cols-1 md:grid-cols-3 gap-5 pt-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Specjalność (z czego znani)</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Specjalność (z czego znani)</label>
                             <Input v-model="form.profile.concept.specialty" placeholder="np. burgery, pizza, sushi" />
                             <p v-if="form.errors['profile.concept.specialty']" class="mt-1 text-sm text-red-600">{{ form.errors['profile.concept.specialty'] }}</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Kuchnia</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Kuchnia</label>
                             <Input v-model="form.profile.concept.cuisine" placeholder="np. amerykańska, polska, azjatycka" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Poziom cen</label>
-                            <select v-model="form.profile.concept.price_level" class="block w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm">
+                            <label class="block text-sm font-medium text-foreground mb-1">Poziom cen</label>
+                            <select v-model="form.profile.concept.price_level" class="block w-full rounded-lg border-border-bright dark:bg-slate-700 dark:text-white text-sm">
                                 <option value="">— wybierz —</option>
                                 <option v-for="(label, val) in profileOptions.price_levels" :key="val" :value="val">{{ label }}</option>
                             </select>
@@ -476,19 +476,19 @@ function submit() {
                     <div v-if="section.id === 'sales'" class="space-y-5 pt-4">
                         <div class="flex items-center gap-4">
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" v-model="form.profile.sales.delivery" class="rounded border-slate-300 text-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
-                                <span class="text-sm font-medium text-gray-700 dark:text-slate-300">Dowozy</span>
+                                <input type="checkbox" v-model="form.profile.sales.delivery" class="rounded border-slate-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                <span class="text-sm font-medium text-foreground">Dowozy</span>
                             </label>
                             <div v-if="form.profile.sales.delivery" class="flex-1 max-w-xs">
                                 <Input v-model="form.profile.sales.delivery_volume" placeholder="np. 50 dziennie" />
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Platformy</label>
+                            <label class="block text-sm font-medium text-foreground mb-2">Platformy</label>
                             <div class="flex flex-wrap gap-2">
                                 <label v-for="(label, val) in profileOptions.platforms" :key="val"
                                     class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border cursor-pointer text-sm transition"
-                                    :class="form.profile.sales.platforms.includes(val) ? 'border-amber-400 bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-600' : 'border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-400 hover:border-slate-300'"
+                                    :class="form.profile.sales.platforms.includes(val) ? 'border-amber-400 bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-600' : 'border-slate-200 dark:border-slate-600 text-foreground-muted hover:border-slate-300'"
                                 >
                                     <input type="checkbox" :value="val" class="hidden" @change="toggleArrayValue(form.profile.sales.platforms, val)" :checked="form.profile.sales.platforms.includes(val)" />
                                     {{ label }}
@@ -496,18 +496,18 @@ function submit() {
                             </div>
                         </div>
                         <div class="max-w-md">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Godziny ruchu</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Godziny ruchu</label>
                             <Input v-model="form.profile.sales.rush_hours" placeholder="np. 11-14, 18-21" />
                         </div>
                     </div>
 
                     <!-- CUSTOMERS -->
                     <div v-if="section.id === 'customers'" class="pt-4">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Profil klientów</label>
+                        <label class="block text-sm font-medium text-foreground mb-2">Profil klientów</label>
                         <div class="flex flex-wrap gap-2">
                             <label v-for="(label, val) in profileOptions.customer_profiles" :key="val"
                                 class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border cursor-pointer text-sm transition"
-                                :class="form.profile.customers.profiles.includes(val) ? 'border-amber-400 bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-600' : 'border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-400 hover:border-slate-300'"
+                                :class="form.profile.customers.profiles.includes(val) ? 'border-amber-400 bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-600' : 'border-slate-200 dark:border-slate-600 text-foreground-muted hover:border-slate-300'"
                             >
                                 <input type="checkbox" :value="val" class="hidden" @change="toggleArrayValue(form.profile.customers.profiles, val)" :checked="form.profile.customers.profiles.includes(val)" />
                                 {{ label }}
@@ -520,16 +520,16 @@ function submit() {
                     <div v-if="section.id === 'kitchen'" class="space-y-5 pt-4">
                         <div class="flex flex-wrap gap-6">
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" v-model="form.profile.kitchen.own_production" class="rounded border-slate-300 text-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
-                                <span class="text-sm font-medium text-gray-700 dark:text-slate-300">Własna produkcja</span>
+                                <input type="checkbox" v-model="form.profile.kitchen.own_production" class="rounded border-slate-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                <span class="text-sm font-medium text-foreground">Własna produkcja</span>
                             </label>
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" v-model="form.profile.kitchen.uses_semi_finished" class="rounded border-slate-300 text-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
-                                <span class="text-sm font-medium text-gray-700 dark:text-slate-300">Używa półproduktów</span>
+                                <input type="checkbox" v-model="form.profile.kitchen.uses_semi_finished" class="rounded border-slate-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                <span class="text-sm font-medium text-foreground">Używa półproduktów</span>
                             </label>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Kto dostarcza (dostawcy)</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Kto dostarcza (dostawcy)</label>
                             <Input v-model="form.profile.kitchen.suppliers" placeholder="np. Hurtownia X, Dystrybutor Y" />
                             <p v-if="form.errors['profile.kitchen.suppliers']" class="mt-1 text-sm text-red-600">{{ form.errors['profile.kitchen.suppliers'] }}</p>
                         </div>
@@ -538,18 +538,18 @@ function submit() {
                     <!-- ORGANIZATION -->
                     <div v-if="section.id === 'organization'" class="grid grid-cols-1 md:grid-cols-3 gap-5 pt-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Kto decyduje</label>
-                            <select v-model="form.profile.organization.decision_maker" class="block w-full rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm">
+                            <label class="block text-sm font-medium text-foreground mb-1">Kto decyduje</label>
+                            <select v-model="form.profile.organization.decision_maker" class="block w-full rounded-lg border-border-bright dark:bg-slate-700 dark:text-white text-sm">
                                 <option value="">— wybierz —</option>
                                 <option v-for="(label, val) in profileOptions.decision_makers" :key="val" :value="val">{{ label }}</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Osoba zamawiająca</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Osoba zamawiająca</label>
                             <Input v-model="form.profile.organization.ordering_person" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Częstotliwość zamawiania</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Częstotliwość zamawiania</label>
                             <Input v-model="form.profile.organization.ordering_frequency" placeholder="np. 2x/tydzień" />
                         </div>
                     </div>
@@ -557,11 +557,11 @@ function submit() {
                     <!-- MENTAL + POTENTIAL -->
                     <div v-if="section.id === 'mental'" class="space-y-5 pt-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Cechy właściciela/zamawiającego</label>
+                            <label class="block text-sm font-medium text-foreground mb-2">Cechy właściciela/zamawiającego</label>
                             <div class="flex flex-wrap gap-2">
                                 <label v-for="(label, val) in profileOptions.personalities" :key="val"
                                     class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border cursor-pointer text-sm transition"
-                                    :class="form.profile.mental.personality.includes(val) ? 'border-amber-400 bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-600' : 'border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-400 hover:border-slate-300'"
+                                    :class="form.profile.mental.personality.includes(val) ? 'border-amber-400 bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-600' : 'border-slate-200 dark:border-slate-600 text-foreground-muted hover:border-slate-300'"
                                 >
                                     <input type="checkbox" :value="val" class="hidden" @change="toggleArrayValue(form.profile.mental.personality, val)" :checked="form.profile.mental.personality.includes(val)" />
                                     {{ label }}
@@ -570,37 +570,37 @@ function submit() {
                             <p v-if="form.errors['profile.mental.personality']" class="mt-1 text-sm text-red-600">{{ form.errors['profile.mental.personality'] }}</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Notatki — co na niego działa, jak rozmawiać</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Notatki — co na niego działa, jak rozmawiać</label>
                             <Textarea v-model="form.profile.mental.approach_notes" :rows="2" placeholder="np. Lubi dane i liczby, nie trać czasu na small talk" />
                         </div>
                         <div class="border-t border-slate-100 dark:border-slate-700 pt-5 mt-2">
-                            <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Potencjał</h4>
+                            <h4 class="text-sm font-semibold text-foreground mb-3">Potencjał</h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Działania promocyjne</label>
+                                    <label class="block text-sm font-medium text-foreground mb-1">Działania promocyjne</label>
                                     <Input v-model="form.profile.potential.promo_activities" placeholder="np. Instagram, lokalne eventy" />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Media (jak wyglądają)</label>
+                                    <label class="block text-sm font-medium text-foreground mb-1">Media (jak wyglądają)</label>
                                     <Input v-model="form.profile.potential.media_quality" placeholder="np. dobry Instagram, brak strony" />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Co od nas kupują</label>
+                                    <label class="block text-sm font-medium text-foreground mb-1">Co od nas kupują</label>
                                     <Input v-model="form.profile.potential.current_products" placeholder="np. produkt A, produkt B" />
                                 </div>
                                 <div class="flex flex-wrap gap-6 items-center">
                                     <label class="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" v-model="form.profile.potential.menu_changes" class="rounded border-slate-300 text-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
-                                        <span class="text-sm text-gray-700 dark:text-slate-300">Zmiany menu</span>
+                                        <input type="checkbox" v-model="form.profile.potential.menu_changes" class="rounded border-slate-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                        <span class="text-sm text-foreground">Zmiany menu</span>
                                     </label>
                                     <label class="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" v-model="form.profile.potential.open_to_tests" class="rounded border-slate-300 text-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
-                                        <span class="text-sm text-gray-700 dark:text-slate-300">Otwartość na testy</span>
+                                        <input type="checkbox" v-model="form.profile.potential.open_to_tests" class="rounded border-slate-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                        <span class="text-sm text-foreground">Otwartość na testy</span>
                                     </label>
                                 </div>
                             </div>
                             <div class="mt-4">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Dodatkowe notatki o potencjale</label>
+                                <label class="block text-sm font-medium text-foreground mb-1">Dodatkowe notatki o potencjale</label>
                                 <Textarea v-model="form.profile.potential.notes" :rows="2" />
                             </div>
                         </div>
@@ -610,11 +610,11 @@ function submit() {
             </div>
 
             <!-- Notes -->
-            <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="surface rounded-xl border border-border overflow-hidden">
                 <button type="button" @click="toggleSection('notes')" class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
                     <div class="flex items-center gap-3">
                         <Icons name="edit" class="w-5 h-5 text-amber-500" />
-                        <span class="font-semibold text-slate-800 dark:text-white">Notatki</span>
+                        <span class="font-semibold text-foreground">Notatki</span>
                     </div>
                     <Icons :name="isSectionOpen('notes') ? 'chevron-up' : 'chevron-down'" class="w-4 h-4 text-slate-400" />
                 </button>

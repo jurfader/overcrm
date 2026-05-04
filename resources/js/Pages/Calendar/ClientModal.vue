@@ -2168,7 +2168,7 @@ const invoiceStatusLabels = {
         <div class="client-modal">
             <!-- Header z nazwą klienta -->
             <div class="modal-header">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-slate-100">
+                <h2 class="text-xl font-semibold text-foreground">
                     {{ client.name || form.title || 'Nowa wizyta' }}
                 </h2>
                 <div v-if="!floatingMode" class="flex items-center gap-1">
@@ -2246,7 +2246,7 @@ const invoiceStatusLabels = {
                                         <Icons v-else-if="!clientSearchOpen" name="search" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                                         <div
                                             v-if="clientSearchOpen"
-                                            class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto"
+                                            class="absolute top-full left-0 right-0 mt-1 surface border border-slate-200 dark:border-slate-600 rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto"
                                         >
                                             <div v-if="clientSearchLoading" class="p-4 text-center text-slate-500 text-sm">
                                                 <Icons name="spinner" class="w-5 h-5 animate-spin mx-auto" />
@@ -2362,7 +2362,7 @@ const invoiceStatusLabels = {
                                             <span class="text-sm font-bold" style="color: #333;">A</span>
                                         </button>
                                         <div v-if="showTextColorPicker" class="color-picker-popover absolute left-0 top-full mt-1.5 z-50">
-                                            <div class="text-xs font-medium text-slate-500 dark:text-slate-400 px-2 py-1.5 border-b border-slate-100 dark:border-slate-600">Kolor tekstu</div>
+                                            <div class="text-xs font-medium text-foreground-muted px-2 py-1.5 border-b border-slate-100 dark:border-slate-600">Kolor tekstu</div>
                                             <div class="p-3">
                                                 <div class="grid grid-cols-4 gap-2">
                                                     <button
@@ -2388,7 +2388,7 @@ const invoiceStatusLabels = {
                                             <span class="text-sm font-bold px-0.5 rounded" style="background: #ffeb3b; color: #333;">A</span>
                                         </button>
                                         <div v-if="showBgColorPicker" class="color-picker-popover absolute left-0 top-full mt-1.5 z-50">
-                                            <div class="text-xs font-medium text-slate-500 dark:text-slate-400 px-2 py-1.5 border-b border-slate-100 dark:border-slate-600">Kolor tła</div>
+                                            <div class="text-xs font-medium text-foreground-muted px-2 py-1.5 border-b border-slate-100 dark:border-slate-600">Kolor tła</div>
                                             <div class="p-3">
                                                 <div class="grid grid-cols-4 gap-2">
                                                     <button
@@ -2441,7 +2441,7 @@ const invoiceStatusLabels = {
                             <!-- Telefony wizyty -->
                             <div class="form-group">
                                 <label class="form-label">Telefony wizyty</label>
-                                <p class="text-xs text-gray-500 dark:text-slate-400 -mt-1 mb-2">
+                                <p class="text-xs text-foreground-muted -mt-1 mb-2">
                                     Numery wiązane z tą wizytą. W Play Centrali połączenie z tego numeru pokaże tytuł wizyty. Po zapisie dopisane zostaną do klienta.
                                 </p>
                                 <div class="space-y-2">
@@ -2554,7 +2554,7 @@ const invoiceStatusLabels = {
                             <!-- Data wprowadzenia (kiedy spotkanie zostało pierwszy raz utworzone) -->
                             <div class="form-group">
                                 <label class="form-label">Data wprowadzenia</label>
-                                <div class="form-input bg-gray-50 dark:bg-slate-800 text-gray-700 dark:text-slate-300 py-2 px-3 rounded-lg">
+                                <div class="form-input bg-gray-50 dark:bg-slate-800 text-foreground py-2 px-3 rounded-lg">
                                     {{ visitCreatedAtFormatted }}
                                 </div>
                                 <span class="form-hint">Data pierwszego utworzenia spotkania</span>
@@ -2717,7 +2717,7 @@ const invoiceStatusLabels = {
                                     <span
                                         v-for="(f, i) in emailAttachments"
                                         :key="i"
-                                        class="inline-flex items-center gap-1 px-2 py-1 rounded bg-slate-100 dark:bg-slate-700 text-sm"
+                                        class="inline-flex items-center gap-1 px-2 py-1 rounded surface-elevated text-sm"
                                     >
                                         {{ f.name }}
                                         <button type="button" @click="removeEmailAttachment(i)" class="text-slate-500 hover:text-red-500">
@@ -2844,20 +2844,20 @@ const invoiceStatusLabels = {
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
                             <!-- Szczegóły zamówienia -->
                             <div class="border rounded-lg dark:border-slate-700 p-4">
-                                <h5 class="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-3">Szczegóły zamówienia</h5>
+                                <h5 class="text-sm font-semibold text-foreground mb-3">Szczegóły zamówienia</h5>
                                 <div class="space-y-3">
                                     <div class="grid grid-cols-2 gap-2">
                                         <div>
-                                            <label class="text-xs text-gray-500 dark:text-slate-400">Data zamówienia *</label>
+                                            <label class="text-xs text-foreground-muted">Data zamówienia *</label>
                                             <input v-model="orderForm.order_date" type="date" class="form-input text-sm" />
                                         </div>
                                         <div>
-                                            <label class="text-xs text-gray-500 dark:text-slate-400">Godzina zamówienia</label>
+                                            <label class="text-xs text-foreground-muted">Godzina zamówienia</label>
                                             <input v-model="orderForm.order_time" type="time" class="form-input text-sm" />
                                         </div>
                                     </div>
                                     <div>
-                                        <label class="text-xs text-gray-500 dark:text-slate-400">Kanał sprzedaży *</label>
+                                        <label class="text-xs text-foreground-muted">Kanał sprzedaży *</label>
                                         <select v-model="orderForm.platform_id" class="form-select text-sm">
                                             <option value="" disabled>{{ apiloOptionsLoading ? 'Ładowanie...' : 'Kanał sprzedaży' }}</option>
                                             <option v-for="p in apiloPlatforms" :key="p.id" :value="p.id">{{ p.name || ('Platforma #' + p.id) }}</option>
@@ -2868,17 +2868,17 @@ const invoiceStatusLabels = {
 
                             <!-- Płatność i wysyłka -->
                             <div class="border rounded-lg dark:border-slate-700 p-4">
-                                <h5 class="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-3">Płatność i wysyłka</h5>
+                                <h5 class="text-sm font-semibold text-foreground mb-3">Płatność i wysyłka</h5>
                                 <div class="space-y-3">
                                     <div>
-                                        <label class="text-xs text-gray-500 dark:text-slate-400">Sposób zapłaty *</label>
+                                        <label class="text-xs text-foreground-muted">Sposób zapłaty *</label>
                                         <select v-model="orderForm.payment_type" class="form-select text-sm">
                                             <option value="" disabled>{{ apiloOptionsLoading ? 'Ładowanie...' : 'Sposób zapłaty' }}</option>
                                             <option v-for="pt in apiloPaymentTypes" :key="pt.id" :value="pt.id">{{ pt.name || ('Płatność #' + pt.id) }}</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="text-xs text-gray-500 dark:text-slate-400">Dostawa</label>
+                                        <label class="text-xs text-foreground-muted">Dostawa</label>
                                         <select v-model="orderForm.carrier_account" class="form-select text-sm">
                                             <option value="" disabled>{{ apiloOptionsLoading ? 'Ładowanie...' : 'Dostawa' }}</option>
                                             <option v-for="ca in apiloCarriers" :key="ca.id" :value="ca.id">{{ ca.name || ('Kurier #' + ca.id) }}</option>
@@ -2886,7 +2886,7 @@ const invoiceStatusLabels = {
                                     </div>
                                     <div v-if="isInPostPaczkomat" class="space-y-2">
                                         <div>
-                                            <label class="text-xs text-gray-500 dark:text-slate-400">Paczkomat InPost (np. KRA010)</label>
+                                            <label class="text-xs text-foreground-muted">Paczkomat InPost (np. KRA010)</label>
                                             <div class="flex gap-2">
                                                 <input
                                                     v-model="orderForm.inpost_parcel_point"
@@ -2923,7 +2923,7 @@ const invoiceStatusLabels = {
                             <span v-if="productsLoaded" class="text-xs px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
                                 {{ apiloProducts.length }} produktów załadowanych
                             </span>
-                            <span v-else-if="productsLoading" class="text-xs text-gray-500 dark:text-slate-400">
+                            <span v-else-if="productsLoading" class="text-xs text-foreground-muted">
                                 Pobieranie z Apilo...
                             </span>
                         </div>
@@ -3006,7 +3006,7 @@ const invoiceStatusLabels = {
                                     </button>
                                 </div>
                                 <!-- Wybrany produkt (info) -->
-                                <div v-if="product.name && !productDropdownOpen[index]" class="px-3 pb-2 text-xs text-gray-600 dark:text-slate-400 truncate">
+                                <div v-if="product.name && !productDropdownOpen[index]" class="px-3 pb-2 text-xs text-foreground-muted truncate">
                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
                                         {{ product.name }}
                                         <span v-if="product.product_id" class="text-amber-500 dark:text-amber-500">#{{ product.product_id }}</span>
@@ -3015,13 +3015,13 @@ const invoiceStatusLabels = {
                                 <!-- Lista wyników wyszukiwania (inline, nie absolute) -->
                                 <div 
                                     v-if="productDropdownOpen[index] && productsLoaded"
-                                    class="mx-3 mb-2 max-h-48 overflow-y-auto bg-gray-50 dark:bg-slate-900/50 border border-gray-200 dark:border-slate-600 rounded-lg"
+                                    class="mx-3 mb-2 max-h-48 overflow-y-auto surface-2 border border-gray-200 dark:border-slate-600 rounded-lg"
                                 >
-                                    <div v-if="productsLoading" class="p-3 text-center text-xs text-gray-500 dark:text-slate-400">
+                                    <div v-if="productsLoading" class="p-3 text-center text-xs text-foreground-muted">
                                         <Icons name="refresh" class="w-4 h-4 animate-spin inline mr-1" />
                                         Ładowanie produktów...
                                     </div>
-                                    <div v-else-if="getFilteredProducts(index).length === 0" class="p-3 text-center text-xs text-gray-500 dark:text-slate-400">
+                                    <div v-else-if="getFilteredProducts(index).length === 0" class="p-3 text-center text-xs text-foreground-muted">
                                         Nie znaleziono produktów pasujących do "{{ productSearchQuery[index] }}"
                                     </div>
                                     <button 
@@ -3029,14 +3029,14 @@ const invoiceStatusLabels = {
                                         :key="'apilo-p-' + index + '-' + pIdx + '-' + (p.id ?? 'noid') + '-' + String(p.sku || '').slice(0, 24)"
                                         type="button"
                                         @mousedown.prevent="selectProduct(index, p)"
-                                        class="w-full text-left px-3 py-2 text-sm hover:bg-amber-50 dark:hover:bg-amber-900/30 border-b border-gray-200 dark:border-slate-700 last:border-0 transition-colors cursor-pointer"
+                                        class="w-full text-left px-3 py-2 text-sm hover:bg-amber-50 dark:hover:bg-amber-900/30 border-b border-border last:border-0 transition-colors cursor-pointer"
                                         :class="{ 'bg-amber-50 dark:bg-amber-900/30': product.product_id && String(product.product_id) === String(p.id) }"
                                     >
-                                        <div class="font-medium text-gray-900 dark:text-slate-200 truncate">{{ p.name }}</div>
+                                        <div class="font-medium text-foreground truncate">{{ p.name }}</div>
                                         <div class="flex items-center gap-3 mt-0.5 flex-wrap">
                                             <span class="text-xs font-medium text-amber-600 dark:text-amber-400">{{ formatCurrency(p.price) }} brutto</span>
-                                            <span class="text-xs text-gray-500 dark:text-slate-400">{{ formatCurrency(p.price_net ?? (p.price / (1 + (p.tax_rate || 23) / 100))) }} netto</span>
-                                            <span class="text-xs text-gray-500 dark:text-slate-400">{{ p.tax_rate ?? 23 }}% VAT</span>
+                                            <span class="text-xs text-foreground-muted">{{ formatCurrency(p.price_net ?? (p.price / (1 + (p.tax_rate || 23) / 100))) }} netto</span>
+                                            <span class="text-xs text-foreground-muted">{{ p.tax_rate ?? 23 }}% VAT</span>
                                             <span v-if="p.sku" class="text-xs text-gray-400 dark:text-slate-500">SKU: {{ p.sku }}</span>
                                             <span v-if="p.ean" class="text-xs text-gray-400 dark:text-slate-500">EAN: {{ p.ean }}</span>
                                         </div>
@@ -3045,9 +3045,9 @@ const invoiceStatusLabels = {
                                 <!-- Info gdy produkty nie załadowane -->
                                 <div 
                                     v-else-if="productDropdownOpen[index] && !productsLoaded && !productsLoading"
-                                    class="mx-3 mb-2 p-3 bg-gray-50 dark:bg-slate-900/50 border border-gray-200 dark:border-slate-600 rounded-lg text-center"
+                                    class="mx-3 mb-2 p-3 surface-2 border border-gray-200 dark:border-slate-600 rounded-lg text-center"
                                 >
-                                    <p class="text-xs text-gray-500 dark:text-slate-400 mb-2">Produkty nie zostały jeszcze pobrane z Apilo</p>
+                                    <p class="text-xs text-foreground-muted mb-2">Produkty nie zostały jeszcze pobrane z Apilo</p>
                                     <button 
                                         @mousedown.prevent="loadApiloProducts(true)"
                                         class="text-xs text-amber-600 dark:text-amber-400 hover:underline font-medium"
@@ -3071,11 +3071,11 @@ const invoiceStatusLabels = {
                             </div>
                             <div class="order-total text-right">
                                 <div>
-                                    <span class="text-gray-500 dark:text-slate-400 text-sm">Netto:</span>
-                                    <span class="font-semibold text-gray-700 dark:text-slate-300 ml-1">{{ formatCurrency(orderTotalNet) }}</span>
+                                    <span class="text-foreground-muted text-sm">Netto:</span>
+                                    <span class="font-semibold text-foreground ml-1">{{ formatCurrency(orderTotalNet) }}</span>
                                 </div>
                                 <div>
-                                    <span class="text-gray-500 dark:text-slate-400 text-sm">Brutto:</span>
+                                    <span class="text-foreground-muted text-sm">Brutto:</span>
                                     <span class="total-value">{{ formatCurrency(orderTotal) }}</span>
                                 </div>
                             </div>
@@ -3086,7 +3086,7 @@ const invoiceStatusLabels = {
                             <!-- Dane zamawiającego -->
                             <div class="border rounded-lg dark:border-slate-700 p-4">
                                 <div class="flex items-center justify-between mb-3">
-                                    <h5 class="text-sm font-semibold text-gray-700 dark:text-slate-300">Dane zamawiającego</h5>
+                                    <h5 class="text-sm font-semibold text-foreground">Dane zamawiającego</h5>
                                     <button
                                         type="button"
                                         @click="lookupNipForOrderForm"
@@ -3102,39 +3102,39 @@ const invoiceStatusLabels = {
                                 <p v-if="orderGusError" class="text-xs text-red-600 dark:text-red-400 mb-2">{{ orderGusError }}</p>
                                 <div class="space-y-2">
                                     <div>
-                                        <label class="text-xs text-gray-500 dark:text-slate-400">Nazwa *</label>
+                                        <label class="text-xs text-foreground-muted">Nazwa *</label>
                                         <input v-model="orderForm.customer_name" type="text" class="form-input text-sm" placeholder="Nazwa klienta" />
                                     </div>
                                     <div>
-                                        <label class="text-xs text-gray-500 dark:text-slate-400">NIP</label>
+                                        <label class="text-xs text-foreground-muted">NIP</label>
                                         <input v-model="orderForm.customer_nip" type="text" class="form-input text-sm" placeholder="NIP firmy" />
                                     </div>
                                     <div class="grid grid-cols-3 gap-2">
                                         <div class="col-span-2">
-                                            <label class="text-xs text-gray-500 dark:text-slate-400">Ulica</label>
+                                            <label class="text-xs text-foreground-muted">Ulica</label>
                                             <input v-model="orderForm.customer_street" type="text" class="form-input text-sm" placeholder="Ulica" />
                                         </div>
                                         <div>
-                                            <label class="text-xs text-gray-500 dark:text-slate-400">Numer</label>
+                                            <label class="text-xs text-foreground-muted">Numer</label>
                                             <input v-model="orderForm.customer_street_number" type="text" class="form-input text-sm" placeholder="Nr" />
                                         </div>
                                     </div>
                                     <div class="grid grid-cols-3 gap-2">
                                         <div>
-                                            <label class="text-xs text-gray-500 dark:text-slate-400">Kod pocztowy</label>
+                                            <label class="text-xs text-foreground-muted">Kod pocztowy</label>
                                             <input v-model="orderForm.customer_zip" type="text" class="form-input text-sm" placeholder="00-000" />
                                         </div>
                                         <div class="col-span-2">
-                                            <label class="text-xs text-gray-500 dark:text-slate-400">Miasto</label>
+                                            <label class="text-xs text-foreground-muted">Miasto</label>
                                             <input v-model="orderForm.customer_city" type="text" class="form-input text-sm" placeholder="Miasto" />
                                         </div>
                                     </div>
                                     <div>
-                                        <label class="text-xs text-gray-500 dark:text-slate-400">Telefon *</label>
+                                        <label class="text-xs text-foreground-muted">Telefon *</label>
                                         <input v-model="orderForm.customer_phone" type="text" class="form-input text-sm" placeholder="Telefon" />
                                     </div>
                                     <div>
-                                        <label class="text-xs text-gray-500 dark:text-slate-400">E-mail</label>
+                                        <label class="text-xs text-foreground-muted">E-mail</label>
                                         <input v-model="orderForm.customer_email" type="email" class="form-input text-sm" placeholder="E-mail" />
                                     </div>
                                 </div>
@@ -3143,10 +3143,10 @@ const invoiceStatusLabels = {
                             <!-- Dane wysyłki -->
                             <div class="border rounded-lg dark:border-slate-700 p-4">
                                 <div class="flex items-center justify-between mb-3">
-                                    <h5 class="text-sm font-semibold text-gray-700 dark:text-slate-300">Dane wysyłki</h5>
+                                    <h5 class="text-sm font-semibold text-foreground">Dane wysyłki</h5>
                                     <label class="flex items-center gap-1.5 cursor-pointer">
-                                        <input type="checkbox" v-model="orderForm.same_address" class="rounded border-gray-300 dark:border-slate-600 text-amber-500 focus:ring-amber-500" />
-                                        <span class="text-xs text-gray-500 dark:text-slate-400">Taki sam jak zamawiający</span>
+                                        <input type="checkbox" v-model="orderForm.same_address" class="rounded border-border-bright text-amber-500 focus:ring-brand-primary" />
+                                        <span class="text-xs text-foreground-muted">Taki sam jak zamawiający</span>
                                     </label>
                                 </div>
                                 <div v-if="!orderForm.same_address" class="space-y-2">
@@ -3156,35 +3156,35 @@ const invoiceStatusLabels = {
                                         </button>
                                     </div>
                                     <div>
-                                        <label class="text-xs text-gray-500 dark:text-slate-400">Nazwa *</label>
+                                        <label class="text-xs text-foreground-muted">Nazwa *</label>
                                         <input v-model="orderForm.delivery_name" type="text" class="form-input text-sm" placeholder="Nazwa odbiorcy" />
                                     </div>
                                     <div class="grid grid-cols-3 gap-2">
                                         <div class="col-span-2">
-                                            <label class="text-xs text-gray-500 dark:text-slate-400">Ulica</label>
+                                            <label class="text-xs text-foreground-muted">Ulica</label>
                                             <input v-model="orderForm.delivery_street" type="text" class="form-input text-sm" placeholder="Ulica" />
                                         </div>
                                         <div>
-                                            <label class="text-xs text-gray-500 dark:text-slate-400">Numer</label>
+                                            <label class="text-xs text-foreground-muted">Numer</label>
                                             <input v-model="orderForm.delivery_street_number" type="text" class="form-input text-sm" placeholder="Nr" />
                                         </div>
                                     </div>
                                     <div class="grid grid-cols-3 gap-2">
                                         <div>
-                                            <label class="text-xs text-gray-500 dark:text-slate-400">Kod pocztowy</label>
+                                            <label class="text-xs text-foreground-muted">Kod pocztowy</label>
                                             <input v-model="orderForm.delivery_zip" type="text" class="form-input text-sm" placeholder="00-000" />
                                         </div>
                                         <div class="col-span-2">
-                                            <label class="text-xs text-gray-500 dark:text-slate-400">Miasto</label>
+                                            <label class="text-xs text-foreground-muted">Miasto</label>
                                             <input v-model="orderForm.delivery_city" type="text" class="form-input text-sm" placeholder="Miasto" />
                                         </div>
                                     </div>
                                     <div>
-                                        <label class="text-xs text-gray-500 dark:text-slate-400">Telefon *</label>
+                                        <label class="text-xs text-foreground-muted">Telefon *</label>
                                         <input v-model="orderForm.delivery_phone" type="text" class="form-input text-sm" placeholder="Telefon" />
                                     </div>
                                     <div>
-                                        <label class="text-xs text-gray-500 dark:text-slate-400">E-mail</label>
+                                        <label class="text-xs text-foreground-muted">E-mail</label>
                                         <input v-model="orderForm.delivery_email" type="email" class="form-input text-sm" placeholder="E-mail" />
                                     </div>
                                 </div>
@@ -3245,7 +3245,7 @@ const invoiceStatusLabels = {
                                 </div>
                                 <div
                                     v-if="order.payment_method"
-                                    class="text-xs text-gray-500 dark:text-slate-400 mt-1 pl-0.5"
+                                    class="text-xs text-foreground-muted mt-1 pl-0.5"
                                 >
                                     Płatność: {{ order.payment_method }}
                                 </div>
@@ -3361,7 +3361,7 @@ const invoiceStatusLabels = {
                                 </div>
                             </div>
                             <!-- Pozycje faktury -->
-                            <div v-if="loadingInvoiceId === invoice.id" class="invoice-positions px-4 py-3 text-sm text-gray-500 dark:text-slate-400">
+                            <div v-if="loadingInvoiceId === invoice.id" class="invoice-positions px-4 py-3 text-sm text-foreground-muted">
                                 Ładowanie pozycji...
                             </div>
                             <div v-else-if="invoiceDetailsCache[invoice.id]?.error" class="invoice-positions px-4 py-3 text-sm text-red-500 flex items-center gap-2">
@@ -3371,10 +3371,10 @@ const invoiceStatusLabels = {
                                 </button>
                             </div>
                             <div v-else-if="invoiceDetailsCache[invoice.id]?.positions?.length" class="invoice-positions border-t dark:border-slate-700">
-                                <div class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Pozycje na fakturze</div>
+                                <div class="px-4 py-2 text-xs font-medium text-foreground-muted uppercase">Pozycje na fakturze</div>
                                 <table class="w-full text-sm">
                                     <thead>
-                                        <tr class="text-left text-gray-500 dark:text-slate-400 border-b dark:border-slate-700">
+                                        <tr class="text-left text-foreground-muted border-b dark:border-slate-700">
                                             <th class="px-4 py-2 font-medium">Nazwa</th>
                                             <th class="px-4 py-2 font-medium text-right">Ilość</th>
                                             <th class="px-4 py-2 font-medium text-right">Cena netto</th>
@@ -3395,7 +3395,7 @@ const invoiceStatusLabels = {
                                     </tbody>
                                 </table>
                             </div>
-                            <div v-else-if="invoiceDetailsCache[invoice.id] && (!invoiceDetailsCache[invoice.id].positions || invoiceDetailsCache[invoice.id].positions.length === 0)" class="invoice-positions px-4 py-3 text-sm text-gray-500 dark:text-slate-400">
+                            <div v-else-if="invoiceDetailsCache[invoice.id] && (!invoiceDetailsCache[invoice.id].positions || invoiceDetailsCache[invoice.id].positions.length === 0)" class="invoice-positions px-4 py-3 text-sm text-foreground-muted">
                                 Brak pozycji
                             </div>
                         </div>
@@ -3614,8 +3614,8 @@ const invoiceStatusLabels = {
                                                 <label class="form-label">Cechy osobowości</label>
                                                 <div class="flex flex-wrap gap-2 mt-1">
                                                     <label v-for="(label, val) in profileOptions.personalities" :key="val" class="flex items-center gap-1.5">
-                                                        <input type="checkbox" :value="val" v-model="clientForm.profile.mental.personality" class="rounded border-gray-300 text-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
-                                                        <span class="text-sm text-gray-700 dark:text-slate-300">{{ label }}</span>
+                                                        <input type="checkbox" :value="val" v-model="clientForm.profile.mental.personality" class="rounded border-gray-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                                        <span class="text-sm text-foreground">{{ label }}</span>
                                                     </label>
                                                 </div>
                                             </div>
@@ -3754,8 +3754,8 @@ const invoiceStatusLabels = {
                                     <div v-if="openProfileSections.sales" class="profile-accordion-body">
                                         <div class="space-y-3">
                                             <label class="flex items-center gap-2">
-                                                <input type="checkbox" v-model="clientForm.profile.sales.delivery" class="rounded border-gray-300 text-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
-                                                <span class="text-sm text-gray-700 dark:text-slate-300">Dostawa</span>
+                                                <input type="checkbox" v-model="clientForm.profile.sales.delivery" class="rounded border-gray-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                                <span class="text-sm text-foreground">Dostawa</span>
                                             </label>
                                             <div v-if="clientForm.profile.sales.delivery">
                                                 <label class="form-label">Wolumen dostaw</label>
@@ -3765,8 +3765,8 @@ const invoiceStatusLabels = {
                                                 <label class="form-label">Platformy</label>
                                                 <div class="flex flex-wrap gap-2 mt-1">
                                                     <label v-for="(label, val) in profileOptions.platforms" :key="val" class="flex items-center gap-1.5">
-                                                        <input type="checkbox" :value="val" v-model="clientForm.profile.sales.platforms" class="rounded border-gray-300 text-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
-                                                        <span class="text-sm text-gray-700 dark:text-slate-300">{{ label }}</span>
+                                                        <input type="checkbox" :value="val" v-model="clientForm.profile.sales.platforms" class="rounded border-gray-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                                        <span class="text-sm text-foreground">{{ label }}</span>
                                                     </label>
                                                 </div>
                                             </div>
@@ -3787,8 +3787,8 @@ const invoiceStatusLabels = {
                                     <div v-if="openProfileSections.customers" class="profile-accordion-body">
                                         <div class="flex flex-wrap gap-2">
                                             <label v-for="(label, val) in profileOptions.customer_profiles" :key="val" class="flex items-center gap-1.5">
-                                                <input type="checkbox" :value="val" v-model="clientForm.profile.customers.profiles" class="rounded border-gray-300 text-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
-                                                <span class="text-sm text-gray-700 dark:text-slate-300">{{ label }}</span>
+                                                <input type="checkbox" :value="val" v-model="clientForm.profile.customers.profiles" class="rounded border-gray-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                                <span class="text-sm text-foreground">{{ label }}</span>
                                             </label>
                                         </div>
                                     </div>
@@ -3803,12 +3803,12 @@ const invoiceStatusLabels = {
                                     <div v-if="openProfileSections.kitchen" class="profile-accordion-body">
                                         <div class="space-y-3">
                                             <label class="flex items-center gap-2">
-                                                <input type="checkbox" v-model="clientForm.profile.kitchen.own_production" class="rounded border-gray-300 text-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
-                                                <span class="text-sm text-gray-700 dark:text-slate-300">Własna produkcja</span>
+                                                <input type="checkbox" v-model="clientForm.profile.kitchen.own_production" class="rounded border-gray-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                                <span class="text-sm text-foreground">Własna produkcja</span>
                                             </label>
                                             <label class="flex items-center gap-2">
-                                                <input type="checkbox" v-model="clientForm.profile.kitchen.uses_semi_finished" class="rounded border-gray-300 text-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
-                                                <span class="text-sm text-gray-700 dark:text-slate-300">Używa półproduktów</span>
+                                                <input type="checkbox" v-model="clientForm.profile.kitchen.uses_semi_finished" class="rounded border-gray-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                                <span class="text-sm text-foreground">Używa półproduktów</span>
                                             </label>
                                             <div>
                                                 <label class="form-label">Dostawcy</label>
@@ -3836,12 +3836,12 @@ const invoiceStatusLabels = {
                                             </div>
                                             <div class="flex gap-6">
                                                 <label class="flex items-center gap-2">
-                                                    <input type="checkbox" v-model="clientForm.profile.potential.menu_changes" class="rounded border-gray-300 text-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
-                                                    <span class="text-sm text-gray-700 dark:text-slate-300">Zmiany w menu</span>
+                                                    <input type="checkbox" v-model="clientForm.profile.potential.menu_changes" class="rounded border-gray-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                                    <span class="text-sm text-foreground">Zmiany w menu</span>
                                                 </label>
                                                 <label class="flex items-center gap-2">
-                                                    <input type="checkbox" v-model="clientForm.profile.potential.open_to_tests" class="rounded border-gray-300 text-amber-500 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
-                                                    <span class="text-sm text-gray-700 dark:text-slate-300">Otwarty na testy</span>
+                                                    <input type="checkbox" v-model="clientForm.profile.potential.open_to_tests" class="rounded border-gray-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                                    <span class="text-sm text-foreground">Otwarty na testy</span>
                                                 </label>
                                             </div>
                                             <div>
@@ -3876,7 +3876,7 @@ const invoiceStatusLabels = {
                                         <div>
                                             <label class="form-label">Data urodzin lokalu (rocznica otwarcia)</label>
                                             <input type="date" v-model="clientForm.profile.venue.venue_birthday" class="form-input" />
-                                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Handlowiec otrzyma przypomnienie 30 dni przed tą datą</p>
+                                            <p class="text-xs text-foreground-muted mt-1">Handlowiec otrzyma przypomnienie 30 dni przed tą datą</p>
                                         </div>
                                     </div>
                                 </div>
@@ -3921,7 +3921,7 @@ const invoiceStatusLabels = {
 
                     <div v-else class="space-y-2">
                         <div v-for="call in clientCalls" :key="call.id"
-                            class="bg-slate-50 dark:bg-slate-700/50 rounded-lg overflow-hidden"
+                            class="surface-2/50 rounded-lg overflow-hidden"
                         >
                             <div class="flex items-center gap-3 p-3">
                                 <div class="flex-shrink-0">
@@ -3932,7 +3932,7 @@ const invoiceStatusLabels = {
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-2">
-                                        <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ call.call_date }}</span>
+                                        <span class="text-sm font-medium text-foreground">{{ call.call_date }}</span>
                                         <span :class="[
                                             'px-1.5 py-0.5 rounded text-xs font-medium',
                                             call.disposition === 'ANSWERED' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
@@ -3940,7 +3940,7 @@ const invoiceStatusLabels = {
                                             {{ call.disposition_label }}
                                         </span>
                                     </div>
-                                    <div class="text-xs text-slate-500 dark:text-slate-400">
+                                    <div class="text-xs text-foreground-muted">
                                         {{ call.call_type_label }} · {{ call.formatted_duration }}
                                         <span v-if="call.employee_name"> · {{ call.employee_name }}</span>
                                     </div>
@@ -4083,7 +4083,7 @@ const invoiceStatusLabels = {
 
 /* Zawartość */
 .modal-content {
-    @apply flex-1 overflow-y-auto bg-white dark:bg-slate-800;
+    @apply flex-1 overflow-y-auto surface;
 }
 
 .tab-content {
@@ -4104,7 +4104,7 @@ const invoiceStatusLabels = {
 }
 
 .form-label {
-    @apply block text-sm font-medium text-gray-700 dark:text-slate-300;
+    @apply block text-sm font-medium text-foreground;
 }
 
 .form-hint {
@@ -4112,7 +4112,7 @@ const invoiceStatusLabels = {
 }
 
 .form-input, .form-select, .form-textarea {
-    @apply w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm
+    @apply w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-brand-primary focus:border-brand-primary text-sm
            dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 dark:placeholder-slate-400;
 }
 
@@ -4150,11 +4150,11 @@ const invoiceStatusLabels = {
 }
 
 .color-picker-popover {
-    @apply min-w-[140px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg shadow-xl;
+    @apply min-w-[140px] surface border border-slate-200 dark:border-slate-600 rounded-lg shadow-xl;
 }
 
 .color-swatch {
-    @apply w-8 h-8 rounded-md border border-slate-200 dark:border-slate-600 transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1;
+    @apply w-8 h-8 rounded-md border border-slate-200 dark:border-slate-600 transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-1;
 }
 
 /* Przyciski */
@@ -4267,7 +4267,7 @@ const invoiceStatusLabels = {
 }
 
 .order-date {
-    @apply text-sm text-gray-500 dark:text-slate-400;
+    @apply text-sm text-foreground-muted;
 }
 
 .tracking-badge {
@@ -4295,7 +4295,7 @@ const invoiceStatusLabels = {
 
 /* Stany */
 .loading-state, .empty-state {
-    @apply text-center py-8 text-gray-500 dark:text-slate-400;
+    @apply text-center py-8 text-foreground-muted;
 }
 
 /* NIP */
@@ -4407,11 +4407,11 @@ const invoiceStatusLabels = {
 }
 
 .meta-label {
-    @apply w-16 text-gray-500 dark:text-slate-400;
+    @apply w-16 text-foreground-muted;
 }
 
 .email-preview-body {
-    @apply flex-1 overflow-auto p-6 bg-white dark:bg-slate-800;
+    @apply flex-1 overflow-auto p-6 surface;
 }
 
 .email-preview-footer {

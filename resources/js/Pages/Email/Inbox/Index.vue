@@ -146,7 +146,7 @@ function formatDate(dateStr) {
                     <button
                         @click="refreshInbox"
                         :disabled="refreshing"
-                        class="inline-flex items-center gap-2 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg font-medium transition-colors disabled:opacity-50"
+                        class="inline-flex items-center gap-2 px-3 py-2 text-foreground-muted hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg font-medium transition-colors disabled:opacity-50"
                         title="Odśwież (pobierz najnowsze maile)"
                     >
                         <Icons name="refresh" class="w-5 h-5" :class="{ 'animate-spin': refreshing }" />
@@ -164,10 +164,10 @@ function formatDate(dateStr) {
 
             <!-- Wybór konfiguracji -->
             <div v-if="mailConfigs.length > 0" class="flex flex-wrap gap-4 items-center">
-                <label class="text-sm font-medium text-slate-600 dark:text-slate-400">Konto:</label>
+                <label class="text-sm font-medium text-foreground-muted">Konto:</label>
                 <select
                     v-model="selectedConfigId"
-                    class="rounded-lg border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 text-sm"
+                    class="rounded-lg border-border-bright dark:bg-slate-700 dark:text-slate-200 text-sm"
                 >
                     <option v-for="c in mailConfigs" :key="c.id" :value="c.id">
                         {{ c.name }} ({{ c.mail_from_address }})
@@ -193,14 +193,14 @@ function formatDate(dateStr) {
             </div>
 
             <!-- Lista wiadomości -->
-            <div v-else-if="emails.length > 0" class="bg-white dark:bg-slate-800 rounded-xl shadow-sm overflow-hidden">
+            <div v-else-if="emails.length > 0" class="surface rounded-xl shadow-sm overflow-hidden">
                 <div class="divide-y divide-slate-200 dark:divide-slate-700">
                     <button
                         v-for="email in emails"
                         :key="email.uid"
                         @click="openMessage(selectedConfigId, email.uid)"
                         class="w-full flex items-center gap-4 p-4 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
-                        :class="{ 'bg-slate-50 dark:bg-slate-700/30': !email.is_seen }"
+                        :class="{ 'surface-2/30': !email.is_seen }"
                     >
                         <div class="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
                             <Icons name="mail" class="w-5 h-5 text-amber-600 dark:text-amber-400" />
@@ -210,7 +210,7 @@ function formatDate(dateStr) {
                                 <span class="font-medium text-slate-900 dark:text-slate-200 truncate">
                                     {{ email.from_name || email.from || 'Nieznany' }}
                                 </span>
-                                <span class="text-xs text-slate-500 dark:text-slate-400 shrink-0">
+                                <span class="text-xs text-foreground-muted shrink-0">
                                     {{ formatDate(email.date) }}
                                 </span>
                             </div>
@@ -224,7 +224,7 @@ function formatDate(dateStr) {
             </div>
 
             <!-- Pusta skrzynka -->
-            <div v-else-if="selectedConfigId && !error" class="text-center py-12 text-slate-500 dark:text-slate-400">
+            <div v-else-if="selectedConfigId && !error" class="text-center py-12 text-foreground-muted">
                 <Icons name="mail" class="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>Brak wiadomości w skrzynce odbiorczej</p>
             </div>
@@ -236,8 +236,8 @@ function formatDate(dateStr) {
             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
             @click.self="closeMessageModal"
         >
-            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-                <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
+            <div class="surface rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+                <div class="flex items-center justify-between p-4 border-b border-border">
                     <h3 class="font-semibold text-slate-900 dark:text-slate-200 truncate flex-1 mr-2">
                         {{ messageDetail?.subject || 'Ładowanie...' }}
                     </h3>
@@ -252,7 +252,7 @@ function formatDate(dateStr) {
                         </button>
                         <button
                             @click="closeMessageModal"
-                            class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500"
+                            class="p-2 rounded-lg hover:bg-surface-elevated text-slate-500"
                         >
                             <Icons name="close" class="w-5 h-5" />
                         </button>
@@ -265,13 +265,13 @@ function formatDate(dateStr) {
                     {{ messageDetail.error }}
                 </div>
                 <div v-else-if="messageDetail" class="flex-1 overflow-auto p-4">
-                    <div class="text-sm text-slate-600 dark:text-slate-400 mb-4 space-y-1">
+                    <div class="text-sm text-foreground-muted mb-4 space-y-1">
                         <p><strong>Od:</strong> {{ messageDetail.from_name || messageDetail.from }}</p>
                         <p><strong>Do:</strong> {{ messageDetail.to }}</p>
                         <p><strong>Data:</strong> {{ messageDetail.date }}</p>
                     </div>
                     <div
-                        class="prose dark:prose-invert max-w-none text-slate-700 dark:text-slate-300"
+                        class="prose dark:prose-invert max-w-none text-foreground"
                         v-html="messageDetail.html"
                     />
                 </div>
@@ -284,10 +284,10 @@ function formatDate(dateStr) {
             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
             @click.self="closeComposeModal"
         >
-            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-                <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
+            <div class="surface rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+                <div class="flex items-center justify-between p-4 border-b border-border">
                     <h3 class="font-semibold text-slate-900 dark:text-slate-200">Nowa wiadomość</h3>
-                    <button @click="closeComposeModal" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500">
+                    <button @click="closeComposeModal" class="p-2 rounded-lg hover:bg-surface-elevated text-slate-500">
                         <Icons name="close" class="w-5 h-5" />
                     </button>
                 </div>
@@ -296,39 +296,39 @@ function formatDate(dateStr) {
                         {{ composeError }}
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Do *</label>
+                        <label class="block text-sm font-medium text-foreground mb-1">Do *</label>
                         <input
                             v-model="composeTo"
                             type="email"
                             required
-                            class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-slate-200"
+                            class="w-full px-4 py-2 border border-border-bright rounded-lg dark:bg-slate-700 dark:text-slate-200"
                             placeholder="adres@example.com"
                         />
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nazwa odbiorcy</label>
+                        <label class="block text-sm font-medium text-foreground mb-1">Nazwa odbiorcy</label>
                         <input
                             v-model="composeToName"
                             type="text"
-                            class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-slate-200"
+                            class="w-full px-4 py-2 border border-border-bright rounded-lg dark:bg-slate-700 dark:text-slate-200"
                             placeholder="np. Jan Kowalski"
                         />
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Temat *</label>
+                        <label class="block text-sm font-medium text-foreground mb-1">Temat *</label>
                         <input
                             v-model="composeSubject"
                             type="text"
                             required
-                            class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-slate-200"
+                            class="w-full px-4 py-2 border border-border-bright rounded-lg dark:bg-slate-700 dark:text-slate-200"
                             placeholder="Temat wiadomości"
                         />
                     </div>
                     <div v-if="mailConfigs?.length > 1">
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Wyślij z konta</label>
+                        <label class="block text-sm font-medium text-foreground mb-1">Wyślij z konta</label>
                         <select
                             v-model="composeConfigId"
-                            class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-slate-200"
+                            class="w-full px-4 py-2 border border-border-bright rounded-lg dark:bg-slate-700 dark:text-slate-200"
                         >
                             <option v-for="c in mailConfigs" :key="c.id" :value="c.id">
                                 {{ c.name }} ({{ c.mail_from_address }})
@@ -336,12 +336,12 @@ function formatDate(dateStr) {
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Treść *</label>
+                        <label class="block text-sm font-medium text-foreground mb-1">Treść *</label>
                         <textarea
                             v-model="composeBody"
                             rows="8"
                             required
-                            class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg dark:bg-slate-700 dark:text-slate-200"
+                            class="w-full px-4 py-2 border border-border-bright rounded-lg dark:bg-slate-700 dark:text-slate-200"
                             placeholder="Wpisz treść wiadomości..."
                         />
                     </div>
@@ -349,7 +349,7 @@ function formatDate(dateStr) {
                         <button
                             type="button"
                             @click="closeComposeModal"
-                            class="px-4 py-2 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                            class="px-4 py-2 text-foreground-muted hover:text-slate-800 dark:hover:text-slate-200"
                         >
                             Anuluj
                         </button>

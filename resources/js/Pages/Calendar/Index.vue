@@ -824,8 +824,8 @@ watch(() => props.clients, (newClients) => {
                 <button @click="changeView('week')" class="view-btn" :class="{ active: currentView === 'week' }">Tydzień</button>
                 <button @click="changeView('day')" class="view-btn" :class="{ active: currentView === 'day' }">Dzień</button>
                 <label class="flex items-center gap-2 ml-2 cursor-pointer">
-                    <input type="checkbox" v-model="trashedFilter" class="rounded border-gray-300 text-amber-600 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
-                    <span class="text-sm text-gray-700 dark:text-slate-300">Kosz</span>
+                    <input type="checkbox" v-model="trashedFilter" class="rounded border-gray-300 text-amber-600 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                    <span class="text-sm text-foreground">Kosz</span>
                 </label>
             </div>
         </div>
@@ -833,12 +833,12 @@ watch(() => props.clients, (newClients) => {
         <!-- Wyszukiwarka -->
         <div ref="calendarSearchRef" class="relative max-w-md mb-4">
             <div class="relative">
-                <Icons name="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 pointer-events-none" />
+                <Icons name="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground-subtle pointer-events-none" />
                 <input
                     v-model="calendarSearchQuery"
                     type="text"
                     placeholder="Szukaj spotkania lub klienta..."
-                    class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 dark:focus:ring-amber-500/50"
+                    class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-600 surface text-foreground placeholder-slate-400 focus:ring-2 focus:ring-brand-primary focus:border-brand-primary dark:focus:ring-brand-primary/50"
                     @focus="calendarSearchOpen = true"
                     @input="onCalendarSearchInput"
                     @keydown="handleCalendarSearchKeydown"
@@ -855,13 +855,13 @@ watch(() => props.clients, (newClients) => {
             <!-- Wyniki wyszukiwania -->
             <div
                 v-if="calendarSearchOpen && (calendarSearchQuery.length >= 2 || calendarSearchFlat.length > 0)"
-                class="absolute left-0 right-0 top-full mt-1 z-50 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden max-h-80 overflow-y-auto"
+                class="absolute left-0 right-0 top-full mt-1 z-50 surface rounded-lg shadow-xl border border-border overflow-hidden max-h-80 overflow-y-auto"
             >
-                <div v-if="calendarSearchLoading" class="p-4 text-center text-slate-500 dark:text-slate-400 text-sm">
+                <div v-if="calendarSearchLoading" class="p-4 text-center text-foreground-muted text-sm">
                     <Icons name="spinner" class="w-5 h-5 animate-spin inline mr-2" />
                     Szukam...
                 </div>
-                <div v-else-if="calendarSearchFlat.length === 0" class="p-4 text-center text-slate-500 dark:text-slate-400 text-sm">
+                <div v-else-if="calendarSearchFlat.length === 0" class="p-4 text-center text-foreground-muted text-sm">
                     {{ calendarSearchQuery.length >= 2 ? 'Brak wyników' : 'Wpisz min. 2 znaki' }}
                 </div>
                 <button
@@ -881,10 +881,10 @@ watch(() => props.clients, (newClients) => {
                         :style="{ backgroundColor: entry.type === 'visit' ? (entry.item.status?.color || entry.item.color || '#3B82F6') : '#6B7280' }"
                     ></div>
                     <div class="flex-1 min-w-0">
-                        <div class="font-medium text-slate-900 dark:text-slate-100 truncate">
+                        <div class="font-medium text-foreground truncate">
                             {{ entry.type === 'visit' ? (entry.item.title || entry.item.client?.name || 'Wizyta') : entry.item.name }}
                         </div>
-                        <div class="text-xs text-slate-500 dark:text-slate-400">
+                        <div class="text-xs text-foreground-muted">
                             <template v-if="entry.type === 'visit'">
                                 {{ entry.item.visit_date }} – {{ entry.item.title || entry.item.client?.name || 'Spotkanie' }}
                             </template>
@@ -893,7 +893,7 @@ watch(() => props.clients, (newClients) => {
                             </template>
                         </div>
                     </div>
-                    <span class="text-xs px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 shrink-0">
+                    <span class="text-xs px-2 py-0.5 rounded surface-elevated text-slate-600 dark:text-slate-300 shrink-0">
                         {{ entry.type === 'visit' ? 'Spotkanie' : 'Klient' }}
                     </span>
                 </button>
@@ -1127,7 +1127,7 @@ watch(() => props.clients, (newClients) => {
                     </select>
 
                     <!-- Quick form nowego klienta -->
-                    <div v-else class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <div v-else class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-border">
                         <ClientQuickForm
                             @created="onClientCreated"
                             @cancel="showNewClientForm = false"
@@ -1144,7 +1144,7 @@ watch(() => props.clients, (newClients) => {
                 <div class="form-group">
                     <label>Godzina (opcjonalnie)</label>
                     <input type="time" v-model="addForm.visit_time" class="form-input w-40" />
-                    <span class="text-xs text-gray-500 dark:text-slate-400 block mt-1">Puste = cały dzień, bez godziny na kafelku</span>
+                    <span class="text-xs text-foreground-muted block mt-1">Puste = cały dzień, bez godziny na kafelku</span>
                 </div>
                 
                 <div class="form-group">
@@ -1154,7 +1154,7 @@ watch(() => props.clients, (newClients) => {
 
                 <div class="form-group">
                     <label>Telefony do wizyty</label>
-                    <p class="text-xs text-gray-500 dark:text-slate-400 -mt-1 mb-2">
+                    <p class="text-xs text-foreground-muted -mt-1 mb-2">
                         Numery z którymi wiązana jest wizyta. W Play Centrali połączenie z tego numeru pokaże tytuł wizyty.
                     </p>
                     <div class="space-y-2">
@@ -1263,7 +1263,7 @@ watch(() => props.clients, (newClients) => {
 }
 
 .calendar-title {
-    @apply text-xl font-bold text-slate-800 dark:text-slate-100;
+    @apply text-xl font-bold text-foreground;
 }
 
 .view-btn {
@@ -1281,7 +1281,7 @@ watch(() => props.clients, (newClients) => {
 }
 
 .calendar-grid {
-    @apply grid grid-cols-7 bg-white dark:bg-slate-800;
+    @apply grid grid-cols-7 surface;
 }
 
 .day-header {
@@ -1389,7 +1389,7 @@ watch(() => props.clients, (newClients) => {
 }
 
 .modal-header h3 {
-    @apply text-lg font-semibold text-gray-900 dark:text-slate-100;
+    @apply text-lg font-semibold text-foreground;
 }
 
 .close-btn {
@@ -1410,11 +1410,11 @@ watch(() => props.clients, (newClients) => {
 }
 
 .form-group label {
-    @apply block text-sm font-medium text-gray-700 dark:text-slate-300;
+    @apply block text-sm font-medium text-foreground;
 }
 
 .form-input, .form-select, .form-textarea {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary
            dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 dark:placeholder-slate-400;
 }
 
@@ -1466,7 +1466,7 @@ watch(() => props.clients, (newClients) => {
 }
 
 .time-column-header {
-    @apply border-r border-slate-200 dark:border-slate-700;
+    @apply border-r border-border;
 }
 
 .week-day-header {
@@ -1479,7 +1479,7 @@ watch(() => props.clients, (newClients) => {
 }
 
 .week-all-day {
-    @apply grid border-b border-slate-200 dark:border-slate-700;
+    @apply grid border-b border-border;
     grid-template-columns: 60px repeat(7, 1fr);
 }
 

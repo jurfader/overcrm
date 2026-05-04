@@ -165,8 +165,8 @@ function isOverdue(task) {
     <div class="space-y-6">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-slate-100">Zadania</h1>
-                <p class="text-gray-600 dark:text-slate-400">{{ trashed ? 'Kosz - usunięte zadania' : 'Zarządzaj zadaniami i planami' }}</p>
+                <h1 class="text-2xl font-bold text-foreground">Zadania</h1>
+                <p class="text-foreground-muted">{{ trashed ? 'Kosz - usunięte zadania' : 'Zarządzaj zadaniami i planami' }}</p>
             </div>
             <div class="flex items-center gap-3">
                 <Link v-if="hasKanban" :href="route('kanban.index')">
@@ -192,7 +192,7 @@ function isOverdue(task) {
 
         <!-- Filtry -->
         <Card :padding="false">
-            <div class="p-4 border-b border-gray-200 dark:border-slate-700 space-y-4">
+            <div class="p-4 border-b border-border space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                     <div class="md:col-span-2">
                         <Input v-model="search" placeholder="Szukaj po tytule, opisie..." />
@@ -203,20 +203,20 @@ function isOverdue(task) {
                 </div>
                 <div class="flex flex-wrap items-center gap-4">
                     <label class="flex items-center">
-                        <input type="checkbox" v-model="myTasks" class="rounded border-gray-300 text-amber-600 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
-                        <span class="ml-2 text-sm text-gray-700 dark:text-slate-300">Tylko moje</span>
+                        <input type="checkbox" v-model="myTasks" class="rounded border-gray-300 text-amber-600 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                        <span class="ml-2 text-sm text-foreground">Tylko moje</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" v-model="today" class="rounded border-gray-300 text-amber-600 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
-                        <span class="ml-2 text-sm text-gray-700 dark:text-slate-300">Na dziś</span>
+                        <input type="checkbox" v-model="today" class="rounded border-gray-300 text-amber-600 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                        <span class="ml-2 text-sm text-foreground">Na dziś</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" v-model="overdue" class="rounded border-gray-300 text-amber-600 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
-                        <span class="ml-2 text-sm text-gray-700 dark:text-slate-300">Przeterminowane</span>
+                        <input type="checkbox" v-model="overdue" class="rounded border-gray-300 text-amber-600 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                        <span class="ml-2 text-sm text-foreground">Przeterminowane</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" v-model="trashed" class="rounded border-gray-300 text-amber-600 focus:ring-amber-500 dark:border-slate-600 dark:bg-slate-700" />
-                        <span class="ml-2 text-sm text-gray-700 dark:text-slate-300">Kosz</span>
+                        <input type="checkbox" v-model="trashed" class="rounded border-gray-300 text-amber-600 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                        <span class="ml-2 text-sm text-foreground">Kosz</span>
                     </label>
                 </div>
             </div>
@@ -230,15 +230,15 @@ function isOverdue(task) {
 
                 <!-- Zmień status -->
                 <div class="relative group">
-                    <button class="text-sm px-3 py-1.5 rounded-lg bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">
+                    <button class="text-sm px-3 py-1.5 rounded-lg surface border border-border-bright text-foreground hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">
                         Zmień status ▾
                     </button>
-                    <div class="hidden group-hover:block absolute top-full left-0 mt-1 bg-white dark:bg-slate-800 rounded-lg shadow-xl border dark:border-slate-700 py-1 z-50 min-w-[160px]">
+                    <div class="hidden group-hover:block absolute top-full left-0 mt-1 surface rounded-lg shadow-xl border dark:border-slate-700 py-1 z-50 min-w-[160px]">
                         <button
                             v-for="s in statuses"
                             :key="s.id"
                             @click="bulkChangeStatus(s.id)"
-                            class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700"
+                            class="block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-surface-elevated"
                         >
                             <span class="inline-block w-2 h-2 rounded-full mr-2" :style="{ backgroundColor: s.color }"></span>
                             {{ s.name }}
@@ -248,15 +248,15 @@ function isOverdue(task) {
 
                 <!-- Zmień priorytet -->
                 <div class="relative group">
-                    <button class="text-sm px-3 py-1.5 rounded-lg bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">
+                    <button class="text-sm px-3 py-1.5 rounded-lg surface border border-border-bright text-foreground hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">
                         Zmień priorytet ▾
                     </button>
-                    <div class="hidden group-hover:block absolute top-full left-0 mt-1 bg-white dark:bg-slate-800 rounded-lg shadow-xl border dark:border-slate-700 py-1 z-50 min-w-[140px]">
+                    <div class="hidden group-hover:block absolute top-full left-0 mt-1 surface rounded-lg shadow-xl border dark:border-slate-700 py-1 z-50 min-w-[140px]">
                         <button
                             v-for="(label, key) in priorities"
                             :key="key"
                             @click="bulkChangePriority(key)"
-                            class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700"
+                            class="block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-surface-elevated"
                         >
                             {{ label }}
                         </button>
@@ -265,13 +265,13 @@ function isOverdue(task) {
 
                 <!-- Przypisz do -->
                 <div class="relative group">
-                    <button class="text-sm px-3 py-1.5 rounded-lg bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">
+                    <button class="text-sm px-3 py-1.5 rounded-lg surface border border-border-bright text-foreground hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">
                         Przypisz do ▾
                     </button>
-                    <div class="hidden group-hover:block absolute top-full left-0 mt-1 bg-white dark:bg-slate-800 rounded-lg shadow-xl border dark:border-slate-700 py-1 z-50 min-w-[180px] max-h-60 overflow-y-auto">
+                    <div class="hidden group-hover:block absolute top-full left-0 mt-1 surface rounded-lg shadow-xl border dark:border-slate-700 py-1 z-50 min-w-[180px] max-h-60 overflow-y-auto">
                         <button
                             @click="bulkAssign(null)"
-                            class="block w-full text-left px-4 py-2 text-sm text-gray-400 dark:text-slate-500 hover:bg-gray-100 dark:hover:bg-slate-700 italic"
+                            class="block w-full text-left px-4 py-2 text-sm text-gray-400 dark:text-slate-500 hover:bg-surface-elevated italic"
                         >
                             — Brak —
                         </button>
@@ -279,7 +279,7 @@ function isOverdue(task) {
                             v-for="u in users"
                             :key="u.id"
                             @click="bulkAssign(u.id)"
-                            class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700"
+                            class="block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-surface-elevated"
                         >
                             {{ u.name }}
                         </button>
@@ -299,7 +299,7 @@ function isOverdue(task) {
                 <!-- Odznacz -->
                 <button
                     @click="selectedIds = []"
-                    class="ml-auto text-sm text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300"
+                    class="ml-auto text-sm text-foreground-muted hover:text-gray-700 dark:hover:text-slate-300"
                 >
                     Odznacz wszystko
                 </button>
@@ -311,30 +311,30 @@ function isOverdue(task) {
                     <thead class="bg-gray-50 dark:bg-slate-800">
                         <tr>
                             <th class="px-3 py-3 w-10">
-                                <input type="checkbox" v-model="allSelected" class="rounded border-gray-300 dark:border-slate-600 text-amber-600 focus:ring-amber-500 dark:bg-slate-700" />
+                                <input type="checkbox" v-model="allSelected" class="rounded border-border-bright text-amber-600 focus:ring-brand-primary dark:bg-slate-700" />
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Zadanie</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Klient</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Priorytet</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Termin</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Przypisany</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Akcje</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Zadanie</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Klient</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Priorytet</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Termin</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Przypisany</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-foreground-muted uppercase tracking-wider">Akcje</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
-                        <tr v-for="task in tasks.data" :key="task.id" class="hover:bg-gray-50 dark:hover:bg-slate-700" :class="{ 'bg-red-50 dark:bg-red-900/20': isOverdue(task) }">
+                    <tbody class="surface divide-y divide-gray-200 dark:divide-slate-700">
+                        <tr v-for="task in tasks.data" :key="task.id" class="hover:bg-surface-elevated" :class="{ 'bg-red-50 dark:bg-red-900/20': isOverdue(task) }">
                             <td class="px-3 py-4 w-10">
-                                <input type="checkbox" :value="task.id" v-model="selectedIds" class="rounded border-gray-300 dark:border-slate-600 text-amber-600 focus:ring-amber-500 dark:bg-slate-700" />
+                                <input type="checkbox" :value="task.id" v-model="selectedIds" class="rounded border-border-bright text-amber-600 focus:ring-brand-primary dark:bg-slate-700" />
                             </td>
                             <td class="px-6 py-4">
-                                <Link :href="route('tasks.show', task.id)" class="text-sm font-medium text-gray-900 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400">
+                                <Link :href="route('tasks.show', task.id)" class="text-sm font-medium text-foreground hover:text-amber-600 dark:hover:text-amber-400">
                                     {{ task.title }}
                                 </Link>
-                                <p v-if="task.description" class="text-xs text-gray-500 dark:text-slate-400 mt-1 truncate max-w-xs">{{ task.description }}</p>
+                                <p v-if="task.description" class="text-xs text-foreground-muted mt-1 truncate max-w-xs">{{ task.description }}</p>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <Link v-if="task.client" :href="route('clients.show', task.client.id)" class="text-sm text-gray-900 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400">
+                                <Link v-if="task.client" :href="route('clients.show', task.client.id)" class="text-sm text-foreground hover:text-amber-600 dark:hover:text-amber-400">
                                     {{ task.client.short_name || task.client.name }}
                                 </Link>
                                 <span v-else class="text-sm text-gray-400 dark:text-slate-500">—</span>
@@ -350,12 +350,12 @@ function isOverdue(task) {
                                 </Badge>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span :class="isOverdue(task) ? 'text-red-600 dark:text-red-400 font-medium' : 'text-sm text-gray-900 dark:text-slate-200'">
+                                <span :class="isOverdue(task) ? 'text-red-600 dark:text-red-400 font-medium' : 'text-sm text-foreground'">
                                     {{ formatDate(task.due_date) }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span v-if="task.assignee" class="text-sm text-gray-900 dark:text-slate-200">{{ task.assignee.name }}</span>
+                                <span v-if="task.assignee" class="text-sm text-foreground">{{ task.assignee.name }}</span>
                                 <span v-else class="text-sm text-gray-400 dark:text-slate-500">—</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -380,7 +380,7 @@ function isOverdue(task) {
                             </td>
                         </tr>
                         <tr v-if="tasks.data.length === 0">
-                            <td colspan="8" class="px-6 py-12 text-center text-gray-500 dark:text-slate-400">
+                            <td colspan="8" class="px-6 py-12 text-center text-foreground-muted">
                                 <Icons name="tasks" class="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-slate-600" />
                                 <p>Nie znaleziono zadań</p>
                             </td>

@@ -184,7 +184,7 @@ function insertVariable(variable) {
                                 v-model="form.name"
                                 type="text"
                                 required
-                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                                 placeholder="np. Oferta handlowa"
                             />
                             <div v-if="form.errors.name" class="text-red-500 text-sm mt-1">{{ form.errors.name }}</div>
@@ -198,7 +198,7 @@ function insertVariable(variable) {
                                 id="category"
                                 v-model="form.category"
                                 required
-                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                             >
                                 <option v-for="(label, key) in categories" :key="key" :value="key">
                                     {{ label }}
@@ -216,7 +216,7 @@ function insertVariable(variable) {
                             v-model="form.subject"
                             type="text"
                             required
-                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                             placeholder="np. Oferta dla {{client_name}}"
                         />
                         <p class="text-sm text-slate-500 mt-1">Możesz użyć zmiennych, np. {{client_name}}</p>
@@ -231,7 +231,7 @@ function insertVariable(variable) {
                             id="description"
                             v-model="form.description"
                             type="text"
-                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                             placeholder="Krótki opis kiedy używać tego szablonu"
                         />
                     </div>
@@ -255,7 +255,7 @@ function insertVariable(variable) {
                             v-model="form.html_content"
                             required
                             rows="20"
-                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 font-mono text-sm"
+                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary font-mono text-sm"
                             placeholder="Wpisz lub wklej kod HTML szablonu..."
                         ></textarea>
                         <div v-if="form.errors.html_content" class="text-red-500 text-sm mt-1">{{ form.errors.html_content }}</div>
@@ -266,7 +266,7 @@ function insertVariable(variable) {
                             id="is_active"
                             v-model="form.is_active"
                             type="checkbox"
-                            class="w-4 h-4 text-amber-600 border-slate-300 rounded focus:ring-amber-500"
+                            class="w-4 h-4 text-amber-600 border-slate-300 rounded focus:ring-brand-primary"
                         />
                         <label for="is_active" class="ml-2 text-sm text-slate-700">
                             Szablon aktywny (widoczny do wyboru)

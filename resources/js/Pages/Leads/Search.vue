@@ -140,8 +140,8 @@ function sourceTagClass(source) {
         <!-- Header -->
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Szukaj leadów</h1>
-                <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Scraping Pyszne.pl + Google Maps z oceną AI</p>
+                <h1 class="text-2xl font-bold text-foreground">Szukaj leadów</h1>
+                <p class="text-foreground-muted text-sm mt-1">Scraping Pyszne.pl + Google Maps z oceną AI</p>
             </div>
             <Link :href="route('leads.index')" class="text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
                 Wróć do Kanban
@@ -149,14 +149,14 @@ function sourceTagClass(source) {
         </div>
 
         <!-- Search Form -->
-        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+        <div class="surface rounded-xl border border-border p-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- Województwo -->
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Województwo</label>
+                    <label class="block text-sm font-medium text-foreground mb-1">Województwo</label>
                     <select
                         v-model="selectedRegion"
-                        class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm px-3 py-2"
+                        class="w-full rounded-lg border border-border-bright surface text-sm px-3 py-2"
                         @change="selectedCity = ''"
                     >
                         <option value="">— Wybierz —</option>
@@ -166,8 +166,8 @@ function sourceTagClass(source) {
 
                 <!-- Miasto -->
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Miasto <span class="font-normal text-slate-400">(opcjonalne)</span></label>
-                    <select v-model="selectedCity" class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm px-3 py-2" :disabled="!selectedRegion">
+                    <label class="block text-sm font-medium text-foreground mb-1">Miasto <span class="font-normal text-slate-400">(opcjonalne)</span></label>
+                    <select v-model="selectedCity" class="w-full rounded-lg border border-border-bright surface text-sm px-3 py-2" :disabled="!selectedRegion">
                         <option value="">— Cale województwo —</option>
                         <option v-for="city in cities" :key="city" :value="city">{{ city }}</option>
                     </select>
@@ -190,7 +190,7 @@ function sourceTagClass(source) {
 
             <!-- Źródła -->
             <div class="flex flex-wrap items-center gap-4 mt-4">
-                <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Źródła:</span>
+                <span class="text-sm font-medium text-foreground">Źródła:</span>
                 <label class="flex items-center gap-1.5 text-sm cursor-pointer">
                     <input type="checkbox" value="pyszne" v-model="sources" class="rounded border-slate-300 text-amber-500" />
                     Pyszne.pl
@@ -202,20 +202,20 @@ function sourceTagClass(source) {
             </div>
 
             <!-- Stats -->
-            <div v-if="searchStats" class="mt-4 flex flex-wrap gap-6 text-sm text-slate-500 dark:text-slate-400">
+            <div v-if="searchStats" class="mt-4 flex flex-wrap gap-6 text-sm text-foreground-muted">
                 <span>Znaleziono: {{ searchStats.scraped }}</span>
                 <span>Unikalne: {{ searchStats.unique }}</span>
                 <span v-if="searchStats.cities">Miasta: {{ searchStats.cities.join(', ') }}</span>
             </div>
-            <div v-if="searchStats?.debug?.length" class="mt-2 text-xs text-slate-400 dark:text-slate-500 font-mono space-y-0.5">
+            <div v-if="searchStats?.debug?.length" class="mt-2 text-xs text-foreground-subtle font-mono space-y-0.5">
                 <div v-for="(line, i) in searchStats.debug" :key="i" :class="line.includes('BŁĄD') ? 'text-red-400' : ''">{{ line }}</div>
             </div>
         </div>
 
         <!-- Results -->
-        <div v-if="results.length > 0" class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div v-if="results.length > 0" class="surface rounded-xl border border-border overflow-hidden">
             <!-- Actions bar -->
-            <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900/50">
+            <div class="px-4 py-3 border-b border-border flex items-center justify-between gap-3 surface-2/50">
                 <div class="flex items-center gap-3">
                     <button @click="selectAllAvailable" class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400">
                         Zaznacz wszystkie nowe
@@ -239,7 +239,7 @@ function sourceTagClass(source) {
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
-                        <tr class="text-left text-slate-500 dark:text-slate-400 border-b dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30">
+                        <tr class="text-left text-foreground-muted border-b dark:border-slate-700 surface-2/30">
                             <th class="px-4 py-3 w-10"></th>
                             <th class="px-4 py-3">Nazwa</th>
                             <th class="px-4 py-3">Miasto</th>
@@ -267,8 +267,8 @@ function sourceTagClass(source) {
                                 />
                             </td>
                             <td class="px-4 py-3">
-                                <div class="font-medium text-slate-900 dark:text-white">{{ r.name }}</div>
-                                <div v-if="r.address" class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs">{{ r.address }}</div>
+                                <div class="font-medium text-foreground">{{ r.name }}</div>
+                                <div v-if="r.address" class="text-xs text-foreground-muted truncate max-w-xs">{{ r.address }}</div>
                                 <div class="flex flex-wrap gap-3 mt-1">
                                     <span v-if="r.phone" class="text-xs text-blue-600 dark:text-blue-400">{{ r.phone }}</span>
                                     <span v-if="r.email" class="text-xs text-blue-600 dark:text-blue-400">{{ r.email }}</span>
@@ -292,7 +292,7 @@ function sourceTagClass(source) {
         </div>
 
         <!-- Empty state -->
-        <div v-else-if="!searching && searchStats" class="text-center py-12 text-slate-500 dark:text-slate-400">
+        <div v-else-if="!searching && searchStats" class="text-center py-12 text-foreground-muted">
             Brak wyników dla tego miasta.
         </div>
     </div>

@@ -145,21 +145,21 @@ function submit() {
             <Card title="Opcje">
                 <div class="space-y-4">
                     <label class="flex items-center">
-                        <input type="checkbox" v-model="form.is_default" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                        <input type="checkbox" v-model="form.is_default" class="rounded border-gray-300 text-indigo-600 focus:ring-brand-primary" />
                         <span class="ml-2 text-sm text-gray-700">
                             <strong>Domyślny status</strong> - automatycznie przypisywany do nowych zadań
                         </span>
                     </label>
 
                     <label class="flex items-center">
-                        <input type="checkbox" v-model="form.is_visible" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                        <input type="checkbox" v-model="form.is_visible" class="rounded border-gray-300 text-indigo-600 focus:ring-brand-primary" />
                         <span class="ml-2 text-sm text-gray-700">
                             <strong>Widoczny</strong> - status pojawia się na listach wyboru
                         </span>
                     </label>
 
                     <label class="flex items-center">
-                        <input type="checkbox" v-model="form.is_final" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                        <input type="checkbox" v-model="form.is_final" class="rounded border-gray-300 text-indigo-600 focus:ring-brand-primary" />
                         <span class="ml-2 text-sm text-gray-700">
                             <strong>Status końcowy</strong> - oznacza zamknięcie zadania (np. Wykonane, Anulowane)
                         </span>

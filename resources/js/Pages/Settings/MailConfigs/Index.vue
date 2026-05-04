@@ -115,15 +115,15 @@ function applyPreset(preset) {
 
     <div class="space-y-6">
         <!-- Stopka wiadomości -->
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6">
+        <div class="surface rounded-xl shadow-sm p-6">
             <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2">Stopka wiadomości</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+            <p class="text-sm text-foreground-muted mb-4">
                 HTML dodawany na końcu każdej wysyłanej wiadomości (np. dane firmy, podpis). Każdy użytkownik ma własną stopkę.
             </p>
             <textarea
                 v-model="footerForm.email_html_footer"
                 rows="4"
-                class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200"
+                class="w-full px-4 py-2 border border-border-bright rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary surface text-slate-800 dark:text-slate-200"
                 placeholder="np. <p>Z poważaniem,<br>Jan Kowalski</p>"
             />
             <div class="mt-3 flex justify-end">
@@ -140,7 +140,7 @@ function applyPreset(preset) {
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-200">Serwer pocztowy</h1>
-                <p class="text-slate-500 dark:text-slate-400">Skonfiguruj serwer SMTP do wysyłania wiadomości email</p>
+                <p class="text-foreground-muted">Skonfiguruj serwer SMTP do wysyłania wiadomości email</p>
             </div>
             <button
                 @click="openCreateForm"
@@ -286,7 +286,7 @@ function applyPreset(preset) {
                             v-model="form.name"
                             type="text"
                             required
-                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                             placeholder="np. Firmowa poczta"
                         />
                     </div>
@@ -301,7 +301,7 @@ function applyPreset(preset) {
                                 v-model="form.mail_host"
                                 type="text"
                                 required
-                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                                 placeholder="smtp.example.com"
                             />
                         </div>
@@ -314,7 +314,7 @@ function applyPreset(preset) {
                                 v-model.number="form.mail_port"
                                 type="number"
                                 required
-                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                             />
                         </div>
                     </div>
@@ -327,7 +327,7 @@ function applyPreset(preset) {
                             id="mail_encryption"
                             v-model="form.mail_encryption"
                             required
-                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                         >
                             <option value="tls">TLS (port 587)</option>
                             <option value="ssl">SSL (port 465)</option>
@@ -345,7 +345,7 @@ function applyPreset(preset) {
                                 v-model="form.mail_username"
                                 type="text"
                                 required
-                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                                 placeholder="user@example.com"
                             />
                         </div>
@@ -358,7 +358,7 @@ function applyPreset(preset) {
                                 v-model="form.mail_password"
                                 type="password"
                                 :required="!isEditing"
-                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                             />
                         </div>
                     </div>
@@ -373,7 +373,7 @@ function applyPreset(preset) {
                                 v-model="form.mail_from_address"
                                 type="email"
                                 required
-                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                                 placeholder="noreply@example.com"
                             />
                         </div>
@@ -386,7 +386,7 @@ function applyPreset(preset) {
                                 v-model="form.mail_from_name"
                                 type="text"
                                 required
-                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                                 placeholder="Twoja Firma"
                             />
                         </div>

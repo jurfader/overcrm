@@ -107,8 +107,8 @@ const sourceColors = {
         <!-- Header -->
         <div class="flex items-center justify-between gap-4 mb-4">
             <div>
-                <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Leady</h1>
-                <div class="flex gap-4 mt-1 text-sm text-slate-500 dark:text-slate-400">
+                <h1 class="text-2xl font-bold text-foreground">Leady</h1>
+                <div class="flex gap-4 mt-1 text-sm text-foreground-muted">
                     <span>Razem: {{ stats?.total || 0 }}</span>
                     <span>Ten tydzień: {{ stats?.this_week || 0 }}</span>
                     <span>Konwersja: {{ stats?.conversion_rate || 0 }}%</span>
@@ -120,7 +120,7 @@ const sourceColors = {
                         v-model="search"
                         type="text"
                         placeholder="Szukaj leada..."
-                        class="w-56 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        class="w-56 rounded-lg border border-border-bright surface text-sm px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-brand-primary"
                         @keyup.enter="doSearch"
                     />
                     <Icons name="search" class="w-4 h-4 absolute right-2.5 top-2.5 text-slate-400" />
@@ -151,9 +151,9 @@ const sourceColors = {
                     class="w-72 flex-shrink-0 flex flex-col bg-slate-50 dark:bg-slate-800/50 rounded-xl"
                 >
                     <!-- Column Header -->
-                    <div class="flex items-center gap-2 px-3 py-3 border-b border-slate-200 dark:border-slate-700">
+                    <div class="flex items-center gap-2 px-3 py-3 border-b border-border">
                         <span class="w-3 h-3 rounded-full flex-shrink-0" :style="{ backgroundColor: status.color }" />
-                        <h3 class="font-semibold text-sm text-slate-700 dark:text-slate-200 truncate">{{ status.name }}</h3>
+                        <h3 class="font-semibold text-sm text-foreground truncate">{{ status.name }}</h3>
                         <span class="ml-auto text-xs text-slate-400 bg-slate-200 dark:bg-slate-700 rounded-full px-2 py-0.5">
                             {{ (columns[status.id] || []).length }}
                         </span>
@@ -170,17 +170,17 @@ const sourceColors = {
                     >
                         <template #item="{ element: lead }">
                             <div
-                                class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3 cursor-pointer hover:shadow-md transition-shadow"
+                                class="surface rounded-lg border border-border p-3 cursor-pointer hover:shadow-md transition-shadow"
                                 @click="openDetail(lead)"
                             >
-                                <div class="font-medium text-sm text-slate-900 dark:text-white truncate">
+                                <div class="font-medium text-sm text-foreground truncate">
                                     {{ lead.company_name || lead.name }}
                                 </div>
-                                <div v-if="lead.company_name" class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                                <div v-if="lead.company_name" class="text-xs text-foreground-muted truncate mt-0.5">
                                     {{ lead.name }}
                                 </div>
                                 <div class="flex items-center gap-2 mt-2">
-                                    <span v-if="lead.phone" class="text-xs text-slate-500 dark:text-slate-400 truncate">
+                                    <span v-if="lead.phone" class="text-xs text-foreground-muted truncate">
                                         {{ lead.phone }}
                                     </span>
                                     <span
@@ -195,7 +195,7 @@ const sourceColors = {
                                     <span class="w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 text-xs flex items-center justify-center font-medium">
                                         {{ lead.assignee.name?.charAt(0) }}
                                     </span>
-                                    <span class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ lead.assignee.name }}</span>
+                                    <span class="text-xs text-foreground-muted truncate">{{ lead.assignee.name }}</span>
                                 </div>
                             </div>
                         </template>

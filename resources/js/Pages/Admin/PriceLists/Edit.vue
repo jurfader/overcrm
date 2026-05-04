@@ -101,20 +101,20 @@ function submit() {
             >
                 <Icons name="arrow-left" class="w-5 h-5" />
             </Link>
-            <h1 class="text-2xl font-bold text-slate-800 dark:text-white">
+            <h1 class="text-2xl font-bold text-foreground">
                 {{ isEdit ? 'Edytuj cennik' : 'Nowy cennik' }}
             </h1>
         </div>
 
-        <form class="space-y-5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6" @submit.prevent="submit">
+        <form class="space-y-5 surface rounded-xl border border-border p-6" @submit.prevent="submit">
             <!-- Nazwa -->
             <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nazwa *</label>
+                <label class="block text-sm font-medium text-foreground mb-1">Nazwa *</label>
                 <input
                     v-model="form.name"
                     type="text"
                     required
-                    class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    class="w-full rounded-lg border border-border-bright surface text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
                     placeholder="np. Cennik główny"
                 />
                 <p v-if="errors.name" class="mt-1 text-xs text-red-600">{{ errors.name[0] }}</p>
@@ -122,13 +122,13 @@ function submit() {
 
             <!-- Slug -->
             <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Slug (URL)</label>
-                <div class="flex items-center rounded-lg border border-slate-300 dark:border-slate-600 overflow-hidden">
-                    <span class="px-3 py-2 text-sm text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-700/50 border-r border-slate-300 dark:border-slate-600">/cennik/</span>
+                <label class="block text-sm font-medium text-foreground mb-1">Slug (URL)</label>
+                <div class="flex items-center rounded-lg border border-border-bright overflow-hidden">
+                    <span class="px-3 py-2 text-sm text-foreground-muted surface-2/50 border-r border-border-bright">/cennik/</span>
                     <input
                         v-model="form.slug"
                         type="text"
-                        class="flex-1 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-3 py-2 text-sm focus:outline-none"
+                        class="flex-1 surface text-foreground px-3 py-2 text-sm focus:outline-none"
                         placeholder="cennik-glowny"
                     />
                 </div>
@@ -137,11 +137,11 @@ function submit() {
 
             <!-- Opis -->
             <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Opis</label>
+                <label class="block text-sm font-medium text-foreground mb-1">Opis</label>
                 <textarea
                     v-model="form.description"
                     rows="2"
-                    class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    class="w-full rounded-lg border border-border-bright surface text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
                     placeholder="Krótki opis cennika"
                 />
             </div>
@@ -149,39 +149,39 @@ function submit() {
             <!-- Przełączniki -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <label class="flex items-center gap-3 cursor-pointer select-none">
-                    <input v-model="form.is_active" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-amber-500 focus:ring-amber-500" />
-                    <span class="text-sm text-slate-700 dark:text-slate-300">Aktywny</span>
+                    <input v-model="form.is_active" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-amber-500 focus:ring-brand-primary" />
+                    <span class="text-sm text-foreground">Aktywny</span>
                 </label>
                 <label class="flex items-center gap-3 cursor-pointer select-none">
-                    <input v-model="form.is_public" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-amber-500 focus:ring-amber-500" />
-                    <span class="text-sm text-slate-700 dark:text-slate-300">Publiczny (bez logowania)</span>
+                    <input v-model="form.is_public" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-amber-500 focus:ring-brand-primary" />
+                    <span class="text-sm text-foreground">Publiczny (bez logowania)</span>
                 </label>
                 <label class="flex items-center gap-3 cursor-pointer select-none">
-                    <input v-model="form.sync_from_fakturownia" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-amber-500 focus:ring-amber-500" />
-                    <span class="text-sm text-slate-700 dark:text-slate-300">Sync z Fakturownią</span>
+                    <input v-model="form.sync_from_fakturownia" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-amber-500 focus:ring-brand-primary" />
+                    <span class="text-sm text-foreground">Sync z Fakturownią</span>
                 </label>
             </div>
 
             <!-- Prefix Fakturowni -->
             <div v-if="form.sync_from_fakturownia">
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Prefix produktów Fakturowni</label>
+                <label class="block text-sm font-medium text-foreground mb-1">Prefix produktów Fakturowni</label>
                 <input
                     v-model="form.fakturownia_prefix"
                     type="text"
-                    class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    class="w-full rounded-lg border border-border-bright surface text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
                     placeholder="np. TH_"
                 />
-                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Tylko produkty których nazwa zaczyna się od tego prefiksu zostaną użyte do synchronizacji cen.</p>
+                <p class="mt-1 text-xs text-foreground-muted">Tylko produkty których nazwa zaczyna się od tego prefiksu zostaną użyte do synchronizacji cen.</p>
             </div>
 
             <!-- Treść HTML -->
             <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Treść HTML cennika</label>
+                <label class="block text-sm font-medium text-foreground mb-2">Treść HTML cennika</label>
 
                 <div class="flex gap-2 mb-3">
                     <button
                         type="button"
-                        :class="htmlMode === 'file' ? 'bg-amber-500 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300'"
+                        :class="htmlMode === 'file' ? 'bg-amber-500 text-white' : 'surface-elevated text-foreground'"
                         class="px-3 py-1.5 rounded text-sm font-medium transition-colors"
                         @click="htmlMode = 'file'"
                     >
@@ -189,7 +189,7 @@ function submit() {
                     </button>
                     <button
                         type="button"
-                        :class="htmlMode === 'paste' ? 'bg-amber-500 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300'"
+                        :class="htmlMode === 'paste' ? 'bg-amber-500 text-white' : 'surface-elevated text-foreground'"
                         class="px-3 py-1.5 rounded text-sm font-medium transition-colors"
                         @click="htmlMode = 'paste'"
                     >
@@ -204,7 +204,7 @@ function submit() {
                         class="block w-full text-sm text-slate-600 dark:text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100"
                         @change="onFileChange"
                     />
-                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    <p class="mt-1 text-xs text-foreground-muted">
                         {{ isEdit ? 'Prześlij nowy plik, aby zastąpić obecny HTML. Zostaw puste, aby zachować obecny.' : 'Plik HTML cennika (maks. 10 MB).' }}
                     </p>
                 </div>
@@ -213,7 +213,7 @@ function submit() {
                     <textarea
                         v-model="form.html_content"
                         rows="15"
-                        class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        class="w-full rounded-lg border border-border-bright surface text-foreground px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-brand-primary"
                         placeholder="Wklej tutaj pełny kod HTML cennika..."
                     />
                 </div>
@@ -233,7 +233,7 @@ function submit() {
                         :href="`/cennik/${priceList.slug}`"
                         target="_blank"
                         rel="noopener"
-                        class="inline-flex items-center gap-1.5 px-4 py-2 text-sm text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 text-sm text-slate-600 dark:text-slate-300 border border-border-bright rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                     >
                         <Icons name="eye" class="w-4 h-4" />
                         Podgląd

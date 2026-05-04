@@ -178,7 +178,7 @@ function submit() {
                         <Icons name="upload" class="w-4 h-4 mr-2" />
                         {{ avatarPreview ? 'Zmień avatar' : 'Wgraj avatar' }}
                     </Button>
-                    <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">JPG, PNG lub WebP. Max 2 MB.</p>
+                    <p class="mt-2 text-xs text-foreground-muted">JPG, PNG lub WebP. Max 2 MB.</p>
                 </div>
             </div>
         </Card>
@@ -251,7 +251,7 @@ function submit() {
                                     type="checkbox" 
                                     :checked="form.permissions.includes(perm.id)"
                                     @change="togglePermission(perm.id)"
-                                    class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" 
+                                    class="rounded border-gray-300 text-indigo-600 focus:ring-brand-primary" 
                                 />
                                 <span class="ml-2 text-sm text-gray-700">{{ perm.name }}</span>
                             </label>
@@ -283,7 +283,7 @@ function submit() {
                             type="checkbox"
                             :checked="form.managed_calendars.includes(cu.id)"
                             @change="toggleManagedCalendar(cu.id)"
-                            class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                            class="rounded border-gray-300 text-indigo-600 focus:ring-brand-primary"
                         />
                         <span class="ml-2 text-sm text-gray-700">
                             {{ cu.name }}
@@ -304,7 +304,7 @@ function submit() {
                         <label class="block text-sm font-medium text-gray-700 mb-1">Dział w Fakturownia</label>
                         <select 
                             v-model="form.fakturownia_department_id"
-                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-brand-primary focus:border-brand-primary"
                         >
                             <option :value="null">-- Brak przypisania --</option>
                             <option 
@@ -339,7 +339,7 @@ function submit() {
                         <label class="block text-sm font-medium text-gray-700 mb-1">Domyślny kanał sprzedaży</label>
                         <select
                             v-model="form.apilo_default_platform_id"
-                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-brand-primary focus:border-brand-primary"
                         >
                             <option value="">— Systemowy (pierwszy z listy Apilo) —</option>
                             <option
@@ -364,7 +364,7 @@ function submit() {
             <Card title="Play Wirtualna Centralka">
                 <div class="space-y-3">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                        <label class="block text-sm font-medium text-foreground mb-1">
                             Numer telefonu w centrali Play
                         </label>
                         <Input
@@ -372,7 +372,7 @@ function submit() {
                             placeholder="np. 48123456789"
                             class="w-full"
                         />
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        <p class="text-xs text-foreground-muted mt-1">
                             Format: 48XXXXXXXXX (z prefiksem kraju). Używany do dopasowania połączeń i click-to-call.
                         </p>
                         <p v-if="form.errors.play_phone" class="text-xs text-red-500 mt-1">{{ form.errors.play_phone }}</p>

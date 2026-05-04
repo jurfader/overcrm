@@ -112,7 +112,7 @@ const levelColors = {
     EMERGENCY: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
     WARNING: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
     INFO: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
-    DEBUG: 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300',
+    DEBUG: 'bg-gray-100 dark:bg-slate-700 text-foreground',
     NOTICE: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
 };
 
@@ -134,20 +134,20 @@ const levelDotColors = {
     <div class="space-y-6">
         <div class="flex items-center justify-between flex-wrap gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-slate-100">Logi</h1>
-                <p class="text-gray-600 dark:text-slate-400">Historia wywołań API i logi aplikacji</p>
+                <h1 class="text-2xl font-bold text-foreground">Logi</h1>
+                <p class="text-foreground-muted">Historia wywołań API i logi aplikacji</p>
             </div>
         </div>
 
         <!-- Tabs -->
-        <div class="flex items-center gap-1 bg-white dark:bg-slate-800 rounded-lg shadow p-1 border border-gray-200 dark:border-slate-700 w-fit">
+        <div class="flex items-center gap-1 surface rounded-lg shadow p-1 border border-border w-fit">
             <button
                 @click="switchTab('integration')"
                 :class="[
                     'px-4 py-2 text-sm font-medium rounded-md transition-colors',
                     activeTab === 'integration'
                         ? 'bg-blue-500 text-white'
-                        : 'text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'
+                        : 'text-gray-600 dark:text-slate-300 hover:bg-surface-elevated'
                 ]">
                 Integracje API
             </button>
@@ -157,7 +157,7 @@ const levelDotColors = {
                     'px-4 py-2 text-sm font-medium rounded-md transition-colors',
                     activeTab === 'app'
                         ? 'bg-blue-500 text-white'
-                        : 'text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700'
+                        : 'text-gray-600 dark:text-slate-300 hover:bg-surface-elevated'
                 ]">
                 Logi aplikacji
             </button>
@@ -166,28 +166,28 @@ const levelDotColors = {
         <!-- ==================== INTEGRATION TAB ==================== -->
         <template v-if="activeTab === 'integration'">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
-                    <div class="text-2xl font-bold text-gray-900 dark:text-slate-100">{{ stats.total }}</div>
-                    <div class="text-sm text-gray-500 dark:text-slate-400">Wszystkie logi</div>
+                <div class="surface rounded-xl p-4 border border-border">
+                    <div class="text-2xl font-bold text-foreground">{{ stats.total }}</div>
+                    <div class="text-sm text-foreground-muted">Wszystkie logi</div>
                 </div>
-                <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
-                    <div class="text-2xl font-bold text-gray-900 dark:text-slate-100">{{ stats.today }}</div>
-                    <div class="text-sm text-gray-500 dark:text-slate-400">Dzisiaj</div>
+                <div class="surface rounded-xl p-4 border border-border">
+                    <div class="text-2xl font-bold text-foreground">{{ stats.today }}</div>
+                    <div class="text-sm text-foreground-muted">Dzisiaj</div>
                 </div>
-                <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
+                <div class="surface rounded-xl p-4 border border-border">
                     <div class="text-2xl font-bold" :class="stats.errors_today > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'">
                         {{ stats.errors_today }}
                     </div>
-                    <div class="text-sm text-gray-500 dark:text-slate-400">Błędy dzisiaj</div>
+                    <div class="text-sm text-foreground-muted">Błędy dzisiaj</div>
                 </div>
-                <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
-                    <div class="text-2xl font-bold text-gray-900 dark:text-slate-100">{{ stats.avg_duration }} ms</div>
-                    <div class="text-sm text-gray-500 dark:text-slate-400">Śr. czas odpowiedzi</div>
+                <div class="surface rounded-xl p-4 border border-border">
+                    <div class="text-2xl font-bold text-foreground">{{ stats.avg_duration }} ms</div>
+                    <div class="text-sm text-foreground-muted">Śr. czas odpowiedzi</div>
                 </div>
             </div>
 
             <Card :padding="false">
-                <div class="p-4 border-b border-gray-200 dark:border-slate-700">
+                <div class="p-4 border-b border-border">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div class="md:col-span-2">
                             <Input v-model="search" placeholder="Szukaj po endpoint, błędzie..." />
@@ -205,17 +205,17 @@ const levelDotColors = {
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
                         <thead class="bg-gray-50 dark:bg-slate-800">
                             <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Czas</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Serwis</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Endpoint</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Status</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Czas odp.</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Użytkownik</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-foreground-muted uppercase">Czas</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-foreground-muted uppercase">Serwis</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-foreground-muted uppercase">Endpoint</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-foreground-muted uppercase">Status</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-foreground-muted uppercase">Czas odp.</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-foreground-muted uppercase">Użytkownik</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
-                            <tr v-for="log in logs.data" :key="log.id" class="hover:bg-gray-50 dark:hover:bg-slate-700">
-                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-slate-400">
+                        <tbody class="surface divide-y divide-gray-200 dark:divide-slate-700">
+                            <tr v-for="log in logs.data" :key="log.id" class="hover:bg-surface-elevated">
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-foreground-muted">
                                     {{ formatDate(log.created_at) }}
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap">
@@ -228,7 +228,7 @@ const levelDotColors = {
                                         <span :class="methodColors[log.method] || 'text-gray-600'" class="text-xs font-mono font-bold">
                                             {{ log.method }}
                                         </span>
-                                        <span class="text-sm text-gray-900 dark:text-slate-200 font-mono truncate max-w-xs">
+                                        <span class="text-sm text-foreground font-mono truncate max-w-xs">
                                             {{ log.endpoint }}
                                         </span>
                                     </div>
@@ -251,18 +251,18 @@ const levelDotColors = {
                                         <span v-if="log.response_status" class="ml-1 opacity-70">{{ log.response_status }}</span>
                                     </span>
                                 </td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-slate-200">
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-foreground">
                                     <span v-if="log.duration_ms !== null" :class="log.duration_ms > 2000 ? 'text-red-600 dark:text-red-400 font-medium' : ''">
                                         {{ log.duration_ms }} ms
                                     </span>
                                     <span v-else class="text-gray-400">—</span>
                                 </td>
-                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-slate-400">
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-foreground-muted">
                                     {{ log.user?.name || '—' }}
                                 </td>
                             </tr>
                             <tr v-if="logs.data.length === 0">
-                                <td colspan="6" class="px-4 py-12 text-center text-gray-500 dark:text-slate-400">
+                                <td colspan="6" class="px-4 py-12 text-center text-foreground-muted">
                                     <Icons name="settings" class="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-slate-600" />
                                     <p>Brak logów integracji</p>
                                 </td>
@@ -278,34 +278,34 @@ const levelDotColors = {
         <!-- ==================== APP LOGS TAB ==================== -->
         <template v-if="activeTab === 'app'">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
-                    <div class="text-2xl font-bold text-gray-900 dark:text-slate-100">{{ appLogStats.total }}</div>
-                    <div class="text-sm text-gray-500 dark:text-slate-400">Wszystkie wpisy</div>
+                <div class="surface rounded-xl p-4 border border-border">
+                    <div class="text-2xl font-bold text-foreground">{{ appLogStats.total }}</div>
+                    <div class="text-sm text-foreground-muted">Wszystkie wpisy</div>
                 </div>
-                <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
+                <div class="surface rounded-xl p-4 border border-border">
                     <div class="text-2xl font-bold" :class="appLogStats.errors > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'">
                         {{ appLogStats.errors }}
                     </div>
-                    <div class="text-sm text-gray-500 dark:text-slate-400">Błędy</div>
+                    <div class="text-sm text-foreground-muted">Błędy</div>
                 </div>
-                <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
+                <div class="surface rounded-xl p-4 border border-border">
                     <div class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ appLogStats.warnings }}</div>
-                    <div class="text-sm text-gray-500 dark:text-slate-400">Ostrzeżenia</div>
+                    <div class="text-sm text-foreground-muted">Ostrzeżenia</div>
                 </div>
-                <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
+                <div class="surface rounded-xl p-4 border border-border">
                     <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ appLogStats.info }}</div>
-                    <div class="text-sm text-gray-500 dark:text-slate-400">Info / Debug</div>
+                    <div class="text-sm text-foreground-muted">Info / Debug</div>
                 </div>
             </div>
 
             <Card :padding="false">
-                <div class="p-4 border-b border-gray-200 dark:border-slate-700">
+                <div class="p-4 border-b border-border">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="md:col-span-2">
                             <Input v-model="search" placeholder="Szukaj w treści logów..." @keyup.enter="applyFilters" />
                         </div>
                         <select v-model="levelFilter"
-                            class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm text-gray-700 dark:text-slate-300 focus:ring-2 focus:ring-blue-500">
+                            class="w-full px-3 py-2 surface border border-border rounded-lg text-sm text-foreground focus:ring-2 focus:ring-blue-500">
                             <option value="">Wszystkie poziomy</option>
                             <option value="error">Error</option>
                             <option value="warning">Warning</option>
@@ -320,16 +320,16 @@ const levelDotColors = {
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
                         <thead class="bg-gray-50 dark:bg-slate-800">
                             <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Czas</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Poziom</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Wiadomość</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase w-10"></th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-foreground-muted uppercase">Czas</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-foreground-muted uppercase">Poziom</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-foreground-muted uppercase">Wiadomość</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-foreground-muted uppercase w-10"></th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
+                        <tbody class="surface divide-y divide-gray-200 dark:divide-slate-700">
                             <template v-for="(entry, idx) in appLogs" :key="idx">
-                                <tr class="hover:bg-gray-50 dark:hover:bg-slate-700 cursor-pointer" @click="entry.stack_trace && toggleExpand(idx)">
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-slate-400">
+                                <tr class="hover:bg-surface-elevated cursor-pointer" @click="entry.stack_trace && toggleExpand(idx)">
+                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-foreground-muted">
                                         {{ entry.timestamp }}
                                     </td>
                                     <td class="px-4 py-3 whitespace-nowrap">
@@ -341,7 +341,7 @@ const levelDotColors = {
                                             {{ entry.level }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-slate-200">
+                                    <td class="px-4 py-3 text-sm text-foreground">
                                         <p class="truncate max-w-2xl font-mono text-xs">{{ entry.message }}</p>
                                     </td>
                                     <td class="px-4 py-3 text-center">
@@ -353,12 +353,12 @@ const levelDotColors = {
                                 </tr>
                                 <tr v-if="expandedRows.has(idx) && entry.stack_trace">
                                     <td colspan="4" class="px-4 py-3 bg-gray-50 dark:bg-slate-900">
-                                        <pre class="text-xs text-gray-600 dark:text-slate-400 font-mono whitespace-pre-wrap break-all max-h-64 overflow-y-auto">{{ entry.stack_trace }}</pre>
+                                        <pre class="text-xs text-foreground-muted font-mono whitespace-pre-wrap break-all max-h-64 overflow-y-auto">{{ entry.stack_trace }}</pre>
                                     </td>
                                 </tr>
                             </template>
                             <tr v-if="appLogs.length === 0">
-                                <td colspan="4" class="px-4 py-12 text-center text-gray-500 dark:text-slate-400">
+                                <td colspan="4" class="px-4 py-12 text-center text-foreground-muted">
                                     <Icons name="document" class="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-slate-600" />
                                     <p>Brak logów aplikacji</p>
                                 </td>
@@ -368,8 +368,8 @@ const levelDotColors = {
                 </div>
 
                 <!-- Simple pagination for app logs -->
-                <div v-if="appLogStats.last_page > 1" class="px-4 py-3 border-t border-gray-200 dark:border-slate-700 flex items-center justify-between">
-                    <span class="text-sm text-gray-500 dark:text-slate-400">
+                <div v-if="appLogStats.last_page > 1" class="px-4 py-3 border-t border-border flex items-center justify-between">
+                    <span class="text-sm text-foreground-muted">
                         Strona {{ appLogStats.page }} z {{ appLogStats.last_page }}
                         ({{ appLogStats.filtered_total }} wpisów)
                     </span>
@@ -377,13 +377,13 @@ const levelDotColors = {
                         <button
                             @click="appLogPage(appLogStats.page - 1)"
                             :disabled="appLogStats.page <= 1"
-                            class="px-3 py-1.5 text-sm font-medium rounded-md border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                            class="px-3 py-1.5 text-sm font-medium rounded-md border border-border text-gray-600 dark:text-slate-300 hover:bg-surface-elevated disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                             Poprzednia
                         </button>
                         <button
                             @click="appLogPage(appLogStats.page + 1)"
                             :disabled="appLogStats.page >= appLogStats.last_page"
-                            class="px-3 py-1.5 text-sm font-medium rounded-md border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                            class="px-3 py-1.5 text-sm font-medium rounded-md border border-border text-gray-600 dark:text-slate-300 hover:bg-surface-elevated disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                             Następna
                         </button>
                     </div>

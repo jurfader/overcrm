@@ -142,7 +142,7 @@ const actionColors = {
                                     type="button"
                                     @click="configForm[setting.key] = !configForm[setting.key]"
                                     :class="[
-                                        'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2',
+                                        'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2',
                                         configForm[setting.key] ? 'bg-indigo-600' : 'bg-gray-200'
                                     ]"
                                 >
@@ -158,7 +158,7 @@ const actionColors = {
                                 v-if="setting.type === 'string'"
                                 v-model="configForm[setting.key]"
                                 type="text"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                             />
                             
                             <!-- Password input -->
@@ -166,7 +166,7 @@ const actionColors = {
                                 v-if="setting.type === 'password'"
                                 v-model="configForm[setting.key]"
                                 type="password"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                             />
                             
                             <!-- Number input -->
@@ -174,7 +174,7 @@ const actionColors = {
                                 v-if="setting.type === 'integer'"
                                 v-model.number="configForm[setting.key]"
                                 type="number"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary"
                             />
                             
                             <!-- Textarea -->
@@ -182,14 +182,14 @@ const actionColors = {
                                 v-if="setting.type === 'textarea'"
                                 v-model="configForm[setting.key]"
                                 rows="3"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary"
                             ></textarea>
                             
                             <!-- Select -->
                             <select 
                                 v-if="setting.type === 'select'"
                                 v-model="configForm[setting.key]"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary"
                             >
                                 <option v-for="(label, value) in setting.options" :key="value" :value="value">
                                     {{ label }}

@@ -69,8 +69,8 @@ async function syncPriceList(pl) {
     <div class="space-y-6">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Cenniki</h1>
-                <p class="text-slate-500 dark:text-slate-400">Zarządzaj cennikami produktów</p>
+                <h1 class="text-2xl font-bold text-foreground">Cenniki</h1>
+                <p class="text-foreground-muted">Zarządzaj cennikami produktów</p>
             </div>
             <Link
                 :href="route('admin.price-lists.create')"
@@ -81,15 +81,15 @@ async function syncPriceList(pl) {
             </Link>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm overflow-hidden border border-slate-200 dark:border-slate-700">
-            <div v-if="priceLists.length === 0" class="p-12 text-center text-slate-500 dark:text-slate-400">
+        <div class="surface rounded-xl shadow-sm overflow-hidden border border-border">
+            <div v-if="priceLists.length === 0" class="p-12 text-center text-foreground-muted">
                 <Icons name="price-list" class="w-12 h-12 mx-auto mb-4 text-slate-300 dark:text-slate-600" />
                 <p class="text-lg font-medium">Brak cenników</p>
                 <p class="mt-1 text-sm">Utwórz pierwszy cennik</p>
             </div>
 
             <table v-else class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-                <thead class="bg-slate-50 dark:bg-slate-900/50">
+                <thead class="surface-2/50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Nazwa</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Slug</th>
@@ -101,8 +101,8 @@ async function syncPriceList(pl) {
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
                     <tr v-for="pl in priceLists" :key="pl.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                         <td class="px-6 py-4">
-                            <div class="font-medium text-slate-900 dark:text-white">{{ pl.name }}</div>
-                            <div v-if="pl.description" class="text-sm text-slate-500 dark:text-slate-400 truncate max-w-xs">{{ pl.description }}</div>
+                            <div class="font-medium text-foreground">{{ pl.name }}</div>
+                            <div v-if="pl.description" class="text-sm text-foreground-muted truncate max-w-xs">{{ pl.description }}</div>
                         </td>
                         <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-300 font-mono">{{ pl.slug }}</td>
                         <td class="px-6 py-4">
@@ -113,7 +113,7 @@ async function syncPriceList(pl) {
                                 <span v-if="pl.sync_from_fakturownia" class="px-2 py-0.5 text-xs rounded-md bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">Sync FK</span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">{{ formatDate(pl.last_synced_at) }}</td>
+                        <td class="px-6 py-4 text-sm text-foreground-muted">{{ formatDate(pl.last_synced_at) }}</td>
                         <td class="px-6 py-4">
                             <div class="flex items-center justify-end gap-2">
                                 <a

@@ -140,8 +140,8 @@ const todayPosition = computed(() => {
         <!-- Header -->
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-slate-100">Timeline</h1>
-                <p class="text-gray-600 dark:text-slate-400">Widok osi czasu zadań</p>
+                <h1 class="text-2xl font-bold text-foreground">Timeline</h1>
+                <p class="text-foreground-muted">Widok osi czasu zadań</p>
             </div>
             <div class="flex items-center gap-2">
                 <Link :href="route('tasks.index')">
@@ -158,24 +158,24 @@ const todayPosition = computed(() => {
         </div>
 
         <!-- Toolbar -->
-        <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-3 flex items-center gap-4 flex-wrap">
+        <div class="surface rounded-xl border border-border p-3 flex items-center gap-4 flex-wrap">
             <!-- Nawigacja dat -->
             <div class="flex items-center gap-1">
-                <button @click="shiftRange(-2)" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-500 dark:text-slate-400" title="2 tygodnie wstecz">
+                <button @click="shiftRange(-2)" class="p-1.5 rounded-lg hover:bg-surface-elevated text-foreground-muted" title="2 tygodnie wstecz">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5" /></svg>
                 </button>
-                <button @click="shiftRange(-1)" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-500 dark:text-slate-400" title="Tydzień wstecz">
+                <button @click="shiftRange(-1)" class="p-1.5 rounded-lg hover:bg-surface-elevated text-foreground-muted" title="Tydzień wstecz">
                     <Icons name="chevron-left" class="w-4 h-4" />
                 </button>
-                <span class="text-sm font-medium text-gray-700 dark:text-slate-300 px-2 min-w-[180px] text-center">
+                <span class="text-sm font-medium text-foreground px-2 min-w-[180px] text-center">
                     {{ new Date(startDate).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' }) }}
                     —
                     {{ new Date(endDate).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short', year: 'numeric' }) }}
                 </span>
-                <button @click="shiftRange(1)" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-500 dark:text-slate-400" title="Tydzień dalej">
+                <button @click="shiftRange(1)" class="p-1.5 rounded-lg hover:bg-surface-elevated text-foreground-muted" title="Tydzień dalej">
                     <Icons name="chevron-right" class="w-4 h-4" />
                 </button>
-                <button @click="shiftRange(2)" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-500 dark:text-slate-400" title="2 tygodnie dalej">
+                <button @click="shiftRange(2)" class="p-1.5 rounded-lg hover:bg-surface-elevated text-foreground-muted" title="2 tygodnie dalej">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 4.5l7.5 7.5-7.5 7.5m-6-15l7.5 7.5-7.5 7.5" /></svg>
                 </button>
             </div>
@@ -184,8 +184,8 @@ const todayPosition = computed(() => {
 
             <!-- Filtry -->
             <label class="flex items-center gap-2">
-                <input type="checkbox" v-model="myTasks" class="rounded border-gray-300 dark:border-slate-600 text-amber-600 focus:ring-amber-500 dark:bg-slate-700" />
-                <span class="text-sm text-gray-700 dark:text-slate-300">Tylko moje</span>
+                <input type="checkbox" v-model="myTasks" class="rounded border-border-bright text-amber-600 focus:ring-brand-primary dark:bg-slate-700" />
+                <span class="text-sm text-foreground">Tylko moje</span>
             </label>
 
             <div class="w-40">
@@ -194,12 +194,12 @@ const todayPosition = computed(() => {
         </div>
 
         <!-- Timeline -->
-        <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
+        <div class="surface rounded-xl border border-border overflow-hidden">
             <!-- Header z dniami -->
-            <div class="flex border-b border-gray-200 dark:border-slate-700">
+            <div class="flex border-b border-border">
                 <!-- Kolumna nazw -->
-                <div class="w-48 shrink-0 bg-gray-50 dark:bg-slate-900/50 border-r border-gray-200 dark:border-slate-700 px-3 py-2">
-                    <span class="text-xs font-medium text-gray-500 dark:text-slate-400 uppercase">Przypisany</span>
+                <div class="w-48 shrink-0 surface-2 border-r border-border px-3 py-2">
+                    <span class="text-xs font-medium text-foreground-muted uppercase">Przypisany</span>
                 </div>
                 <!-- Dni -->
                 <div class="flex-1 overflow-x-auto">
@@ -216,7 +216,7 @@ const todayPosition = computed(() => {
                             <div class="text-[10px] text-gray-400 dark:text-slate-500 leading-tight">{{ day.weekday }}</div>
                             <div 
                                 class="text-xs font-medium leading-tight"
-                                :class="day.isToday ? 'text-amber-600 dark:text-amber-400 font-bold' : 'text-gray-600 dark:text-slate-400'"
+                                :class="day.isToday ? 'text-amber-600 dark:text-amber-400 font-bold' : 'text-foreground-muted'"
                             >
                                 {{ day.day }}
                             </div>
@@ -227,11 +227,11 @@ const todayPosition = computed(() => {
 
             <!-- Grupy -->
             <div v-if="Object.keys(groupedTasks).length > 0">
-                <div v-for="(group, key) in groupedTasks" :key="key" class="border-b border-gray-200 dark:border-slate-700 last:border-0">
+                <div v-for="(group, key) in groupedTasks" :key="key" class="border-b border-border last:border-0">
                     <!-- Nazwa grupy -->
                     <div class="flex">
-                        <div class="w-48 shrink-0 bg-gray-50 dark:bg-slate-900/50 border-r border-gray-200 dark:border-slate-700 px-3 py-2 flex items-center">
-                            <span class="text-sm font-medium text-gray-700 dark:text-slate-300 truncate">{{ group.label }}</span>
+                        <div class="w-48 shrink-0 surface-2 border-r border-border px-3 py-2 flex items-center">
+                            <span class="text-sm font-medium text-foreground truncate">{{ group.label }}</span>
                             <span class="ml-auto text-xs text-gray-400 dark:text-slate-500">{{ group.tasks.length }}</span>
                         </div>
                         <div class="flex-1 relative min-h-[40px]">
@@ -245,9 +245,9 @@ const todayPosition = computed(() => {
                     </div>
 
                     <!-- Zadania w grupie -->
-                    <div v-for="task in group.tasks" :key="task.id" class="flex hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
-                        <div class="w-48 shrink-0 border-r border-gray-200 dark:border-slate-700 px-3 py-1.5 flex items-center">
-                            <Link :href="route('tasks.show', task.id)" class="text-xs text-gray-700 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 truncate">
+                    <div v-for="task in group.tasks" :key="task.id" class="flex hover:bg-surface-elevated/30 transition-colors">
+                        <div class="w-48 shrink-0 border-r border-border px-3 py-1.5 flex items-center">
+                            <Link :href="route('tasks.show', task.id)" class="text-xs text-foreground hover:text-amber-600 dark:hover:text-amber-400 truncate">
                                 {{ task.title }}
                             </Link>
                         </div>
@@ -282,7 +282,7 @@ const todayPosition = computed(() => {
             <!-- Empty state -->
             <div v-else class="px-6 py-12 text-center">
                 <Icons name="tasks" class="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-slate-600" />
-                <p class="text-gray-500 dark:text-slate-400">Brak zadań w wybranym zakresie dat</p>
+                <p class="text-foreground-muted">Brak zadań w wybranym zakresie dat</p>
                 <p class="text-sm text-gray-400 dark:text-slate-500 mt-1">Zmień zakres lub filtry</p>
             </div>
         </div>
