@@ -7,7 +7,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import AppLayout from './Layouts/AppLayout.vue';
 
-const appName = import.meta.env.VITE_APP_NAME || 'CHICKENKING Planner';
+const appName = import.meta.env.VITE_APP_NAME || 'OVERCRM';
 
 // Strony z głównej aplikacji
 const appPages = import.meta.glob('./Pages/**/*.vue');
@@ -51,6 +51,6 @@ createInertiaApp({
             .mount(el);
     },
     progress: {
-        color: '#dc2626',
+        color: 'var(--brand-primary)',
     },
 });

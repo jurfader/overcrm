@@ -69,7 +69,7 @@ onUnmounted(() => {
                     leave-to-class="opacity-0"
                 >
                     <div v-show="show" class="fixed inset-0 transform transition-all" @click="close">
-                        <div class="absolute inset-0 bg-gray-500 opacity-75" />
+                        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" />
                     </div>
                 </Transition>
 
@@ -83,7 +83,7 @@ onUnmounted(() => {
                 >
                     <div
                         v-show="show"
-                        :class="['mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full sm:mx-auto', maxWidthClass[maxWidth]]"
+                        :class="['mb-6 glass-card rounded-xl overflow-hidden transform transition-all sm:w-full sm:mx-auto', maxWidthClass[maxWidth]]"
                     >
                         <slot v-if="show" />
                     </div>

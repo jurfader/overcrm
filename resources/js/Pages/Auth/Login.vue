@@ -1,12 +1,12 @@
 <script setup>
-import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import Input from '@/Components/Input.vue';
 import Button from '@/Components/Button.vue';
-import { computed } from 'vue';
+import BrandLogo from '@/Components/UI/BrandLogo.vue';
+import ThemeToggle from '@/Components/UI/ThemeToggle.vue';
 
-defineOptions({
-    layout: null
-});
+defineOptions({ layout: null });
 
 defineProps({
     canResetPassword: Boolean,
@@ -14,11 +14,9 @@ defineProps({
 });
 
 const page = usePage();
-const appSettings = computed(() => page.props.appSettings || {});
-const isTestEnv = computed(() => page.props.isTestEnv ?? false);
-const appLogo = computed(() => appSettings.value.app_logo);
-const appName = computed(() => appSettings.value.app_name || 'Planner');
-const companyName = computed(() => appSettings.value.company_name || 'Planner');
+const brand = computed(() => page.props.brand || {});
+const environmentBanner = computed(() => page.props.environmentBanner || '');
+const year = new Date().getFullYear();
 
 const form = useForm({
     email: '',
@@ -34,83 +32,80 @@ const submit = () => {
 </script>
 
 <template>
-    <Head title="Logowanie" />
+    <Head :title="`Logowanie — ${brand.name}`" />
 
-    <div class="min-h-screen flex flex-col bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-        <div
-            v-if="isTestEnv"
-            class="fixed top-0 left-0 right-0 z-[110] bg-amber-500 text-slate-900 px-4 py-2.5 text-center text-base font-bold shadow-lg border-b-2 border-amber-600"
-        >
-            ⚠️ WERSJA TESTOWA APLIKACJI — test.crm.chickenking.co
+    <div class="min-h-screen flex flex-col items-center justify-center px-4 relative">
+        <!-- Banner środowiska -->
+        <div v-if="environmentBanner" class="fixed top-0 left-0 right-0 z-50 px-3 py-1.5 text-center text-xs font-semibold gradient-brand text-white">
+            {{ environmentBanner }}
         </div>
-        <div class="flex-1 flex flex-col justify-center items-center" :class="{ 'pt-12': isTestEnv }">
-        <div class="w-full max-w-md px-8 py-10 bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20">
-            <!-- Logo -->
-            <div class="text-center mb-8">
-                <img v-if="appLogo" :src="appLogo" :alt="appName" class="h-16 mx-auto mb-3" />
-                <h1 v-else class="text-3xl font-bold text-white mb-2">{{ companyName }}</h1>
-                <p class="text-gray-400">{{ appName }}</p>
+
+        <!-- Theme toggle w prawym górnym rogu -->
+        <div class="absolute top-4 right-4 z-10">
+            <ThemeToggle />
+        </div>
+
+        <!-- Karta logowania -->
+        <div class="w-full max-w-md glass-card rounded-2xl p-8 sm:p-10 animate-fade-in">
+            <!-- Logo + nazwa -->
+            <div class="flex flex-col items-center mb-8">
+                <BrandLogo size="lg" :show-name="false" class="mb-4" />
+                <h1 class="text-2xl font-bold gradient-brand-text">{{ brand.name }}</h1>
+                <p v-if="brand.company_name && brand.company_name !== brand.name" class="text-sm text-foreground-muted mt-1">
+                    {{ brand.company_name }}
+                </p>
             </div>
 
-            <div v-if="status" class="mb-4 text-sm text-green-400 bg-green-900/30 px-4 py-3 rounded-lg">
+            <!-- Status (np. po reset password) -->
+            <div v-if="status" class="mb-4 px-4 py-3 rounded-md bg-success/10 text-success text-sm border border-success/20">
                 {{ status }}
             </div>
 
-            <form @submit.prevent="submit" class="space-y-6">
+            <form @submit.prevent="submit" class="space-y-5">
                 <div>
-                    <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
-                    <input
+                    <label for="email" class="block text-sm font-medium text-foreground mb-1.5">Email</label>
+                    <Input
                         id="email"
                         type="email"
                         v-model="form.email"
                         required
                         autofocus
-                        autocomplete="username"
                         placeholder="twoj@email.pl"
-                        class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                        :invalid="!!form.errors.email"
                     />
-                    <p v-if="form.errors.email" class="mt-2 text-sm text-red-400">{{ form.errors.email }}</p>
+                    <p v-if="form.errors.email" class="mt-1.5 text-xs text-destructive">{{ form.errors.email }}</p>
                 </div>
 
                 <div>
-                    <label for="password" class="block text-sm font-medium text-gray-300 mb-2">Hasło</label>
-                    <input
+                    <label for="password" class="block text-sm font-medium text-foreground mb-1.5">Hasło</label>
+                    <Input
                         id="password"
                         type="password"
                         v-model="form.password"
                         required
-                        autocomplete="current-password"
                         placeholder="••••••••"
-                        class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                        :invalid="!!form.errors.password"
                     />
-                    <p v-if="form.errors.password" class="mt-2 text-sm text-red-400">{{ form.errors.password }}</p>
+                    <p v-if="form.errors.password" class="mt-1.5 text-xs text-destructive">{{ form.errors.password }}</p>
                 </div>
 
-                <div class="flex items-center justify-between">
-                    <label class="flex items-center">
-                        <input
-                            type="checkbox"
-                            v-model="form.remember"
-                            class="rounded bg-white/5 border-white/10 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-0"
-                        />
-                        <span class="ml-2 text-sm text-gray-400">Zapamiętaj mnie</span>
-                    </label>
-                </div>
+                <label class="flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                        type="checkbox"
+                        v-model="form.remember"
+                        class="form-checkbox h-4 w-4 rounded border-border-bright bg-surface text-brand-primary focus:ring-2 focus:ring-brand-primary focus:ring-offset-0"
+                    />
+                    <span class="text-sm text-foreground-muted">Zapamiętaj mnie</span>
+                </label>
 
-                <button
-                    type="submit"
-                    :disabled="form.processing"
-                    class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-indigo-500/30 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    <span v-if="form.processing">Logowanie...</span>
-                    <span v-else>Zaloguj się</span>
-                </button>
+                <Button type="submit" size="lg" :loading="form.processing" class="w-full">
+                    {{ form.processing ? 'Logowanie...' : 'Zaloguj się' }}
+                </Button>
             </form>
 
-            <div class="mt-8 text-center">
-                <p class="text-gray-500 text-sm">© 2026 {{ companyName }}</p>
-            </div>
-        </div>
+            <p class="mt-8 text-center text-xs text-foreground-subtle">
+                © {{ year }} {{ brand.company_name || brand.name }}
+            </p>
         </div>
     </div>
 </template>

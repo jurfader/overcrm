@@ -1,37 +1,51 @@
 <script setup>
 defineProps({
+    variant: {
+        type: String,
+        default: 'default',
+        validator: (v) => ['default', 'success', 'warning', 'destructive', 'info', 'outline', 'secondary'].includes(v),
+    },
     color: {
         type: String,
-        default: 'gray',
-        validator: (value) => ['gray', 'red', 'yellow', 'green', 'blue', 'indigo', 'purple', 'pink'].includes(value),
+        default: null,
+        // Backward-compat — stare wartości mapowane na variant
+        validator: (v) => v === null || ['gray', 'red', 'yellow', 'green', 'blue', 'indigo', 'purple', 'pink'].includes(v),
     },
     size: {
         type: String,
         default: 'md',
-        validator: (value) => ['sm', 'md', 'lg'].includes(value),
+        validator: (v) => ['sm', 'md', 'lg'].includes(v),
     },
 });
 
-const colorClasses = {
-    gray: 'bg-gray-100 text-gray-800',
-    red: 'bg-red-100 text-red-800',
-    yellow: 'bg-yellow-100 text-yellow-800',
-    green: 'bg-green-100 text-green-800',
-    blue: 'bg-blue-100 text-blue-800',
-    indigo: 'bg-indigo-100 text-indigo-800',
-    purple: 'bg-purple-100 text-purple-800',
-    pink: 'bg-pink-100 text-pink-800',
+const colorToVariant = {
+    gray: 'secondary', red: 'destructive', yellow: 'warning',
+    green: 'success', blue: 'info', indigo: 'default',
+    purple: 'default', pink: 'default',
 };
 
-const sizeClasses = {
-    sm: 'px-2 py-0.5 text-xs',
-    md: 'px-2.5 py-0.5 text-sm',
+const variantClass = (props) => {
+    const v = props.color ? colorToVariant[props.color] : props.variant;
+    return {
+        default:     'gradient-subtle text-brand-primary border border-brand-primary/30',
+        success:     'bg-success/15 text-success border border-success/30',
+        warning:     'bg-warning/15 text-warning border border-warning/30',
+        destructive: 'bg-destructive/15 text-destructive border border-destructive/30',
+        info:        'bg-info/15 text-info border border-info/30',
+        outline:     'bg-transparent text-foreground border border-border-bright',
+        secondary:   'bg-surface-elevated text-foreground border border-border',
+    }[v];
+};
+
+const sizeClass = {
+    sm: 'px-2 py-0.5 text-[10px]',
+    md: 'px-2.5 py-0.5 text-xs',
     lg: 'px-3 py-1 text-sm',
 };
 </script>
 
 <template>
-    <span :class="[colorClasses[color], sizeClasses[size], 'inline-flex items-center font-medium rounded-full']">
+    <span :class="['inline-flex items-center gap-1 font-medium rounded-full', variantClass($props), sizeClass[size]]">
         <slot />
     </span>
 </template>

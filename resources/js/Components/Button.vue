@@ -1,36 +1,46 @@
 <script setup>
-defineProps({
-    type: {
-        type: String,
-        default: 'submit',
-    },
+import { computed } from 'vue';
+
+const props = defineProps({
+    type: { type: String, default: 'button' },
     variant: {
         type: String,
         default: 'primary',
-        validator: (value) => ['primary', 'secondary', 'danger', 'success', 'warning'].includes(value),
+        // primary => brand gradient (default), danger => destructive (back-compat aliasy)
+        validator: (v) => ['primary', 'default', 'destructive', 'danger', 'outline', 'secondary', 'ghost', 'link', 'success', 'warning'].includes(v),
     },
     size: {
         type: String,
         default: 'md',
-        validator: (value) => ['sm', 'md', 'lg'].includes(value),
+        validator: (v) => ['sm', 'md', 'default', 'lg', 'icon'].includes(v),
     },
     disabled: Boolean,
     loading: Boolean,
 });
 
-const variantClasses = {
-    primary: 'bg-indigo-600 hover:bg-indigo-700 text-white focus:ring-indigo-500',
-    secondary: 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 focus:ring-indigo-500',
-    danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500',
-    success: 'bg-green-600 hover:bg-green-700 text-white focus:ring-green-500',
-    warning: 'bg-yellow-500 hover:bg-yellow-600 text-white focus:ring-yellow-500',
-};
+const variantClass = computed(() => {
+    const v = props.variant === 'primary' ? 'default' : props.variant === 'danger' ? 'destructive' : props.variant;
+    return {
+        default:     'gradient-brand text-white hover:opacity-90 shadow-sm hover:glow-pink',
+        destructive: 'bg-destructive text-white hover:opacity-90',
+        success:     'bg-success text-white hover:opacity-90',
+        warning:     'bg-warning text-white hover:opacity-90',
+        outline:     'border border-border-bright bg-transparent text-foreground hover:bg-surface-elevated',
+        secondary:   'bg-surface-elevated text-foreground hover:bg-surface-hover border border-border',
+        ghost:       'bg-transparent text-foreground hover:bg-surface-elevated',
+        link:        'bg-transparent text-brand-primary hover:underline underline-offset-4 px-0',
+    }[v];
+});
 
-const sizeClasses = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-sm',
-    lg: 'px-6 py-3 text-base',
-};
+const sizeClass = computed(() => {
+    const s = props.size === 'md' ? 'default' : props.size;
+    return {
+        sm:      'h-8 px-3 text-xs',
+        default: 'h-9 px-4 text-sm',
+        lg:      'h-11 px-6 text-base',
+        icon:    'h-9 w-9 p-0',
+    }[s];
+});
 </script>
 
 <template>
@@ -38,15 +48,17 @@ const sizeClasses = {
         :type="type"
         :disabled="disabled || loading"
         :class="[
-            variantClasses[variant],
-            sizeClasses[size],
-            'inline-flex items-center justify-center font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200',
-            (disabled || loading) ? 'opacity-50 cursor-not-allowed' : '',
+            'inline-flex items-center justify-center gap-2 font-medium rounded-md',
+            'transition-all duration-150 select-none',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+            'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none',
+            variantClass,
+            sizeClass,
         ]"
     >
-        <svg v-if="loading" class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        <svg v-if="loading" class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.25"/>
+            <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
         </svg>
         <slot />
     </button>

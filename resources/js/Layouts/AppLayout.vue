@@ -1,26 +1,48 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
-import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import FlashMessages from '@/Components/FlashMessages.vue';
-import Breadcrumbs from '@/Components/Breadcrumbs.vue';
 import Icons from '@/Components/Icons.vue';
 import KeyboardShortcutsHelp from '@/Components/KeyboardShortcutsHelp.vue';
 import FloatingVisitPanel from '@/Components/FloatingVisitPanel.vue';
 import HiddenGamesPanel from '@/Components/HiddenGamesPanel.vue';
+import ThemeToggle from '@/Components/UI/ThemeToggle.vue';
+import Tooltip from '@/Components/UI/Tooltip.vue';
+import BrandLogo from '@/Components/UI/BrandLogo.vue';
 import { useKeyboardShortcuts } from '@/Composables/useKeyboardShortcuts';
 
+const page = usePage();
+
+// ====================== STAN UI ======================
+const SIDEBAR_KEY = 'overcrm-sidebar-collapsed';
+const sidebarCollapsed = ref(false);
+const showUserMenu = ref(false);
 const showFloatingVisitSearch = ref(false);
 
-// Powiadomienie o nowym deployu – odśwież z Shift
+onMounted(() => {
+    try { sidebarCollapsed.value = localStorage.getItem(SIDEBAR_KEY) === '1'; } catch {}
+});
+
+function toggleSidebar() {
+    sidebarCollapsed.value = !sidebarCollapsed.value;
+    try { localStorage.setItem(SIDEBAR_KEY, sidebarCollapsed.value ? '1' : '0'); } catch {}
+}
+
+// Zamknij user menu po kliknięciu poza
+function handleClickOutside(e) {
+    if (!e.target.closest('[data-user-menu]')) showUserMenu.value = false;
+}
+onMounted(() => document.addEventListener('click', handleClickOutside));
+onBeforeUnmount(() => document.removeEventListener('click', handleClickOutside));
+
+// ====================== POWIADOMIENIE O DEPLOYU ======================
 const knownBuildVersion = ref(null);
 const showDeployNotification = ref(false);
-watch(() => usePage().props.buildVersion, (newVersion) => {
+watch(() => page.props.buildVersion, (newVersion) => {
     if (newVersion && knownBuildVersion.value !== null && knownBuildVersion.value !== newVersion) {
         showDeployNotification.value = true;
     }
-    if (newVersion && knownBuildVersion.value === null) {
-        knownBuildVersion.value = newVersion;
-    }
+    if (newVersion && knownBuildVersion.value === null) knownBuildVersion.value = newVersion;
 }, { immediate: true });
 
 let buildVersionPollInterval = null;
@@ -34,429 +56,305 @@ onMounted(() => {
                     showDeployNotification.value = true;
                 }
             }
-        } catch (_) {}
+        } catch {}
     }, 60000);
 });
-onBeforeUnmount(() => {
-    if (buildVersionPollInterval) clearInterval(buildVersionPollInterval);
-});
+onBeforeUnmount(() => { if (buildVersionPollInterval) clearInterval(buildVersionPollInterval); });
+function hardRefresh() { window.location.reload(); }
 
-function hardRefresh() {
-    window.location.reload();
-}
+// ====================== KEYBOARD SHORTCUTS ======================
 const { showHelp, shortcuts } = useKeyboardShortcuts({
     onQuickOpenVisit: () => { showFloatingVisitSearch.value = true; },
 });
 
-const page = usePage();
-const isTestEnv = computed(() => page.props.isTestEnv ?? false);
-const showMobileMenu = ref(false);
-const showUserMenu = ref(false);
-
-// Dark mode
-const isDark = ref(false);
-
-function initTheme() {
-    if (typeof window === 'undefined') return;
-    const stored = localStorage.getItem('theme');
-    if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        isDark.value = true;
-        document.documentElement.classList.add('dark');
-    } else {
-        isDark.value = false;
-        document.documentElement.classList.remove('dark');
-    }
-}
-
-function toggleDarkMode() {
-    isDark.value = !isDark.value;
-    document.documentElement.classList.toggle('dark', isDark.value);
-    localStorage.setItem('theme', isDark.value ? 'dark' : 'light');
-}
-
-initTheme();
-
-// Pobierz aktualnego użytkownika
+// ====================== USER + BRAND ======================
 const currentUser = computed(() => page.props.auth?.user);
 const userRole = computed(() => currentUser.value?.role || 'user');
-
-// Pobierz ustawienia aplikacji
-const appSettings = computed(() => page.props.appSettings || {});
+const userInitials = computed(() => {
+    const name = currentUser.value?.name || '?';
+    return name.split(' ').slice(0, 2).map(s => s[0] || '').join('').toUpperCase();
+});
 const inboxUnreadCount = computed(() => page.props.inboxUnreadCount ?? 0);
-const appName = computed(() => appSettings.value.app_name || 'CHICKENKING Planner');
-const appLogo = computed(() => appSettings.value.app_logo);
-
-// Pobierz aktywne moduły z props
+const environmentBanner = computed(() => page.props.environmentBanner || '');
 const activeModules = computed(() => page.props.activeModules || []);
 
-const logout = () => {
-    router.post(route('logout'));
-};
+function logout() { router.post(route('logout')); }
 
-const navigation = [
-    { name: 'Dashboard', route: 'dashboard', icon: 'dashboard' },
-    { name: 'Kalendarz', route: 'calendar.index', icon: 'calendar', pattern: 'calendar.*' },
-    { name: 'Zadania', route: 'tasks.index', icon: 'tasks', pattern: 'tasks.*' },
-    { name: 'Klienci', route: 'clients.index', icon: 'clients', pattern: 'clients.*' },
-    { name: 'Changelog', route: 'changelog.index', icon: 'document-text', pattern: 'changelog.*' },
-    { name: 'Cenniki', route: 'price-lists.index', icon: 'price-list', pattern: 'price-lists.*' },
+// ====================== NAWIGACJA ======================
+const navMain = [
+    { name: 'Dashboard',  route: 'dashboard',          icon: 'dashboard' },
+    { name: 'Kalendarz',  route: 'calendar.index',     icon: 'calendar', pattern: 'calendar.*' },
+    { name: 'Zadania',    route: 'tasks.index',        icon: 'tasks',    pattern: 'tasks.*' },
+    { name: 'Klienci',    route: 'clients.index',      icon: 'clients',  pattern: 'clients.*' },
+    { name: 'Cenniki',    route: 'price-lists.index',  icon: 'price-list', pattern: 'price-lists.*' },
+    { name: 'Changelog',  route: 'changelog.index',    icon: 'document-text', pattern: 'changelog.*' },
 ];
 
-// Dynamiczne linki do modułów
-const moduleNavigation = computed(() => {
-    return activeModules.value
+const navModules = computed(() =>
+    activeModules.value
         .filter(mod => mod.menu && mod.menu.length > 0)
-        .flatMap(mod => mod.menu.map(menuItem => ({
-            name: menuItem.label,
-            route: menuItem.route,
-            icon: menuItem.icon || mod.icon || 'puzzle',
+        .flatMap(mod => mod.menu.map(m => ({
+            name: m.label, route: m.route,
+            icon: m.icon || mod.icon || 'puzzle',
             pattern: mod.name + '.*',
-        })));
-});
+        })))
+);
 
-const adminNavigation = [
-    { name: 'Użytkownicy', route: 'users.index', icon: 'users', pattern: 'users.*', roles: ['admin', 'manager'] },
-    { name: 'Statusy', route: 'statuses.index', icon: 'statuses', pattern: 'statuses.*', roles: ['admin'] },
-    { name: 'Szablony Email', route: 'admin.email-templates.index', icon: 'mail', pattern: 'admin.email-templates.*', roles: ['admin'] },
-    { name: 'Raport dzienny', route: 'admin.daily-report', icon: 'document-text', pattern: 'admin.daily-report', roles: ['admin'] },
-    { name: 'Logi integracji', route: 'admin.integration-logs', icon: 'activity', pattern: 'admin.integration-logs', roles: ['admin'] },
-    { name: 'Moduły', route: 'admin.modules.index', icon: 'puzzle', pattern: 'admin.modules.*', roles: ['admin'] },
-    { name: 'Cenniki', route: 'admin.price-lists.index', icon: 'price-list', pattern: 'admin.price-lists.*', roles: ['admin'] },
-    { name: 'Ustawienia', route: 'admin.settings.index', icon: 'settings', pattern: 'admin.settings.*', roles: ['admin'] },
+const navAdmin = [
+    { name: 'Użytkownicy',     route: 'users.index',                  icon: 'users',         pattern: 'users.*',                  roles: ['admin', 'manager'] },
+    { name: 'Statusy',         route: 'statuses.index',               icon: 'statuses',      pattern: 'statuses.*',               roles: ['admin'] },
+    { name: 'Szablony Email',  route: 'admin.email-templates.index',  icon: 'mail',          pattern: 'admin.email-templates.*',  roles: ['admin'] },
+    { name: 'Raport dzienny',  route: 'admin.daily-report',           icon: 'document-text', pattern: 'admin.daily-report',       roles: ['admin'] },
+    { name: 'Logi integracji', route: 'admin.integration-logs',       icon: 'activity',      pattern: 'admin.integration-logs',   roles: ['admin'] },
+    { name: 'Moduły',          route: 'admin.modules.index',          icon: 'puzzle',        pattern: 'admin.modules.*',          roles: ['admin'] },
+    { name: 'Cenniki',         route: 'admin.price-lists.index',      icon: 'price-list',    pattern: 'admin.price-lists.*',      roles: ['admin'] },
+    { name: 'Ustawienia',      route: 'admin.settings.index',         icon: 'settings',      pattern: 'admin.settings.*',         roles: ['admin'] },
 ];
 
-// Menu użytkownika zależne od roli
 const userMenuItems = [
-    { name: 'Mój profil', action: 'profile', icon: 'user', roles: ['admin', 'manager', 'user'] },
-    { name: 'Serwer pocztowy', action: 'settings', icon: 'mail', roles: ['admin', 'manager', 'user'] },
-    { name: 'Zabezpieczenia (2FA)', action: '2fa', icon: 'lock', roles: ['admin', 'manager', 'user'] },
+    { name: 'Mój profil',         action: 'profile' },
+    { name: 'Serwer pocztowy',    action: 'settings' },
+    { name: 'Zabezpieczenia (2FA)', action: '2fa' },
 ];
 
 function isActive(item) {
-    if (item.pattern) {
-        return route().current(item.pattern);
-    }
+    if (item.pattern) return route().current(item.pattern);
     return route().current(item.route);
 }
-
 function canAccess(item) {
     if (!item.roles) return true;
     return item.roles.includes(userRole.value);
 }
-
 function handleUserMenuAction(item) {
     showUserMenu.value = false;
-    if (item.route) {
-        router.visit(route(item.route));
-    } else if (item.action === 'profile') {
-        // TODO: Otwórz modal profilu lub przekieruj
-        alert('Profil użytkownika - wkrótce');
-    } else if (item.action === 'settings') {
-        // Przejdź do ustawień serwera pocztowego
-        router.visit(route('settings.mail.index'));
-    } else if (item.action === '2fa') {
-        router.visit(route('two-factor.setup'));
-    } else if (item.action === 'notifications') {
-        // TODO: Otwórz powiadomienia
-        alert('Powiadomienia - wkrótce');
-    }
+    if (item.action === 'settings') router.visit(route('settings.mail.index'));
+    else if (item.action === '2fa') router.visit(route('two-factor.setup'));
+    else if (item.action === 'profile') alert('Profil — wkrótce');
 }
+
+const visibleAdmin = computed(() => navAdmin.filter(canAccess));
 </script>
 
 <template>
-    <div class="min-h-screen bg-slate-100 dark:bg-slate-900 transition-colors duration-200">
-        <!-- Baner: wersja testowa -->
-        <div
-            v-if="isTestEnv"
-            class="fixed top-0 left-0 right-0 z-[110] bg-amber-500 text-slate-900 px-4 py-2.5 text-center text-base font-bold shadow-lg border-b-2 border-amber-600"
+    <div class="min-h-screen flex">
+        <!-- ====================== SIDEBAR ====================== -->
+        <aside
+            :class="[
+                'fixed inset-y-0 left-0 z-40 glass border-r border-border flex flex-col',
+                'transition-all duration-300 ease-out',
+                sidebarCollapsed ? 'w-sidebar-collapsed' : 'w-sidebar',
+            ]"
         >
-            ⚠️ WERSJA TESTOWA APLIKACJI — test.crm.chickenking.co
-        </div>
-        <!-- Powiadomienie o nowym deployu -->
-        <div
-            v-if="showDeployNotification"
-            class="fixed top-0 left-0 right-0 z-[100] bg-amber-500 text-white px-4 py-3 text-center text-sm font-medium shadow-lg"
-        >
-            <span>Nowa wersja aplikacji jest dostępna. Odśwież stronę trzymając <kbd class="px-1.5 py-0.5 bg-amber-600 rounded text-xs font-bold">Shift</kbd> i klikając odśwież (lub <kbd class="px-1.5 py-0.5 bg-amber-600 rounded text-xs font-bold">Shift+F5</kbd>), aby załadować zmiany.</span>
-            <button
-                @click="hardRefresh"
-                class="ml-3 px-3 py-1 bg-amber-600 hover:bg-amber-700 rounded font-semibold transition-colors"
-            >
-                Odśwież teraz
-            </button>
-        </div>
-        <!-- Sidebar (desktop) -->
-        <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col" :class="{ 'lg:top-12': isTestEnv }">
-            <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-slate-900 px-6 pb-4">
-                <!-- Logo -->
-                <div class="flex h-16 shrink-0 items-center">
-                    <img v-if="appLogo" :src="appLogo" :alt="appName" class="h-8 w-auto" />
-                    <span v-else class="text-xl font-bold text-white">{{ appName }}</span>
+            <!-- Logo -->
+            <div class="h-topbar shrink-0 flex items-center justify-center px-3 border-b border-border">
+                <Link :href="route('dashboard')" class="block">
+                    <BrandLogo :show-name="!sidebarCollapsed" :size="sidebarCollapsed ? 'sm' : 'md'" />
+                </Link>
+            </div>
+
+            <!-- Nav -->
+            <nav class="flex-1 overflow-y-auto py-4 px-2 space-y-6">
+                <!-- Główne -->
+                <div>
+                    <p v-if="!sidebarCollapsed" class="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-foreground-subtle">
+                        Główne
+                    </p>
+                    <Tooltip v-for="item in navMain" :key="item.route" :content="sidebarCollapsed ? item.name : ''" placement="right" class="block w-full">
+                        <Link
+                            :href="route(item.route)"
+                            :class="[
+                                'group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors w-full',
+                                isActive(item)
+                                    ? 'gradient-subtle text-brand-primary font-medium'
+                                    : 'text-foreground-muted hover:text-foreground hover:bg-surface-elevated',
+                                sidebarCollapsed && 'justify-center',
+                            ]"
+                        >
+                            <span v-if="isActive(item)" class="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-r gradient-brand" />
+                            <Icons :name="item.icon" class="w-4 h-4 shrink-0" />
+                            <span v-if="!sidebarCollapsed" class="truncate">{{ item.name }}</span>
+                        </Link>
+                    </Tooltip>
                 </div>
 
-                <!-- Navigation -->
-                <nav class="flex flex-1 flex-col">
-                    <ul role="list" class="flex flex-1 flex-col gap-y-7">
-                        <li>
-                                            <ul role="list" class="-mx-2 space-y-1">
-                                                <li v-for="item in navigation" :key="item.name">
-                                                    <Link
-                                                        :href="route(item.route)"
-                                                        :class="[
-                                                            isActive(item)
-                                                                ? 'bg-amber-500 text-white'
-                                                                : 'text-slate-300 hover:text-white hover:bg-slate-800',
-                                                            'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-colors'
-                                                        ]"
-                                                    >
-                                                        <Icons :name="item.icon" class="h-6 w-6 shrink-0" />
-                                                        {{ item.name }}
-                                                    </Link>
-                                                </li>
-                                            </ul>
-                                        </li>
+                <!-- Moduły -->
+                <div v-if="navModules.length">
+                    <p v-if="!sidebarCollapsed" class="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-foreground-subtle">
+                        Moduły
+                    </p>
+                    <Tooltip v-for="item in navModules" :key="item.route" :content="sidebarCollapsed ? item.name : ''" placement="right" class="block w-full">
+                        <Link
+                            :href="route(item.route)"
+                            :class="[
+                                'group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors w-full',
+                                isActive(item)
+                                    ? 'gradient-subtle text-brand-primary font-medium'
+                                    : 'text-foreground-muted hover:text-foreground hover:bg-surface-elevated',
+                                sidebarCollapsed && 'justify-center',
+                            ]"
+                        >
+                            <span v-if="isActive(item)" class="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-r gradient-brand" />
+                            <Icons :name="item.icon" class="w-4 h-4 shrink-0" />
+                            <span v-if="!sidebarCollapsed" class="truncate">{{ item.name }}</span>
+                        </Link>
+                    </Tooltip>
+                </div>
 
-                                        <!-- Moduły -->
-                                        <li v-if="moduleNavigation.length > 0">
-                                            <div class="text-xs font-semibold leading-6 text-slate-500 uppercase tracking-wider">Moduły</div>
-                                            <ul role="list" class="-mx-2 mt-2 space-y-1">
-                                                <li v-for="item in moduleNavigation" :key="item.name">
-                                                    <Link
-                                                        :href="route(item.route)"
-                                                        :class="[
-                                                            isActive(item)
-                                                                ? 'bg-amber-500 text-white'
-                                                                : 'text-slate-300 hover:text-white hover:bg-slate-800',
-                                                            'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-colors'
-                                                        ]"
-                                                    >
-                                                        <Icons :name="item.icon" class="h-6 w-6 shrink-0" />
-                                                        <span class="flex-1">{{ item.name }}</span>
-                                                        <span
-                                                            v-if="item.route === 'email.inbox.index' && inboxUnreadCount > 0"
-                                                            class="min-w-[1.25rem] h-5 px-1.5 flex items-center justify-center rounded-full bg-amber-500 text-white text-xs font-bold"
-                                                        >
-                                                            {{ inboxUnreadCount > 99 ? '99+' : inboxUnreadCount }}
-                                                        </span>
-                                                    </Link>
-                                                </li>
-                                            </ul>
-                                        </li>
+                <!-- Admin -->
+                <div v-if="visibleAdmin.length">
+                    <p v-if="!sidebarCollapsed" class="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-foreground-subtle">
+                        Administracja
+                    </p>
+                    <Tooltip v-for="item in visibleAdmin" :key="item.route" :content="sidebarCollapsed ? item.name : ''" placement="right" class="block w-full">
+                        <Link
+                            :href="route(item.route)"
+                            :class="[
+                                'group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors w-full',
+                                isActive(item)
+                                    ? 'gradient-subtle text-brand-primary font-medium'
+                                    : 'text-foreground-muted hover:text-foreground hover:bg-surface-elevated',
+                                sidebarCollapsed && 'justify-center',
+                            ]"
+                        >
+                            <span v-if="isActive(item)" class="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-r gradient-brand" />
+                            <Icons :name="item.icon" class="w-4 h-4 shrink-0" />
+                            <span v-if="!sidebarCollapsed" class="truncate">{{ item.name }}</span>
+                        </Link>
+                    </Tooltip>
+                </div>
+            </nav>
 
-                                        <!-- Admin Section -->
-                        <li v-if="adminNavigation.some(item => canAccess(item))">
-                            <div class="text-xs font-semibold leading-6 text-slate-500 uppercase tracking-wider">Administracja</div>
-                            <ul role="list" class="-mx-2 mt-2 space-y-1">
-                                <li v-for="item in adminNavigation" :key="item.name">
-                                    <Link
-                                        v-if="canAccess(item)"
-                                        :href="route(item.route)"
-                                        :class="[
-                                            isActive(item)
-                                                ? 'bg-amber-500 text-white'
-                                                : 'text-slate-300 hover:text-white hover:bg-slate-800',
-                                            'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-colors'
-                                        ]"
-                                    >
-                                        <Icons :name="item.icon" class="h-6 w-6 shrink-0" />
-                                        {{ item.name }}
-                                    </Link>
-                                </li>
-                            </ul>
-                        </li>
+            <!-- Footer sidebar: collapse toggle + version -->
+            <div class="border-t border-border p-2 flex items-center" :class="sidebarCollapsed ? 'justify-center' : 'justify-between gap-2'">
+                <button
+                    @click="toggleSidebar"
+                    class="h-9 w-9 inline-flex items-center justify-center rounded-md text-foreground-muted hover:text-foreground hover:bg-surface-elevated transition-colors"
+                    :title="sidebarCollapsed ? 'Rozwiń menu' : 'Zwiń menu'"
+                >
+                    <Icons :name="sidebarCollapsed ? 'chevron-right' : 'chevron-left'" class="w-4 h-4" />
+                </button>
+                <span v-if="!sidebarCollapsed" class="text-[10px] font-mono text-foreground-subtle">{{ page.props.buildVersion || 'dev' }}</span>
+            </div>
+        </aside>
 
-                        <!-- Dark mode toggle + shortcuts -->
-                        <li class="mt-auto space-y-1">
-                            <button 
-                                @click="toggleDarkMode"
-                                class="w-full flex items-center gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
-                            >
-                                <Icons :name="isDark ? 'sun' : 'moon'" class="h-6 w-6 shrink-0" />
-                                {{ isDark ? 'Tryb jasny' : 'Tryb ciemny' }}
-                            </button>
-                            <button 
-                                @click="showHelp = true"
-                                class="w-full flex items-center gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
-                            >
-                                <span class="flex items-center justify-center h-6 w-6 shrink-0 rounded border border-slate-600 text-xs font-bold">?</span>
-                                Skróty klawiszowe
-                            </button>
-                        </li>
+        <!-- ====================== MAIN COLUMN ====================== -->
+        <div :class="['flex-1 flex flex-col min-w-0 transition-all duration-300', sidebarCollapsed ? 'pl-sidebar-collapsed' : 'pl-sidebar']">
+            <!-- ====================== TOPBAR ====================== -->
+            <header class="sticky top-0 z-30 h-topbar glass border-b border-border flex items-center px-4 gap-3">
+                <!-- Banner środowiska (np. „STAGING") -->
+                <div v-if="environmentBanner" class="px-3 py-1 rounded-md text-xs font-semibold gradient-subtle text-brand-primary border border-brand-primary/30">
+                    {{ environmentBanner }}
+                </div>
 
-                        <!-- Zminimalizowane wizyty (floating panel) – pod modułami, nad profilem -->
-                        <li id="sidebar-minimized-visits" class="space-y-1 -mx-2 max-h-40 overflow-y-auto shrink-0"></li>
+                <div class="flex-1" />
 
-                        <!-- User profile with dropdown -->
-                        <li class="relative shrink-0">
-                            <button 
-                                @click="showUserMenu = !showUserMenu"
-                                class="w-full flex items-center gap-x-4 px-2 py-3 text-sm font-semibold leading-6 text-white border-t border-slate-700 pt-4 hover:bg-slate-800 rounded-md transition-colors"
-                            >
-                                <img 
-                                    v-if="$page.props.auth.user?.avatar_url" 
-                                    :src="$page.props.auth.user.avatar_url" 
-                                    :alt="$page.props.auth.user.name" 
-                                    class="h-10 w-10 rounded-full object-cover"
-                                />
-                                <div v-else class="h-10 w-10 rounded-full bg-amber-500 flex items-center justify-center text-sm font-bold text-white">
-                                    {{ $page.props.auth.user?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() }}
-                                </div>
-                                <div class="flex-1 min-w-0 text-left">
-                                    <p class="truncate">{{ $page.props.auth.user?.name }}</p>
-                                    <p class="text-xs text-slate-400 truncate">{{ $page.props.auth.user?.email }}</p>
-                                </div>
-                                <Icons name="chevron-up" :class="['h-5 w-5 text-slate-400 transition-transform', showUserMenu ? '' : 'rotate-180']" />
-                            </button>
+                <!-- Inbox -->
+                <Link
+                    v-if="currentUser"
+                    :href="route('mail.inbox.index')"
+                    class="relative h-9 w-9 inline-flex items-center justify-center rounded-md text-foreground-muted hover:text-foreground hover:bg-surface-elevated transition-colors"
+                    title="Skrzynka odbiorcza"
+                >
+                    <Icons name="mail" class="w-4 h-4" />
+                    <span v-if="inboxUnreadCount > 0" class="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] px-1 rounded-full gradient-brand text-white text-[10px] font-bold flex items-center justify-center">
+                        {{ inboxUnreadCount > 99 ? '99+' : inboxUnreadCount }}
+                    </span>
+                </Link>
 
-                            <!-- User dropdown menu -->
-                            <div 
-                                v-if="showUserMenu" 
-                                class="absolute bottom-full left-0 right-0 mb-2 bg-slate-800 rounded-lg shadow-xl border border-slate-700 overflow-hidden"
-                            >
-                                <div class="py-1">
-                                    <template v-for="item in userMenuItems" :key="item.name">
-                                        <button
-                                            v-if="canAccess(item)"
-                                            @click="handleUserMenuAction(item)"
-                                            class="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
-                                        >
-                                            <Icons :name="item.icon" class="h-4 w-4" />
-                                            {{ item.name }}
-                                        </button>
-                                    </template>
-                                    <hr class="my-1 border-slate-700" />
-                                    <button 
-                                        @click="logout" 
-                                        class="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:bg-slate-700 hover:text-red-300 transition-colors"
-                                    >
-                                        <Icons name="logout" class="h-4 w-4" />
-                                        Wyloguj się
-                                    </button>
-                                </div>
+                <!-- Theme toggle -->
+                <ThemeToggle />
+
+                <!-- Separator -->
+                <div class="w-px h-5 bg-border-bright" />
+
+                <!-- User menu -->
+                <div v-if="currentUser" class="relative" data-user-menu>
+                    <button
+                        @click.stop="showUserMenu = !showUserMenu"
+                        class="h-9 inline-flex items-center gap-2.5 pr-2 pl-1 rounded-md hover:bg-surface-elevated transition-colors"
+                    >
+                        <span class="w-7 h-7 rounded-full gradient-brand flex items-center justify-center text-white text-xs font-bold">
+                            {{ userInitials }}
+                        </span>
+                        <span class="text-sm text-foreground hidden sm:inline">{{ currentUser.name }}</span>
+                        <Icons name="chevron-down" class="w-3 h-3 text-foreground-muted hidden sm:inline" />
+                    </button>
+                    <Transition
+                        enter-active-class="transition duration-100 ease-out"
+                        enter-from-class="opacity-0 scale-95"
+                        enter-to-class="opacity-100 scale-100"
+                        leave-active-class="transition duration-75 ease-in"
+                        leave-from-class="opacity-100 scale-100"
+                        leave-to-class="opacity-0 scale-95"
+                    >
+                        <div
+                            v-if="showUserMenu"
+                            class="absolute right-0 mt-1 w-56 origin-top-right glass-card rounded-md shadow-lg overflow-hidden"
+                        >
+                            <div class="px-3 py-2.5 border-b border-border">
+                                <p class="text-sm font-medium text-foreground truncate">{{ currentUser.name }}</p>
+                                <p class="text-xs text-foreground-muted truncate">{{ currentUser.email }}</p>
                             </div>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-        </div>
-
-        <!-- Mobile header -->
-        <div class="sticky z-40 flex items-center gap-x-6 bg-slate-900 dark:bg-slate-950 px-4 py-4 shadow-sm sm:px-6 lg:hidden" :class="isTestEnv ? 'top-12' : 'top-0'">
-            <button type="button" class="-m-2.5 p-2.5 text-slate-400" @click="showMobileMenu = true">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                </svg>
-            </button>
-            <div class="flex-1 text-sm font-semibold leading-6 text-white">
-                <img v-if="appLogo" :src="appLogo" :alt="appName" class="h-6 w-auto inline" />
-                <template v-else>{{ appName }}</template>
-            </div>
-        </div>
-
-        <!-- Mobile menu -->
-        <div v-if="showMobileMenu" class="relative z-50 lg:hidden">
-            <div class="fixed inset-0 bg-slate-900/80" @click="showMobileMenu = false"></div>
-            <div class="fixed inset-0 flex">
-                <div class="relative mr-16 flex w-full max-w-xs flex-1">
-                    <div class="absolute left-full top-0 flex w-16 justify-center pt-5">
-                        <button type="button" class="-m-2.5 p-2.5" @click="showMobileMenu = false">
-                            <Icons name="close" class="h-6 w-6 text-white" />
-                        </button>
-                    </div>
-                    <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-slate-900 px-6 pb-4">
-                        <div class="flex h-16 shrink-0 items-center">
-                            <img v-if="appLogo" :src="appLogo" :alt="appName" class="h-8 w-auto" />
-                            <span v-else class="text-xl font-bold text-white">{{ appName }}</span>
+                            <div class="py-1">
+                                <button
+                                    v-for="item in userMenuItems" :key="item.action"
+                                    @click="handleUserMenuAction(item)"
+                                    class="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-surface-elevated transition-colors"
+                                >
+                                    {{ item.name }}
+                                </button>
+                            </div>
+                            <div class="border-t border-border py-1">
+                                <button
+                                    @click="logout"
+                                    class="w-full text-left px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                                >
+                                    Wyloguj
+                                </button>
+                            </div>
                         </div>
-                        <nav class="flex flex-1 flex-col">
-                            <ul role="list" class="flex flex-1 flex-col gap-y-7">
-                                <li>
-                                    <ul role="list" class="-mx-2 space-y-1">
-                                        <li v-for="item in navigation" :key="item.name">
-                                            <Link
-                                                :href="route(item.route)"
-                                                :class="[
-                                                    isActive(item) ? 'bg-amber-500 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white',
-                                                    'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                                                ]"
-                                                @click="showMobileMenu = false"
-                                            >
-                                                <Icons :name="item.icon" class="h-6 w-6 shrink-0" />
-                                                {{ item.name }}
-                                            </Link>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li v-if="moduleNavigation.length > 0">
-                                    <div class="text-xs font-semibold leading-6 text-slate-500 uppercase">Moduły</div>
-                                    <ul role="list" class="-mx-2 mt-2 space-y-1">
-                                        <li v-for="item in moduleNavigation" :key="item.name">
-                                            <Link
-                                                :href="route(item.route)"
-                                                :class="[
-                                                    isActive(item) ? 'bg-amber-500 text-white' : 'text-slate-300 hover:text-white hover:bg-slate-800',
-                                                    'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                                                ]"
-                                                @click="showMobileMenu = false"
-                                            >
-                                                <Icons :name="item.icon" class="h-6 w-6 shrink-0" />
-                                                <span class="flex-1">{{ item.name }}</span>
-                                                <span
-                                                    v-if="item.route === 'email.inbox.index' && inboxUnreadCount > 0"
-                                                    class="min-w-[1.25rem] h-5 px-1.5 flex items-center justify-center rounded-full bg-amber-500 text-white text-xs font-bold"
-                                                >
-                                                    {{ inboxUnreadCount > 99 ? '99+' : inboxUnreadCount }}
-                                                </span>
-                                            </Link>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li v-if="adminNavigation.some(item => canAccess(item))">
-                                    <div class="text-xs font-semibold leading-6 text-slate-500 uppercase">Administracja</div>
-                                    <ul role="list" class="-mx-2 mt-2 space-y-1">
-                                        <li v-for="item in adminNavigation" :key="item.name">
-                                            <Link
-                                                v-if="canAccess(item)"
-                                                :href="route(item.route)"
-                                                :class="[
-                                                    isActive(item) ? 'bg-amber-500 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white',
-                                                    'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                                                ]"
-                                                @click="showMobileMenu = false"
-                                            >
-                                                <Icons :name="item.icon" class="h-6 w-6 shrink-0" />
-                                                {{ item.name }}
-                                            </Link>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
+                    </Transition>
                 </div>
-            </div>
-        </div>
+            </header>
 
-        <!-- Click outside to close user menu -->
-        <div v-if="showUserMenu" class="fixed inset-0 z-40" @click="showUserMenu = false"></div>
-
-        <!-- Main content -->
-        <main class="lg:pl-64" :class="{ 'pt-12': isTestEnv }">
-            <div class="px-4 py-8 sm:px-6 lg:px-8">
-                <Breadcrumbs />
+            <!-- ====================== CONTENT ====================== -->
+            <main class="flex-1 relative">
                 <FlashMessages />
                 <slot />
+            </main>
+        </div>
+
+        <!-- Powiadomienie o nowym deployu -->
+        <Transition
+            enter-active-class="transition duration-300 ease-out"
+            enter-from-class="opacity-0 translate-y-2"
+            enter-to-class="opacity-100 translate-y-0"
+            leave-active-class="transition duration-200 ease-in"
+            leave-from-class="opacity-100 translate-y-0"
+            leave-to-class="opacity-0 translate-y-2"
+        >
+            <div
+                v-if="showDeployNotification"
+                class="fixed bottom-4 right-4 z-50 glass-card rounded-lg p-4 max-w-sm flex items-start gap-3"
+            >
+                <Icons name="refresh" class="w-5 h-5 text-brand-primary shrink-0 mt-0.5" />
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-foreground">Nowa wersja aplikacji jest dostępna</p>
+                    <p class="text-xs text-foreground-muted mt-0.5">Odśwież stronę, żeby załadować zmiany.</p>
+                    <div class="mt-3 flex gap-2">
+                        <button @click="hardRefresh" class="px-3 py-1.5 rounded-md text-xs font-medium gradient-brand text-white">
+                            Odśwież teraz
+                        </button>
+                        <button @click="showDeployNotification = false" class="px-3 py-1.5 rounded-md text-xs font-medium text-foreground-muted hover:text-foreground">
+                            Później
+                        </button>
+                    </div>
+                </div>
             </div>
-        </main>
+        </Transition>
+
+        <KeyboardShortcutsHelp v-model="showHelp" :shortcuts="shortcuts" />
+        <FloatingVisitPanel v-model="showFloatingVisitSearch" />
+        <HiddenGamesPanel />
     </div>
-
-    <!-- Zminimalizowane wizyty – mobile (sidebar ukryty) -->
-    <div id="mobile-minimized-visits" class="fixed bottom-20 left-4 right-4 z-50 max-h-40 overflow-y-auto flex flex-col gap-1 lg:hidden"></div>
-
-    <KeyboardShortcutsHelp :show="showHelp" :shortcuts="shortcuts" @close="showHelp = false" />
-    <FloatingVisitPanel
-        :show-search="showFloatingVisitSearch"
-        @update:show-search="showFloatingVisitSearch = $event"
-    />
-    <HiddenGamesPanel />
 </template>

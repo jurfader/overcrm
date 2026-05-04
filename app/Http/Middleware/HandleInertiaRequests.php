@@ -35,7 +35,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'appUrl' => rtrim(url('/'), '/'),
-            'isTestEnv' => in_array(config('app.env'), ['staging', 'testing']) || str_contains(config('app.url', ''), 'test.crm'),
+            'environmentBanner' => fn () => Setting::get('environment_banner', '', 'core') ?: '',
             'buildVersion' => fn () => $this->getBuildVersion(),
             'auth' => [
                 'user' => $request->user() ? $this->transformAuthUser($request->user()) : null,
@@ -47,6 +47,7 @@ class HandleInertiaRequests extends Middleware
                 'recovery_codes' => fn () => $request->session()->get('recovery_codes'),
                 'openedVisitId' => fn () => $request->session()->get('openedVisitId'),
             ],
+            'brand' => fn () => brand(),
             'appSettings' => fn () => $this->getAppSettings(),
             'inpostGeowidgetToken' => fn () => $this->getInpostToken(),
             'inpostOrganizationId' => fn () => $this->getInpostOrganizationId(),
@@ -85,11 +86,11 @@ class HandleInertiaRequests extends Middleware
             }
 
             return [
-                'app_name' => Setting::get('app_name', 'CHICKENKING Planner'),
-                'app_logo' => Setting::get('app_logo', null),
-                'company_name' => Setting::get('company_name', 'CHICKENKING'),
-                'primary_color' => Setting::get('primary_color', '#4F46E5'),
-                'dark_mode_default' => Setting::get('dark_mode_default', false),
+                'app_name' => Setting::get('app_name', brand('name')),
+                'app_logo' => Setting::get('app_logo', brand('logo_url')),
+                'company_name' => Setting::get('company_name', brand('company_name')),
+                'primary_color' => Setting::get('primary_color', brand('primary_color')),
+                'dark_mode_default' => Setting::get('dark_mode_default', brand('default_theme') === 'dark'),
             ];
         } catch (\Exception $e) {
             return $this->getDefaultSettings();
@@ -184,11 +185,11 @@ class HandleInertiaRequests extends Middleware
     protected function getDefaultSettings(): array
     {
         return [
-            'app_name' => 'CHICKENKING Planner',
-            'app_logo' => null,
-            'company_name' => 'CHICKENKING',
-            'primary_color' => '#4F46E5',
-            'dark_mode_default' => false,
+            'app_name' => brand('name'),
+            'app_logo' => brand('logo_url'),
+            'company_name' => brand('company_name'),
+            'primary_color' => brand('primary_color'),
+            'dark_mode_default' => brand('default_theme') === 'dark',
         ];
     }
 }
