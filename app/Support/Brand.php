@@ -34,10 +34,3 @@ class Brand
         ];
     }
 }
-
-if (!function_exists('brand')) {
-    function brand(?string $key = null, mixed $default = null): mixed
-    {
-        return $key === null ? Brand::all() : Brand::get($key, $default);
-    }
-}
