@@ -79,7 +79,7 @@ function syncCalls() {
             <div class="flex items-center justify-between gap-4">
                 <h1 class="text-2xl font-bold text-foreground">Połączenia</h1>
                 <button v-if="isAdmin" @click="syncCalls"
-                        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium transition">
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg gradient-brand text-white hover:opacity-90 text-sm font-medium transition">
                     <Icons name="refresh" class="w-4 h-4" />
                     Synchronizuj
                 </button>
@@ -124,7 +124,7 @@ function syncCalls() {
                         <tr v-for="call in props.calls" :key="call.id"
                             @click="selectCall(call)"
                             :class="['hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer',
-                                     selectedCall?.id === call.id ? 'bg-amber-50 dark:bg-amber-900/20' : '']">
+                                     selectedCall?.id === call.id ? 'gradient-subtle' : '']">
                             <td class="px-4 py-3 text-foreground whitespace-nowrap">{{ call.call_at }}</td>
                             <td class="px-4 py-3">
                                 <span class="text-xs px-2 py-1 rounded-full surface-elevated text-foreground">

@@ -2464,7 +2464,7 @@ const invoiceStatusLabels = {
                                     <button
                                         type="button"
                                         @click="addVisitPhone"
-                                        class="inline-flex items-center gap-1 text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
+                                        class="inline-flex items-center gap-1 text-sm text-brand-primary hover:underline"
                                     >
                                         <Icons name="plus" class="w-4 h-4" /> Dodaj numer
                                     </button>
@@ -2832,7 +2832,7 @@ const invoiceStatusLabels = {
                         <!-- Powiadomienie o zaległych fakturach -->
                         <div
                             v-if="orderBlockedByOverdue"
-                            class="mb-4 p-4 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200 flex items-center gap-3"
+                            class="mb-4 p-4 rounded-lg gradient-subtle border border-brand-primary/30 text-amber-800 dark:text-amber-200 flex items-center gap-3"
                         >
                             <Icons name="alert" class="w-5 h-5 flex-shrink-0" />
                             <div>
@@ -3034,7 +3034,7 @@ const invoiceStatusLabels = {
                                     >
                                         <div class="font-medium text-foreground truncate">{{ p.name }}</div>
                                         <div class="flex items-center gap-3 mt-0.5 flex-wrap">
-                                            <span class="text-xs font-medium text-amber-600 dark:text-amber-400">{{ formatCurrency(p.price) }} brutto</span>
+                                            <span class="text-xs font-medium text-brand-primary">{{ formatCurrency(p.price) }} brutto</span>
                                             <span class="text-xs text-foreground-muted">{{ formatCurrency(p.price_net ?? (p.price / (1 + (p.tax_rate || 23) / 100))) }} netto</span>
                                             <span class="text-xs text-foreground-muted">{{ p.tax_rate ?? 23 }}% VAT</span>
                                             <span v-if="p.sku" class="text-xs text-gray-400 dark:text-slate-500">SKU: {{ p.sku }}</span>
@@ -3050,7 +3050,7 @@ const invoiceStatusLabels = {
                                     <p class="text-xs text-foreground-muted mb-2">Produkty nie zostały jeszcze pobrane z Apilo</p>
                                     <button 
                                         @mousedown.prevent="loadApiloProducts(true)"
-                                        class="text-xs text-amber-600 dark:text-amber-400 hover:underline font-medium"
+                                        class="text-xs text-brand-primary hover:underline font-medium"
                                     >
                                         Kliknij aby pobrać bazę produktów
                                     </button>
@@ -3091,7 +3091,7 @@ const invoiceStatusLabels = {
                                         type="button"
                                         @click="lookupNipForOrderForm"
                                         :disabled="orderGusLoading || !orderForm.customer_nip || String(orderForm.customer_nip).replace(/\D/g, '').length < 10"
-                                        class="text-xs text-amber-600 dark:text-amber-400 hover:underline disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline flex items-center gap-1"
+                                        class="text-xs text-brand-primary hover:underline disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline flex items-center gap-1"
                                         title="Pobierz dane z GUS po NIP"
                                     >
                                         <Icons v-if="orderGusLoading" name="refresh" class="w-3.5 h-3.5 animate-spin" />
@@ -3151,7 +3151,7 @@ const invoiceStatusLabels = {
                                 </div>
                                 <div v-if="!orderForm.same_address" class="space-y-2">
                                     <div class="flex justify-end -mt-1 mb-1">
-                                        <button @click="copyToDelivery" type="button" class="text-xs text-amber-600 dark:text-amber-400 hover:underline">
+                                        <button @click="copyToDelivery" type="button" class="text-xs text-brand-primary hover:underline">
                                             Skopiuj z zamawiającego
                                         </button>
                                     </div>
@@ -4072,7 +4072,7 @@ const invoiceStatusLabels = {
 }
 
 .tab-btn {
-    @apply px-6 py-3 text-sm font-medium text-gray-600 hover:text-amber-600 hover:bg-gray-50 border-b-2 border-transparent transition-all
+    @apply px-6 py-3 text-sm font-medium text-gray-600 hover:text-brand-primary hover:bg-gray-50 border-b-2 border-transparent transition-all
            dark:text-slate-400 dark:hover:text-amber-400 dark:hover:bg-slate-700;
 }
 
@@ -4169,11 +4169,11 @@ const invoiceStatusLabels = {
 }
 
 .btn-send {
-    @apply w-full px-4 py-2 bg-amber-500 text-white rounded hover:bg-amber-600 font-medium flex items-center justify-center gap-2;
+    @apply w-full px-4 py-2 gradient-brand text-white rounded hover:opacity-90 font-medium flex items-center justify-center gap-2;
 }
 
 .btn-primary {
-    @apply px-4 py-2 bg-amber-500 text-white rounded hover:bg-amber-600 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center;
+    @apply px-4 py-2 gradient-brand text-white rounded hover:opacity-90 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center;
 }
 
 .btn-success {
@@ -4263,7 +4263,7 @@ const invoiceStatusLabels = {
 }
 
 .order-id, .invoice-number {
-    @apply font-semibold text-amber-600 dark:text-amber-400;
+    @apply font-semibold text-brand-primary;
 }
 
 .order-date {
@@ -4344,7 +4344,7 @@ const invoiceStatusLabels = {
 }
 
 .btn-restore {
-    @apply px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 font-medium flex items-center disabled:opacity-50;
+    @apply px-4 py-2 gradient-brand text-white rounded hover:opacity-90 font-medium flex items-center disabled:opacity-50;
 }
 
 .btn-delete {

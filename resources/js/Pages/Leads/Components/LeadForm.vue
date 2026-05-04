@@ -108,7 +108,7 @@ function submit() {
 
                 <div class="flex justify-end gap-3 pt-2">
                     <button type="button" @click="emit('close')" class="px-4 py-2 text-sm text-foreground-muted hover:text-slate-800">Anuluj</button>
-                    <button type="submit" :disabled="submitting" class="px-5 py-2 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600 disabled:opacity-50 transition-colors">
+                    <button type="submit" :disabled="submitting" class="px-5 py-2 gradient-brand text-white rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-colors">
                         {{ submitting ? 'Zapisywanie...' : 'Dodaj leada' }}
                     </button>
                 </div>

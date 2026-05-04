@@ -56,11 +56,11 @@ function publicUrl(slug) {
             >
                 <div class="flex items-start justify-between gap-3">
                     <div class="flex items-center gap-3">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/40 text-brand-primary">
                             <Icons name="price-list" class="w-5 h-5" />
                         </div>
                         <div>
-                            <h2 class="font-semibold text-foreground group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                            <h2 class="font-semibold text-foreground group-hover:text-brand-primary dark:group-hover:text-amber-400 transition-colors">
                                 {{ pl.name }}
                             </h2>
                             <p v-if="pl.description" class="text-sm text-foreground-muted mt-0.5">

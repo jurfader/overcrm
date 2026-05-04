@@ -134,7 +134,7 @@ const sourceColors = {
                 </Link>
                 <button
                     @click="showCreateForm = true"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 text-sm font-medium transition-colors"
+                    class="inline-flex items-center gap-2 px-4 py-2 gradient-brand text-white rounded-lg hover:opacity-90 text-sm font-medium transition-colors"
                 >
                     <Icons name="plus" class="w-4 h-4" />
                     Nowy lead

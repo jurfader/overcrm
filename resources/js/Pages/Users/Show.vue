@@ -46,7 +46,7 @@ const priorityColors = {
                     :alt="user.name" 
                     class="w-16 h-16 rounded-full object-cover border-2 border-slate-200 dark:border-slate-600"
                 />
-                <div v-else class="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400 text-2xl font-bold">
+                <div v-else class="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-brand-primary text-2xl font-bold">
                     {{ user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() }}
                 </div>
                 <div class="ml-4">

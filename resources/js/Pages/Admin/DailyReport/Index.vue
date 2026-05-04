@@ -264,7 +264,7 @@ function formatValue(key, value) {
                 <!-- Dzisiaj -->
                 <button
                     @click="today"
-                    class="px-3 py-2 text-sm font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+                    class="px-3 py-2 text-sm font-medium text-amber-700 dark:text-amber-400 gradient-subtle border border-brand-primary/30 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
                 >
                     Dzisiaj
                 </button>
@@ -294,7 +294,7 @@ function formatValue(key, value) {
                     <div class="text-xs text-foreground-muted mt-1">Wszystkich akcji</div>
                 </div>
                 <div class="surface rounded-xl border border-border p-4 text-center">
-                    <div class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ stats.updates }}</div>
+                    <div class="text-2xl font-bold text-brand-primary">{{ stats.updates }}</div>
                     <div class="text-xs text-foreground-muted mt-1">Aktualizacji</div>
                 </div>
                 <div class="surface rounded-xl border border-border p-4 text-center">
@@ -421,7 +421,7 @@ function formatValue(key, value) {
                                         {{ call.call_type === 'out' ? call.destination : call.caller }}
                                     </td>
                                     <td class="py-2 px-3">
-                                        <span v-if="call.client" class="text-amber-600 dark:text-amber-400 font-medium">{{ call.client.name }}</span>
+                                        <span v-if="call.client" class="text-brand-primary font-medium">{{ call.client.name }}</span>
                                         <span v-else class="text-gray-400">—</span>
                                     </td>
                                     <td class="py-2 px-3">

@@ -88,11 +88,11 @@ const hasProfile = computed(() => {
                     </div>
                     <!-- Opiekun handlowy – wyraźnie widoczny -->
                     <div v-if="assignedHandlowcy.length" class="mt-2 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50 w-fit">
-                        <Icons name="user" class="w-4 h-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
+                        <Icons name="user" class="w-4 h-4 text-brand-primary flex-shrink-0" />
                         <span class="text-sm font-medium text-indigo-700 dark:text-indigo-300">Opiekun handlowy:</span>
                         <template v-for="(h, i) in assignedHandlowcy" :key="h.id">
                             <span v-if="i > 0" class="text-indigo-500 dark:text-indigo-400">, </span>
-                            <Link :href="route('users.show', h.id)" class="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">{{ h.name }}</Link>
+                            <Link :href="route('users.show', h.id)" class="text-brand-primary hover:underline font-medium">{{ h.name }}</Link>
                         </template>
                     </div>
                     <div v-else class="mt-2 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-slate-800/50 border border-border w-fit">
@@ -297,7 +297,7 @@ const hasProfile = computed(() => {
                 <template v-if="hasProfile">
                     <div class="flex items-center gap-3 pt-2">
                         <div class="h-px flex-1 bg-amber-300 dark:bg-amber-700"></div>
-                        <span class="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">Profil lokalu gastronomicznego</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-brand-primary">Profil lokalu gastronomicznego</span>
                         <div class="h-px flex-1 bg-amber-300 dark:bg-amber-700"></div>
                     </div>
 

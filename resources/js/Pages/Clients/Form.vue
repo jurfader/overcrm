@@ -372,7 +372,7 @@ function submit() {
             <!-- ============ PROFILE SECTIONS SEPARATOR ============ -->
             <div class="flex items-center gap-3 pt-2">
                 <div class="h-px flex-1 bg-amber-300 dark:bg-amber-700"></div>
-                <span class="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">Profil lokalu gastronomicznego</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-brand-primary">Profil lokalu gastronomicznego</span>
                 <div class="h-px flex-1 bg-amber-300 dark:bg-amber-700"></div>
             </div>
 

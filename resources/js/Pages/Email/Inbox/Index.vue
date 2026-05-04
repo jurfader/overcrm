@@ -154,7 +154,7 @@ function formatDate(dateStr) {
                     </button>
                     <button
                         @click="openCompose()"
-                        class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition-colors"
+                        class="inline-flex items-center gap-2 px-4 py-2 gradient-brand text-white hover:opacity-90 rounded-lg font-medium transition-colors"
                     >
                         <Icons name="mail" class="w-5 h-5" />
                         Napisz
@@ -176,7 +176,7 @@ function formatDate(dateStr) {
             </div>
 
             <!-- Brak konfiguracji -->
-            <div v-else class="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4">
+            <div v-else class="rounded-lg gradient-subtle border border-brand-primary/30 p-4">
                 <p class="text-amber-800 dark:text-amber-200">
                     Nie masz zweryfikowanej konfiguracji serwera pocztowego.
                     <Link :href="route('settings.mail.index')" class="underline font-medium">Skonfiguruj SMTP</Link>
@@ -203,7 +203,7 @@ function formatDate(dateStr) {
                         :class="{ 'surface-2/30': !email.is_seen }"
                     >
                         <div class="flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                            <Icons name="mail" class="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                            <Icons name="mail" class="w-5 h-5 text-brand-primary" />
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between gap-2">
@@ -245,7 +245,7 @@ function formatDate(dateStr) {
                         <button
                             v-if="messageDetail && !messageDetail.error"
                             @click="openCompose(messageDetail); closeMessageModal();"
-                            class="p-2 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30 text-amber-600 dark:text-amber-400"
+                            class="p-2 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/30 text-brand-primary"
                             title="Odpowiedz"
                         >
                             <Icons name="arrow-uturn-left" class="w-5 h-5" />
@@ -356,7 +356,7 @@ function formatDate(dateStr) {
                         <button
                             type="submit"
                             :disabled="composeSending"
-                            class="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium disabled:opacity-50"
+                            class="px-6 py-2 gradient-brand text-white hover:opacity-90 rounded-lg font-medium disabled:opacity-50"
                         >
                             {{ composeSending ? 'Wysyłanie...' : 'Wyślij' }}
                         </button>

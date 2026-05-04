@@ -201,7 +201,7 @@ const actionColors = {
                     <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
                         <button 
                             @click="saveConfig"
-                            class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium"
+                            class="px-4 py-2 gradient-brand text-white rounded-lg hover:opacity-90 font-medium"
                         >
                             Zapisz konfigurację
                         </button>

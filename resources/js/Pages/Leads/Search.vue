@@ -171,7 +171,7 @@ function sourceTagClass(source) {
                         <option value="">— Cale województwo —</option>
                         <option v-for="city in cities" :key="city" :value="city">{{ city }}</option>
                     </select>
-                    <p v-if="selectedRegion && !selectedCity" class="text-xs text-amber-600 dark:text-amber-400 mt-1">Przeszuka wszystkie miasta w województwie</p>
+                    <p v-if="selectedRegion && !selectedCity" class="text-xs text-brand-primary mt-1">Przeszuka wszystkie miasta w województwie</p>
                 </div>
 
                 <!-- Przycisk -->
@@ -179,7 +179,7 @@ function sourceTagClass(source) {
                     <button
                         @click="search"
                         :disabled="searching || (!selectedCity && !selectedRegion)"
-                        class="w-full py-2.5 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                        class="w-full py-2.5 gradient-brand text-white rounded-lg font-medium hover:opacity-90 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
                     >
                         <Icons v-if="!searching" name="search" class="w-4 h-4" />
                         <span v-else class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />

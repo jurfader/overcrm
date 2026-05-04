@@ -283,7 +283,7 @@ function insertVariable(variable) {
                         <button
                             type="submit"
                             :disabled="form.processing"
-                            class="px-6 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50"
+                            class="px-6 py-2 gradient-brand text-white rounded-lg hover:opacity-90 transition-colors disabled:opacity-50"
                         >
                             {{ form.processing ? 'Zapisywanie...' : (isEditing ? 'Zapisz zmiany' : 'Utwórz szablon') }}
                         </button>

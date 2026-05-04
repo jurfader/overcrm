@@ -241,7 +241,7 @@ function submit() {
                     <button
                         type="submit"
                         :disabled="submitting"
-                        class="inline-flex items-center px-5 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 disabled:opacity-60 transition-colors"
+                        class="inline-flex items-center px-5 py-2 gradient-brand text-white text-sm font-medium rounded-lg hover:opacity-90 disabled:opacity-60 transition-colors"
                     >
                         {{ submitting ? 'Zapisywanie…' : (isEdit ? 'Zapisz zmiany' : 'Utwórz cennik') }}
                     </button>

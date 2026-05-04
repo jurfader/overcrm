@@ -74,7 +74,7 @@ const iconOptions = [
                 </button>
                 <button 
                     @click="showInstallModal = true"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium"
+                    class="inline-flex items-center gap-2 px-4 py-2 gradient-brand text-white rounded-lg hover:opacity-90 font-medium"
                 >
                     <Icons name="document-arrow-down" class="w-5 h-5" />
                     Zainstaluj z pliku
@@ -190,7 +190,7 @@ const iconOptions = [
                     <button type="button" @click="showInstallModal = false" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
                         Anuluj
                     </button>
-                    <button type="submit" :disabled="installForm.processing || !installForm.module_file" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50">
+                    <button type="submit" :disabled="installForm.processing || !installForm.module_file" class="px-4 py-2 gradient-brand text-white rounded-lg hover:opacity-90 disabled:opacity-50">
                         {{ installForm.processing ? 'Instalowanie...' : 'Zainstaluj' }}
                     </button>
                 </div>
@@ -266,7 +266,7 @@ const iconOptions = [
                     <button type="button" @click="showGenerateModal = false" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
                         Anuluj
                     </button>
-                    <button type="submit" :disabled="generateForm.processing" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50">
+                    <button type="submit" :disabled="generateForm.processing" class="px-4 py-2 gradient-brand text-white rounded-lg hover:opacity-90 disabled:opacity-50">
                         {{ generateForm.processing ? 'Tworzenie...' : 'Utwórz moduł' }}
                     </button>
                 </div>

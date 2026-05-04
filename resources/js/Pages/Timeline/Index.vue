@@ -216,7 +216,7 @@ const todayPosition = computed(() => {
                             <div class="text-[10px] text-gray-400 dark:text-slate-500 leading-tight">{{ day.weekday }}</div>
                             <div 
                                 class="text-xs font-medium leading-tight"
-                                :class="day.isToday ? 'text-amber-600 dark:text-amber-400 font-bold' : 'text-foreground-muted'"
+                                :class="day.isToday ? 'text-brand-primary font-bold' : 'text-foreground-muted'"
                             >
                                 {{ day.day }}
                             </div>
@@ -247,7 +247,7 @@ const todayPosition = computed(() => {
                     <!-- Zadania w grupie -->
                     <div v-for="task in group.tasks" :key="task.id" class="flex hover:bg-surface-elevated/30 transition-colors">
                         <div class="w-48 shrink-0 border-r border-border px-3 py-1.5 flex items-center">
-                            <Link :href="route('tasks.show', task.id)" class="text-xs text-foreground hover:text-amber-600 dark:hover:text-amber-400 truncate">
+                            <Link :href="route('tasks.show', task.id)" class="text-xs text-foreground hover:text-brand-primary dark:hover:text-amber-400 truncate">
                                 {{ task.title }}
                             </Link>
                         </div>

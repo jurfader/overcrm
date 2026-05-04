@@ -100,7 +100,7 @@ const serviceColors = {
 
 const methodColors = {
     GET: 'text-green-600 dark:text-green-400',
-    POST: 'text-amber-600 dark:text-amber-400',
+    POST: 'text-brand-primary',
     PUT: 'text-blue-600 dark:text-blue-400',
     DELETE: 'text-red-600 dark:text-red-400',
 };
@@ -289,7 +289,7 @@ const levelDotColors = {
                     <div class="text-sm text-foreground-muted">Błędy</div>
                 </div>
                 <div class="surface rounded-xl p-4 border border-border">
-                    <div class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ appLogStats.warnings }}</div>
+                    <div class="text-2xl font-bold text-brand-primary">{{ appLogStats.warnings }}</div>
                     <div class="text-sm text-foreground-muted">Ostrzeżenia</div>
                 </div>
                 <div class="surface rounded-xl p-4 border border-border">

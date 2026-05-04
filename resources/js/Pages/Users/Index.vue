@@ -124,11 +124,11 @@ const statusColors = {
                                         :alt="user.name" 
                                         class="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-600"
                                     />
-                                    <div v-else class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400 font-medium">
+                                    <div v-else class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-brand-primary font-medium">
                                         {{ user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() }}
                                     </div>
                                     <div class="ml-4">
-                                        <Link :href="route('users.show', user.id)" class="text-sm font-medium text-gray-900 hover:text-indigo-600">
+                                        <Link :href="route('users.show', user.id)" class="text-sm font-medium text-gray-900 hover:text-brand-primary">
                                             {{ user.name }}
                                         </Link>
                                         <div class="text-sm text-gray-500">{{ user.email }}</div>
@@ -157,7 +157,7 @@ const statusColors = {
                                     <Link :href="route('users.show', user.id)" class="text-gray-400 hover:text-gray-600">
                                         <Icons name="eye" class="w-5 h-5" />
                                     </Link>
-                                    <Link :href="route('users.edit', user.id)" class="text-gray-400 hover:text-indigo-600">
+                                    <Link :href="route('users.edit', user.id)" class="text-gray-400 hover:text-brand-primary">
                                         <Icons name="edit" class="w-5 h-5" />
                                     </Link>
                                     <button 

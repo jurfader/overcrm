@@ -222,7 +222,7 @@ function isOverdue(task) {
             </div>
 
             <!-- Bulk actions bar -->
-            <div v-if="hasSelection" class="px-4 py-3 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800 flex items-center gap-3 flex-wrap">
+            <div v-if="hasSelection" class="px-4 py-3 gradient-subtle border-b border-brand-primary/30 flex items-center gap-3 flex-wrap">
                 <span class="text-sm font-medium text-amber-800 dark:text-amber-300">
                     Zaznaczono {{ selectedIds.length }} {{ selectedIds.length === 1 ? 'zadanie' : selectedIds.length < 5 ? 'zadania' : 'zadań' }}
                 </span>
@@ -328,13 +328,13 @@ function isOverdue(task) {
                                 <input type="checkbox" :value="task.id" v-model="selectedIds" class="rounded border-border-bright text-amber-600 focus:ring-brand-primary dark:bg-slate-700" />
                             </td>
                             <td class="px-6 py-4">
-                                <Link :href="route('tasks.show', task.id)" class="text-sm font-medium text-foreground hover:text-amber-600 dark:hover:text-amber-400">
+                                <Link :href="route('tasks.show', task.id)" class="text-sm font-medium text-foreground hover:text-brand-primary dark:hover:text-amber-400">
                                     {{ task.title }}
                                 </Link>
                                 <p v-if="task.description" class="text-xs text-foreground-muted mt-1 truncate max-w-xs">{{ task.description }}</p>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <Link v-if="task.client" :href="route('clients.show', task.client.id)" class="text-sm text-foreground hover:text-amber-600 dark:hover:text-amber-400">
+                                <Link v-if="task.client" :href="route('clients.show', task.client.id)" class="text-sm text-foreground hover:text-brand-primary dark:hover:text-amber-400">
                                     {{ task.client.short_name || task.client.name }}
                                 </Link>
                                 <span v-else class="text-sm text-gray-400 dark:text-slate-500">—</span>
@@ -369,7 +369,7 @@ function isOverdue(task) {
                                         <Link :href="route('tasks.show', task.id)" class="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300">
                                             <Icons name="eye" class="w-5 h-5" />
                                         </Link>
-                                        <Link :href="route('tasks.edit', task.id)" class="text-slate-400 hover:text-amber-600 dark:text-slate-500 dark:hover:text-amber-400">
+                                        <Link :href="route('tasks.edit', task.id)" class="text-slate-400 hover:text-brand-primary dark:text-slate-500 dark:hover:text-amber-400">
                                             <Icons name="edit" class="w-5 h-5" />
                                         </Link>
                                         <button @click="confirmDelete(task)" class="text-slate-400 hover:text-red-600 dark:text-slate-500 dark:hover:text-red-400">

@@ -1177,7 +1177,7 @@ watch(() => props.clients, (newClients) => {
                         <button
                             type="button"
                             @click="addPhoneInput"
-                            class="inline-flex items-center gap-1 text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
+                            class="inline-flex items-center gap-1 text-sm text-brand-primary hover:underline"
                         >
                             <Icons name="plus" class="w-4 h-4" /> Dodaj numer
                         </button>
@@ -1259,7 +1259,7 @@ watch(() => props.clients, (newClients) => {
 }
 
 .today-btn {
-    @apply px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-medium transition-colors;
+    @apply px-4 py-2 rounded-lg gradient-brand text-white hover:opacity-90 font-medium transition-colors;
 }
 
 .calendar-title {
@@ -1272,7 +1272,7 @@ watch(() => props.clients, (newClients) => {
 }
 
 .view-btn.active {
-    @apply bg-amber-500 text-white;
+    @apply gradient-brand text-white;
 }
 
 .month-display {
@@ -1303,7 +1303,7 @@ watch(() => props.clients, (newClients) => {
 }
 
 .calendar-day.today {
-    @apply bg-amber-50 dark:bg-amber-900/20;
+    @apply gradient-subtle;
 }
 
 .calendar-day.today .day-number {
@@ -1431,7 +1431,7 @@ watch(() => props.clients, (newClients) => {
 }
 
 .btn-primary {
-    @apply px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 font-medium disabled:opacity-50;
+    @apply px-4 py-2 gradient-brand text-white rounded-lg hover:opacity-90 font-medium disabled:opacity-50;
 }
 
 .btn-secondary {
@@ -1475,7 +1475,7 @@ watch(() => props.clients, (newClients) => {
 }
 
 .week-day-header.today {
-    @apply bg-amber-50 dark:bg-amber-900/20;
+    @apply gradient-subtle;
 }
 
 .week-all-day {
@@ -1507,7 +1507,7 @@ watch(() => props.clients, (newClients) => {
 }
 
 .week-cell.today {
-    @apply bg-amber-50 dark:bg-amber-900/20;
+    @apply gradient-subtle;
 }
 
 .visit-item-week {
