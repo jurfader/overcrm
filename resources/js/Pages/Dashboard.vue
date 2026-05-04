@@ -45,6 +45,14 @@ const page = usePage();
 const userName = computed(() => page.props.auth?.user?.name || '');
 const isAdmin = computed(() => page.props.auth?.user?.role === 'admin');
 
+// Graceful — niektóre route'y istnieją tylko gdy odpowiedni moduł jest aktywny.
+// Bez tego guard'u Vue crashuje całe UI z 'Ziggy error: route not in the route list'.
+function hasRoute(name) {
+    try { route(name); return true; } catch { return false; }
+}
+const hasMarginReportRoute = computed(() => hasRoute('reports.margin'));
+const hasRingostatRoute    = computed(() => hasRoute('ringostat.index'));
+
 const currentPeriod = ref(props.selectedPeriod || 'month');
 const periodOptions = [
     { value: 'day', label: 'Dziś' },
@@ -296,7 +304,7 @@ function tileIconClass(color) {
                         Dział: <strong class="text-foreground">{{ departmentInfo.name }}</strong>
                     </p>
                 </div>
-                <Link v-if="isAdmin" :href="route('reports.margin')" class="text-sm text-brand-primary hover:underline">
+                <Link v-if="isAdmin && hasMarginReportRoute" :href="route('reports.margin')" class="text-sm text-brand-primary hover:underline">
                     Pełny raport →
                 </Link>
             </div>
@@ -351,7 +359,7 @@ function tileIconClass(color) {
                     <Icons name="phone" class="h-4 w-4 text-brand-primary" />
                     Połączenia dziś
                 </h2>
-                <Link :href="route('ringostat.index')" class="text-sm text-brand-primary hover:underline">
+                <Link v-if="hasRingostatRoute" :href="route('ringostat.index')" class="text-sm text-brand-primary hover:underline">
                     Zobacz wszystkie →
                 </Link>
             </div>
