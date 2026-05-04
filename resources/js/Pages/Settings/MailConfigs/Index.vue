@@ -115,15 +115,15 @@ function applyPreset(preset) {
 
     <div class="space-y-6">
         <!-- Stopka wiadomości -->
-        <div class="surface rounded-xl shadow-sm p-6">
-            <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2">Stopka wiadomości</h2>
+        <div class="glass-card p-6">
+            <h2 class="text-lg font-semibold text-foreground mb-2">Stopka wiadomości</h2>
             <p class="text-sm text-foreground-muted mb-4">
                 HTML dodawany na końcu każdej wysyłanej wiadomości (np. dane firmy, podpis). Każdy użytkownik ma własną stopkę.
             </p>
             <textarea
                 v-model="footerForm.email_html_footer"
                 rows="4"
-                class="w-full px-4 py-2 border border-border-bright rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary surface text-slate-800 dark:text-slate-200"
+                class="w-full px-4 py-2 border border-border-bright rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-surface-elevated text-foreground"
                 placeholder="np. <p>Z poważaniem,<br>Jan Kowalski</p>"
             />
             <div class="mt-3 flex justify-end">
@@ -139,8 +139,8 @@ function applyPreset(preset) {
 
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-200">Serwer pocztowy</h1>
-                <p class="text-foreground-muted">Skonfiguruj serwer SMTP do wysyłania wiadomości email</p>
+                <h1 class="text-2xl font-bold gradient-brand-text">Serwer pocztowy</h1>
+                <p class="text-foreground-muted text-sm mt-1">Skonfiguruj serwer SMTP do wysyłania wiadomości email</p>
             </div>
             <button
                 @click="openCreateForm"
@@ -152,9 +152,9 @@ function applyPreset(preset) {
         </div>
 
         <!-- Lista konfiguracji -->
-        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div v-if="mailConfigs.length === 0" class="p-12 text-center text-slate-500">
-                <Icons name="mail" class="w-12 h-12 mx-auto mb-4 text-slate-300" />
+        <div class="glass-card overflow-hidden">
+            <div v-if="mailConfigs.length === 0" class="p-12 text-center text-foreground-muted">
+                <Icons name="mail" class="w-12 h-12 mx-auto mb-4 text-foreground-muted" />
                 <p class="text-lg font-medium">Brak konfiguracji</p>
                 <p class="mt-1">Dodaj konfigurację serwera SMTP, aby móc wysyłać emaile</p>
                 <button
@@ -165,11 +165,11 @@ function applyPreset(preset) {
                 </button>
             </div>
 
-            <div v-else class="divide-y divide-slate-200">
+            <div v-else class="divide-y divide-border">
                 <div
                     v-for="config in mailConfigs"
                     :key="config.id"
-                    class="p-6 hover:bg-slate-50 transition-colors"
+                    class="p-6 hover:bg-surface-elevated/50 transition-colors"
                 >
                     <div class="flex items-start justify-between">
                         <div class="flex items-start gap-4">
@@ -183,7 +183,7 @@ function applyPreset(preset) {
                             </div>
                             <div>
                                 <div class="flex items-center gap-2">
-                                    <h3 class="font-semibold text-slate-800">{{ config.name }}</h3>
+                                    <h3 class="font-semibold text-foreground">{{ config.name }}</h3>
                                     <span v-if="config.is_default" class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
                                         Domyślna
                                     </span>
@@ -194,7 +194,7 @@ function applyPreset(preset) {
                                         Niezweryfikowana
                                     </span>
                                 </div>
-                                <div class="mt-1 text-sm text-slate-500 space-y-1">
+                                <div class="mt-1 text-sm text-foreground-muted space-y-1">
                                     <p><strong>Host:</strong> {{ config.mail_host }}:{{ config.mail_port }}</p>
                                     <p><strong>Użytkownik:</strong> {{ config.mail_username }}</p>
                                     <p><strong>Nadawca:</strong> {{ config.mail_from_name }} &lt;{{ config.mail_from_address }}&gt;</p>
@@ -218,7 +218,7 @@ function applyPreset(preset) {
                             </button>
                             <button
                                 @click="openEditForm(config)"
-                                class="px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                                class="px-3 py-1.5 text-sm text-foreground-muted hover:bg-surface-elevated rounded-lg transition-colors"
                             >
                                 Edytuj
                             </button>
@@ -250,27 +250,27 @@ function applyPreset(preset) {
 
         <!-- Modal formularza -->
         <div v-if="showForm" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden">
-                <div class="flex items-center justify-between px-6 py-4 border-b bg-slate-50">
-                    <h3 class="font-semibold text-slate-800">
+            <div class="glass-card shadow-2xl w-full max-w-xl overflow-hidden">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-border bg-surface-2/50">
+                    <h3 class="font-semibold text-foreground">
                         {{ isEditing ? 'Edycja konfiguracji' : 'Nowa konfiguracja SMTP' }}
                     </h3>
-                    <button @click="closeForm" class="p-2 hover:bg-slate-200 rounded-lg">
-                        <Icons name="close" class="w-5 h-5" />
+                    <button @click="closeForm" class="p-2 hover:bg-surface-elevated rounded-lg">
+                        <Icons name="close" class="w-5 h-5 text-foreground-muted" />
                     </button>
                 </div>
 
                 <form @submit.prevent="submit" class="p-6 space-y-4">
                     <!-- Presety -->
                     <div v-if="!isEditing" class="mb-6">
-                        <label class="block text-sm font-medium text-slate-700 mb-2">Szybka konfiguracja</label>
+                        <label class="block text-sm font-medium text-foreground mb-2">Szybka konfiguracja</label>
                         <div class="flex flex-wrap gap-2">
                             <button
                                 v-for="preset in presets"
                                 :key="preset.name"
                                 type="button"
                                 @click="applyPreset(preset)"
-                                class="px-3 py-1.5 text-sm bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+                                class="px-3 py-1.5 text-sm surface-elevated hover:bg-surface-elevated/70 text-foreground rounded-lg transition-colors"
                             >
                                 {{ preset.name }}
                             </button>
@@ -278,7 +278,7 @@ function applyPreset(preset) {
                     </div>
 
                     <div>
-                        <label for="name" class="block text-sm font-medium text-slate-700 mb-1">
+                        <label for="name" class="block text-sm font-medium text-foreground mb-1">
                             Nazwa konfiguracji *
                         </label>
                         <input
@@ -286,14 +286,14 @@ function applyPreset(preset) {
                             v-model="form.name"
                             type="text"
                             required
-                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                            class="w-full px-4 py-2 border border-border-bright bg-surface-elevated text-foreground rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                             placeholder="np. Firmowa poczta"
                         />
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label for="mail_host" class="block text-sm font-medium text-slate-700 mb-1">
+                            <label for="mail_host" class="block text-sm font-medium text-foreground mb-1">
                                 Serwer SMTP *
                             </label>
                             <input
@@ -301,12 +301,12 @@ function applyPreset(preset) {
                                 v-model="form.mail_host"
                                 type="text"
                                 required
-                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                                class="w-full px-4 py-2 border border-border-bright bg-surface-elevated text-foreground rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                                 placeholder="smtp.example.com"
                             />
                         </div>
                         <div>
-                            <label for="mail_port" class="block text-sm font-medium text-slate-700 mb-1">
+                            <label for="mail_port" class="block text-sm font-medium text-foreground mb-1">
                                 Port *
                             </label>
                             <input
@@ -314,20 +314,20 @@ function applyPreset(preset) {
                                 v-model.number="form.mail_port"
                                 type="number"
                                 required
-                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                                class="w-full px-4 py-2 border border-border-bright bg-surface-elevated text-foreground rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                             />
                         </div>
                     </div>
 
                     <div>
-                        <label for="mail_encryption" class="block text-sm font-medium text-slate-700 mb-1">
+                        <label for="mail_encryption" class="block text-sm font-medium text-foreground mb-1">
                             Szyfrowanie *
                         </label>
                         <select
                             id="mail_encryption"
                             v-model="form.mail_encryption"
                             required
-                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                            class="w-full px-4 py-2 border border-border-bright bg-surface-elevated text-foreground rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                         >
                             <option value="tls">TLS (port 587)</option>
                             <option value="ssl">SSL (port 465)</option>
@@ -337,7 +337,7 @@ function applyPreset(preset) {
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label for="mail_username" class="block text-sm font-medium text-slate-700 mb-1">
+                            <label for="mail_username" class="block text-sm font-medium text-foreground mb-1">
                                 Nazwa użytkownika *
                             </label>
                             <input
@@ -345,12 +345,12 @@ function applyPreset(preset) {
                                 v-model="form.mail_username"
                                 type="text"
                                 required
-                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                                class="w-full px-4 py-2 border border-border-bright bg-surface-elevated text-foreground rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                                 placeholder="user@example.com"
                             />
                         </div>
                         <div>
-                            <label for="mail_password" class="block text-sm font-medium text-slate-700 mb-1">
+                            <label for="mail_password" class="block text-sm font-medium text-foreground mb-1">
                                 Hasło {{ isEditing ? '(pozostaw puste aby nie zmieniać)' : '*' }}
                             </label>
                             <input
@@ -358,14 +358,14 @@ function applyPreset(preset) {
                                 v-model="form.mail_password"
                                 type="password"
                                 :required="!isEditing"
-                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                                class="w-full px-4 py-2 border border-border-bright bg-surface-elevated text-foreground rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                             />
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label for="mail_from_address" class="block text-sm font-medium text-slate-700 mb-1">
+                            <label for="mail_from_address" class="block text-sm font-medium text-foreground mb-1">
                                 Email nadawcy *
                             </label>
                             <input
@@ -373,12 +373,12 @@ function applyPreset(preset) {
                                 v-model="form.mail_from_address"
                                 type="email"
                                 required
-                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                                class="w-full px-4 py-2 border border-border-bright bg-surface-elevated text-foreground rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                                 placeholder="noreply@example.com"
                             />
                         </div>
                         <div>
-                            <label for="mail_from_name" class="block text-sm font-medium text-slate-700 mb-1">
+                            <label for="mail_from_name" class="block text-sm font-medium text-foreground mb-1">
                                 Nazwa nadawcy *
                             </label>
                             <input
@@ -386,17 +386,17 @@ function applyPreset(preset) {
                                 v-model="form.mail_from_name"
                                 type="text"
                                 required
-                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                                class="w-full px-4 py-2 border border-border-bright bg-surface-elevated text-foreground rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                                 placeholder="Twoja Firma"
                             />
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-end gap-4 pt-4 border-t">
+                    <div class="flex items-center justify-end gap-4 pt-4 border-t border-border">
                         <button
                             type="button"
                             @click="closeForm"
-                            class="px-4 py-2 text-slate-600 hover:text-slate-800"
+                            class="px-4 py-2 text-foreground-muted hover:text-foreground"
                         >
                             Anuluj
                         </button>

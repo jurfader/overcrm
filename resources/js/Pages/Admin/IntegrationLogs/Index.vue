@@ -112,7 +112,7 @@ const levelColors = {
     EMERGENCY: 'bg-red-100 dark:bg-red-900/30 text-destructive',
     WARNING: 'bg-amber-100 dark:bg-amber-900/30 text-brand-primary',
     INFO: 'bg-blue-100 dark:bg-blue-900/30 text-info',
-    DEBUG: 'bg-gray-100 dark:bg-slate-700 text-foreground',
+    DEBUG: 'surface-elevated text-foreground',
     NOTICE: 'bg-blue-100 dark:bg-blue-900/30 text-info',
 };
 
@@ -123,7 +123,7 @@ const levelDotColors = {
     EMERGENCY: 'bg-red-700',
     WARNING: 'bg-amber-500',
     INFO: 'bg-blue-500',
-    DEBUG: 'bg-gray-400',
+    DEBUG: 'bg-foreground-muted',
     NOTICE: 'bg-blue-400',
 };
 </script>
@@ -134,8 +134,8 @@ const levelDotColors = {
     <div class="space-y-6">
         <div class="flex items-center justify-between flex-wrap gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-foreground">Logi</h1>
-                <p class="text-foreground-muted">Historia wywołań API i logi aplikacji</p>
+                <h1 class="text-2xl font-bold gradient-brand-text">Logi</h1>
+                <p class="text-foreground-muted text-sm mt-1">Historia wywołań API i logi aplikacji</p>
             </div>
         </div>
 
@@ -147,7 +147,7 @@ const levelDotColors = {
                     'px-4 py-2 text-sm font-medium rounded-md transition-colors',
                     activeTab === 'integration'
                         ? 'bg-blue-500 text-white'
-                        : 'text-gray-600 dark:text-slate-300 hover:bg-surface-elevated'
+                        : 'text-foreground-muted hover:bg-surface-elevated'
                 ]">
                 Integracje API
             </button>
@@ -157,7 +157,7 @@ const levelDotColors = {
                     'px-4 py-2 text-sm font-medium rounded-md transition-colors',
                     activeTab === 'app'
                         ? 'bg-blue-500 text-white'
-                        : 'text-gray-600 dark:text-slate-300 hover:bg-surface-elevated'
+                        : 'text-foreground-muted hover:bg-surface-elevated'
                 ]">
                 Logi aplikacji
             </button>
@@ -166,27 +166,27 @@ const levelDotColors = {
         <!-- ==================== INTEGRATION TAB ==================== -->
         <template v-if="activeTab === 'integration'">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="surface rounded-xl p-4 border border-border">
+                <div class="glass-card p-4">
                     <div class="text-2xl font-bold text-foreground">{{ stats.total }}</div>
                     <div class="text-sm text-foreground-muted">Wszystkie logi</div>
                 </div>
-                <div class="surface rounded-xl p-4 border border-border">
+                <div class="glass-card p-4">
                     <div class="text-2xl font-bold text-foreground">{{ stats.today }}</div>
                     <div class="text-sm text-foreground-muted">Dzisiaj</div>
                 </div>
-                <div class="surface rounded-xl p-4 border border-border">
+                <div class="glass-card p-4">
                     <div class="text-2xl font-bold" :class="stats.errors_today > 0 ? 'text-destructive' : 'text-success'">
                         {{ stats.errors_today }}
                     </div>
                     <div class="text-sm text-foreground-muted">Błędy dzisiaj</div>
                 </div>
-                <div class="surface rounded-xl p-4 border border-border">
+                <div class="glass-card p-4">
                     <div class="text-2xl font-bold text-foreground">{{ stats.avg_duration }} ms</div>
                     <div class="text-sm text-foreground-muted">Śr. czas odpowiedzi</div>
                 </div>
             </div>
 
-            <Card :padding="false">
+            <Card no-padding>
                 <div class="p-4 border-b border-border">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div class="md:col-span-2">
@@ -225,14 +225,14 @@ const levelDotColors = {
                                 </td>
                                 <td class="px-4 py-3">
                                     <div class="flex items-center gap-2">
-                                        <span :class="methodColors[log.method] || 'text-gray-600'" class="text-xs font-mono font-bold">
+                                        <span :class="methodColors[log.method] || 'text-foreground-muted'" class="text-xs font-mono font-bold">
                                             {{ log.method }}
                                         </span>
                                         <span class="text-sm text-foreground font-mono truncate max-w-xs">
                                             {{ log.endpoint }}
                                         </span>
                                     </div>
-                                    <p v-if="log.error_message" class="text-xs text-red-500 dark:text-red-400 mt-1 truncate max-w-sm">
+                                    <p v-if="log.error_message" class="text-xs text-red-500 mt-1 truncate max-w-sm">
                                         {{ log.error_message }}
                                     </p>
                                     <p v-else-if="log.response_summary" class="text-xs text-foreground-subtle mt-1">
@@ -243,8 +243,8 @@ const levelDotColors = {
                                     <span
                                         class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
                                         :class="log.status === 'success'
-                                            ? 'bg-green-100 dark:bg-green-900/30 text-success'
-                                            : 'bg-red-100 dark:bg-red-900/30 text-destructive'"
+                                            ? 'bg-green-100 text-success'
+                                            : 'bg-red-100 text-destructive'"
                                     >
                                         <span class="w-1.5 h-1.5 rounded-full" :class="log.status === 'success' ? 'bg-green-500' : 'bg-red-500'"></span>
                                         {{ log.status === 'success' ? 'OK' : 'Błąd' }}
@@ -255,7 +255,7 @@ const levelDotColors = {
                                     <span v-if="log.duration_ms !== null" :class="log.duration_ms > 2000 ? 'text-destructive font-medium' : ''">
                                         {{ log.duration_ms }} ms
                                     </span>
-                                    <span v-else class="text-gray-400">—</span>
+                                    <span v-else class="text-foreground-muted">—</span>
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap text-sm text-foreground-muted">
                                     {{ log.user?.name || '—' }}
@@ -278,27 +278,27 @@ const levelDotColors = {
         <!-- ==================== APP LOGS TAB ==================== -->
         <template v-if="activeTab === 'app'">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="surface rounded-xl p-4 border border-border">
+                <div class="glass-card p-4">
                     <div class="text-2xl font-bold text-foreground">{{ appLogStats.total }}</div>
                     <div class="text-sm text-foreground-muted">Wszystkie wpisy</div>
                 </div>
-                <div class="surface rounded-xl p-4 border border-border">
+                <div class="glass-card p-4">
                     <div class="text-2xl font-bold" :class="appLogStats.errors > 0 ? 'text-destructive' : 'text-success'">
                         {{ appLogStats.errors }}
                     </div>
                     <div class="text-sm text-foreground-muted">Błędy</div>
                 </div>
-                <div class="surface rounded-xl p-4 border border-border">
+                <div class="glass-card p-4">
                     <div class="text-2xl font-bold text-brand-primary">{{ appLogStats.warnings }}</div>
                     <div class="text-sm text-foreground-muted">Ostrzeżenia</div>
                 </div>
-                <div class="surface rounded-xl p-4 border border-border">
+                <div class="glass-card p-4">
                     <div class="text-2xl font-bold text-info">{{ appLogStats.info }}</div>
                     <div class="text-sm text-foreground-muted">Info / Debug</div>
                 </div>
             </div>
 
-            <Card :padding="false">
+            <Card no-padding>
                 <div class="p-4 border-b border-border">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="md:col-span-2">
@@ -335,7 +335,7 @@ const levelDotColors = {
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <span
                                             class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
-                                            :class="levelColors[entry.level] || 'bg-gray-100 text-gray-700'"
+                                            :class="levelColors[entry.level] || 'surface-elevated text-foreground'"
                                         >
                                             <span class="w-1.5 h-1.5 rounded-full" :class="levelDotColors[entry.level] || 'bg-gray-400'"></span>
                                             {{ entry.level }}
@@ -345,14 +345,14 @@ const levelDotColors = {
                                         <p class="truncate max-w-2xl font-mono text-xs">{{ entry.message }}</p>
                                     </td>
                                     <td class="px-4 py-3 text-center">
-                                        <button v-if="entry.stack_trace" class="text-foreground-muted hover:text-foreground dark:hover:text-slate-300 transition-transform"
+                                        <button v-if="entry.stack_trace" class="text-foreground-muted hover:text-foreground transition-transform"
                                             :class="expandedRows.has(idx) ? 'rotate-180' : ''">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                         </button>
                                     </td>
                                 </tr>
                                 <tr v-if="expandedRows.has(idx) && entry.stack_trace">
-                                    <td colspan="4" class="px-4 py-3 bg-gray-50 dark:bg-slate-900">
+                                    <td colspan="4" class="px-4 py-3 bg-surface-2/50">
                                         <pre class="text-xs text-foreground-muted font-mono whitespace-pre-wrap break-all max-h-64 overflow-y-auto">{{ entry.stack_trace }}</pre>
                                     </td>
                                 </tr>
@@ -377,13 +377,13 @@ const levelDotColors = {
                         <button
                             @click="appLogPage(appLogStats.page - 1)"
                             :disabled="appLogStats.page <= 1"
-                            class="px-3 py-1.5 text-sm font-medium rounded-md border border-border text-gray-600 dark:text-slate-300 hover:bg-surface-elevated disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                            class="px-3 py-1.5 text-sm font-medium rounded-md border border-border text-foreground-muted hover:bg-surface-elevated disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                             Poprzednia
                         </button>
                         <button
                             @click="appLogPage(appLogStats.page + 1)"
                             :disabled="appLogStats.page >= appLogStats.last_page"
-                            class="px-3 py-1.5 text-sm font-medium rounded-md border border-border text-gray-600 dark:text-slate-300 hover:bg-surface-elevated disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                            class="px-3 py-1.5 text-sm font-medium rounded-md border border-border text-foreground-muted hover:bg-surface-elevated disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
                             Następna
                         </button>
                     </div>

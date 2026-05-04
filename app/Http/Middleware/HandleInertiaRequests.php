@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use App\Models\Module;
 use App\Models\Setting;
 use App\Models\User;
-use App\Services\GameService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -51,7 +50,6 @@ class HandleInertiaRequests extends Middleware
             'appSettings' => fn () => $this->getAppSettings(),
             'inpostGeowidgetToken' => fn () => $this->getInpostToken(),
             'inpostOrganizationId' => fn () => $this->getInpostOrganizationId(),
-            'games' => fn () => $request->user() ? $this->getGames() : [],
             'inboxUnreadCount' => fn () => $request->user() ? $this->getInboxUnreadCount($request->user()) : 0,
             'ziggy' => fn () => [
                 ...(new Ziggy)->toArray(),
@@ -140,25 +138,6 @@ class HandleInertiaRequests extends Middleware
         $cacheKey = 'inbox_unread:user:' . $user->id . ':config:' . $config->id;
 
         return (int) Cache::get($cacheKey, 0);
-    }
-
-    /**
-     * Lista gier (bez osobnego API – unika 403)
-     */
-    protected function getGames(): array
-    {
-        try {
-            $list = app(GameService::class)->listGames()->toArray();
-            return array_map(function ($g) {
-                $url = $g['url'] ?? null;
-                if ($url && str_starts_with($url, 'http://')) {
-                    $g['url'] = str_replace('http://', 'https://', $url);
-                }
-                return $g;
-            }, $list);
-        } catch (\Throwable $e) {
-            return [];
-        }
     }
 
     /**

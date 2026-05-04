@@ -206,7 +206,7 @@ const groupIcons = {
         <!-- Header -->
         <div class="flex items-center justify-between gap-4 flex-wrap">
             <div>
-                <h1 class="text-2xl font-bold text-foreground">Ustawienia systemowe</h1>
+                <h1 class="text-2xl font-bold gradient-brand-text">Ustawienia systemowe</h1>
                 <p class="text-sm text-foreground-muted mt-0.5">Konfiguracja globalna systemu</p>
             </div>
             <Button @click="saveSettings" :loading="saving">
@@ -270,7 +270,7 @@ const groupIcons = {
                             <div v-else-if="setting.key === 'app_logo'" class="space-y-3">
                                 <div v-if="logoPreview || form.app_logo" class="flex items-center gap-4">
                                     <img :src="logoPreview || form.app_logo" alt="Logo"
-                                        class="h-12 w-auto rounded surface p-2" />
+                                        class="h-12 w-auto rounded surface-elevated p-2" />
                                     <Button variant="ghost" size="sm" @click="removeLogo" class="text-destructive hover:bg-destructive/10">
                                         Usuń logo
                                     </Button>
@@ -297,7 +297,7 @@ const groupIcons = {
 
                             <!-- Select -->
                             <select v-else-if="setting.type === 'select'" v-model="form[setting.key]"
-                                class="h-9 w-full rounded-md border border-border-bright px-3 py-2 text-sm bg-surface text-foreground focus-visible:outline-none focus-visible:border-brand-primary focus-visible:ring-1 focus-visible:ring-brand-primary">
+                                class="h-9 w-full rounded-md border border-border-bright px-3 py-2 text-sm bg-surface-elevated text-foreground focus-visible:outline-none focus-visible:border-brand-primary focus-visible:ring-1 focus-visible:ring-brand-primary">
                                 <option v-for="(label, value) in setting.options" :key="value" :value="value">{{ label }}</option>
                             </select>
 
@@ -384,7 +384,7 @@ const groupIcons = {
                                             <span class="text-[10px] text-foreground-subtle">{{ emp.status ? 'Online' : 'Offline' }}</span>
                                         </div>
                                         <select v-model="employeeMappings[emp.staffId]"
-                                            class="w-44 h-8 text-sm rounded border border-border-bright bg-surface text-foreground px-2">
+                                            class="w-44 h-8 text-sm rounded border border-border-bright bg-surface-elevated text-foreground px-2">
                                             <option value="">— brak —</option>
                                             <option v-for="u in plannerUsers" :key="u.id" :value="u.id">{{ u.name }}</option>
                                         </select>

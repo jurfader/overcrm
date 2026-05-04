@@ -20,31 +20,39 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Jeśli kolumna już istnieje z poprzedniej próby — skip
         if (Schema::hasColumn('clients', 'nip_normalized')) {
             return;
         }
 
-        DB::statement("
-            ALTER TABLE clients
-            ADD COLUMN nip_normalized VARCHAR(20) GENERATED ALWAYS AS (
-                CASE
-                    WHEN deleted_at IS NOT NULL THEN NULL
-                    WHEN nip IS NULL OR TRIM(nip) = '' THEN NULL
-                    ELSE REPLACE(REPLACE(REPLACE(REPLACE(nip, ' ', ''), '-', ''), '.', ''), '\t', '')
-                END
-            ) STORED
-        ");
+        $driver = DB::getDriverName();
+        $expr = "
+            CASE
+                WHEN deleted_at IS NOT NULL THEN NULL
+                WHEN nip IS NULL OR TRIM(nip) = '' THEN NULL
+                ELSE REPLACE(REPLACE(REPLACE(REPLACE(nip, ' ', ''), '-', ''), '.', ''), '\t', '')
+            END
+        ";
 
-        DB::statement("
-            ALTER TABLE clients
-            ADD UNIQUE INDEX clients_nip_normalized_unique (nip_normalized)
-        ");
+        if ($driver === 'sqlite') {
+            // SQLite supports VIRTUAL generated columns (computed on read, no STORED).
+            DB::statement("ALTER TABLE clients ADD COLUMN nip_normalized VARCHAR(20) GENERATED ALWAYS AS ({$expr}) VIRTUAL");
+            DB::statement("CREATE UNIQUE INDEX clients_nip_normalized_unique ON clients (nip_normalized)");
+            return;
+        }
+
+        DB::statement("ALTER TABLE clients ADD COLUMN nip_normalized VARCHAR(20) GENERATED ALWAYS AS ({$expr}) STORED");
+        DB::statement("ALTER TABLE clients ADD UNIQUE INDEX clients_nip_normalized_unique (nip_normalized)");
     }
 
     public function down(): void
     {
         if (!Schema::hasColumn('clients', 'nip_normalized')) {
+            return;
+        }
+
+        if (DB::getDriverName() === 'sqlite') {
+            DB::statement("DROP INDEX IF EXISTS clients_nip_normalized_unique");
+            DB::statement("ALTER TABLE clients DROP COLUMN nip_normalized");
             return;
         }
 

@@ -48,8 +48,8 @@ function submit() {
     <div class="max-w-3xl mx-auto space-y-6">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">{{ isEditing ? 'Edytuj zadanie' : 'Nowe zadanie' }}</h1>
-                <p class="text-gray-600">{{ isEditing ? 'Zaktualizuj szczegóły zadania' : 'Dodaj nowe zadanie do systemu' }}</p>
+                <h1 class="text-2xl font-bold gradient-brand-text">{{ isEditing ? 'Edytuj zadanie' : 'Nowe zadanie' }}</h1>
+                <p class="text-foreground-muted text-sm mt-1">{{ isEditing ? 'Zaktualizuj szczegóły zadania' : 'Dodaj nowe zadanie do systemu' }}</p>
             </div>
             <Link :href="route('tasks.index')">
                 <Button variant="secondary">
@@ -63,50 +63,50 @@ function submit() {
             <Card title="Szczegóły zadania">
                 <div class="space-y-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Tytuł *</label>
+                        <label class="block text-sm font-medium text-foreground mb-1">Tytuł *</label>
                         <Input v-model="form.title" placeholder="Np. Spotkanie z klientem" autofocus />
                         <p v-if="form.errors.title" class="mt-1 text-sm text-red-600">{{ form.errors.title }}</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Opis</label>
+                        <label class="block text-sm font-medium text-foreground mb-1">Opis</label>
                         <Textarea v-model="form.description" :rows="4" placeholder="Szczegółowy opis zadania..." />
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Status *</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Status *</label>
                             <Select v-model="form.status_id" :options="statuses" />
                             <p v-if="form.errors.status_id" class="mt-1 text-sm text-red-600">{{ form.errors.status_id }}</p>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Priorytet *</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Priorytet *</label>
                             <Select v-model="form.priority" :options="priorities" />
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Klient</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Klient</label>
                             <Select v-model="form.client_id" :options="clients.map(c => ({ id: c.id, name: c.short_name || c.name }))" placeholder="Wybierz klienta" />
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Przypisany do</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Przypisany do</label>
                             <Select v-model="form.assigned_to" :options="users" placeholder="Wybierz osobę" />
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Data zgłoszenia</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Data zgłoszenia</label>
                             <Input v-model="form.submit_date" type="date" />
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Termin realizacji</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Termin realizacji</label>
                             <Input v-model="form.due_date" type="date" />
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Szacowany czas (godziny)</label>
+                            <label class="block text-sm font-medium text-foreground mb-1">Szacowany czas (godziny)</label>
                             <Input v-model="form.estimated_hours" type="number" min="0" />
                         </div>
                     </div>

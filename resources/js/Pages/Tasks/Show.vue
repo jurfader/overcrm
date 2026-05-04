@@ -149,12 +149,12 @@ function deleteTask() {
         <div class="flex items-center justify-between">
             <div>
                 <div class="flex items-center gap-3">
-                    <h1 class="text-2xl font-bold text-gray-900">{{ task.title }}</h1>
+                    <h1 class="text-2xl font-bold gradient-brand-text">{{ task.title }}</h1>
                     <span v-if="task.status" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium" :style="{ backgroundColor: task.status.color + '20', color: task.status.color }">
                         {{ task.status.name }}
                     </span>
                 </div>
-                <div class="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                <div class="flex items-center gap-4 mt-2 text-sm text-foreground-muted">
                     <span>Utworzono: {{ formatDateTime(task.created_at) }}</span>
                     <span v-if="task.creator">przez {{ task.creator.name }}</span>
                 </div>
@@ -183,8 +183,8 @@ function deleteTask() {
             <div class="lg:col-span-2 space-y-6">
                 <!-- Opis -->
                 <Card title="Opis">
-                    <p v-if="task.description" class="text-gray-700 whitespace-pre-wrap">{{ task.description }}</p>
-                    <p v-else class="text-gray-400 italic">Brak opisu</p>
+                    <p v-if="task.description" class="text-foreground whitespace-pre-wrap">{{ task.description }}</p>
+                    <p v-else class="text-foreground-muted italic">Brak opisu</p>
                 </Card>
 
                 <!-- Notatki -->
@@ -204,7 +204,7 @@ function deleteTask() {
                                 <textarea
                                     v-model="commentForm.body"
                                     rows="2"
-                                    class="w-full px-3 py-2 border border-border-bright dark:bg-slate-700 dark:text-slate-200 dark:placeholder-slate-400 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary text-sm resize-none"
+                                    class="w-full px-3 py-2 border border-border-bright bg-surface-elevated text-foreground rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary text-sm resize-none"
                                     placeholder="Dodaj komentarz..."
                                     @keydown.ctrl.enter="submitComment"
                                 ></textarea>
@@ -226,7 +226,7 @@ function deleteTask() {
                     <!-- Lista komentarzy -->
                     <div v-if="task.comments && task.comments.length > 0" class="space-y-4 border-t border-border pt-4">
                         <div v-for="comment in task.comments" :key="comment.id" class="flex gap-3">
-                            <div class="flex-shrink-0 w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-sm font-bold text-slate-600 dark:text-slate-300">
+                            <div class="flex-shrink-0 w-9 h-9 rounded-full surface-elevated flex items-center justify-center text-sm font-bold text-foreground">
                                 {{ comment.user?.name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() }}
                             </div>
                             <div class="flex-1 min-w-0">
@@ -238,7 +238,7 @@ function deleteTask() {
                                     <button
                                         v-if="comment.user_id === currentUser?.id || currentUser?.role === 'admin'"
                                         @click="deleteComment(comment.id)"
-                                        class="text-gray-300 hover:text-red-500 dark:text-slate-600 dark:hover:text-red-400 transition-colors"
+                                        class="text-foreground-muted hover:text-red-500 transition-colors"
                                         title="Usuń komentarz"
                                     >
                                         <Icons name="trash" class="w-4 h-4" />
@@ -286,11 +286,11 @@ function deleteTask() {
                             <div 
                                 class="absolute left-0 top-1 w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center"
                                 :class="{
-                                    'bg-green-100 border-green-400 dark:bg-green-900/30 dark:border-green-600': log.action === 'create',
-                                    'bg-amber-100 border-amber-400 dark:bg-amber-900/30 dark:border-amber-600': log.action === 'update',
-                                    'bg-red-100 border-red-400 dark:bg-red-900/30 dark:border-red-600': log.action === 'delete',
-                                    'bg-purple-100 border-purple-400 dark:bg-purple-900/30 dark:border-purple-600': log.action === 'restore',
-                                    'bg-gray-100 border-gray-400 dark:bg-gray-700 dark:border-gray-500': !['create','update','delete','restore'].includes(log.action),
+                                    'bg-green-100 border-green-400': log.action === 'create',
+                                    'bg-amber-100 border-amber-400': log.action === 'update',
+                                    'bg-red-100 border-red-400': log.action === 'delete',
+                                    'bg-purple-100 border-purple-400': log.action === 'restore',
+                                    'surface-elevated border-border-bright': !['create','update','delete','restore'].includes(log.action),
                                 }"
                             >
                                 <div class="w-1.5 h-1.5 rounded-full" :class="{
@@ -298,7 +298,7 @@ function deleteTask() {
                                     'bg-amber-500': log.action === 'update',
                                     'bg-red-500': log.action === 'delete',
                                     'bg-purple-500': log.action === 'restore',
-                                    'bg-gray-400': !['create','update','delete','restore'].includes(log.action),
+                                    'bg-foreground-muted': !['create','update','delete','restore'].includes(log.action),
                                 }"></div>
                             </div>
 
@@ -307,11 +307,11 @@ function deleteTask() {
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <span class="text-sm font-medium text-foreground">{{ log.user_name }}</span>
                                     <span class="text-xs px-1.5 py-0.5 rounded font-medium" :class="{
-                                        'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': log.action === 'create',
-                                        'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400': log.action === 'update',
-                                        'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400': log.action === 'delete',
-                                        'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400': log.action === 'restore',
-                                        'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300': !['create','update','delete','restore'].includes(log.action),
+                                        'bg-green-100 text-green-700': log.action === 'create',
+                                        'bg-amber-100 text-amber-700': log.action === 'update',
+                                        'bg-red-100 text-red-700': log.action === 'delete',
+                                        'bg-purple-100 text-purple-700': log.action === 'restore',
+                                        'surface-elevated text-foreground-muted': !['create','update','delete','restore'].includes(log.action),
                                     }">{{ log.action_label }}</span>
                                     <span class="text-xs text-foreground-subtle">
                                         {{ new Date(log.created_at).toLocaleString('pl-PL') }}
@@ -328,8 +328,8 @@ function deleteTask() {
                                         class="text-xs surface-2 rounded-lg px-3 py-1.5 flex items-start gap-2"
                                     >
                                         <span class="font-medium text-foreground-muted shrink-0 min-w-[80px]">{{ change.field }}:</span>
-                                        <span class="text-red-500 dark:text-red-400 line-through">{{ change.old }}</span>
-                                        <span class="text-gray-400 dark:text-slate-600">→</span>
+                                        <span class="text-red-500 line-through">{{ change.old }}</span>
+                                        <span class="text-foreground-muted">→</span>
                                         <span class="text-success font-medium">{{ change.new }}</span>
                                     </div>
                                 </div>
@@ -353,7 +353,7 @@ function deleteTask() {
                 <Card title="Szczegóły">
                     <dl class="space-y-4">
                         <div>
-                            <dt class="text-sm font-medium text-gray-500">Priorytet</dt>
+                            <dt class="text-sm font-medium text-foreground-muted">Priorytet</dt>
                             <dd class="mt-1">
                                 <Badge :color="priorityColors[task.priority]">
                                     {{ priorityLabels[task.priority] }}
@@ -361,23 +361,23 @@ function deleteTask() {
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-sm font-medium text-gray-500">Klient</dt>
+                            <dt class="text-sm font-medium text-foreground-muted">Klient</dt>
                             <dd class="mt-1">
-                                <Link v-if="task.client" :href="route('clients.show', task.client.id)" class="text-indigo-600 hover:text-indigo-800">
+                                <Link v-if="task.client" :href="route('clients.show', task.client.id)" class="text-brand-primary hover:opacity-80">
                                     {{ task.client.short_name || task.client.name }}
                                 </Link>
-                                <span v-else class="text-gray-400">Nie przypisano</span>
+                                <span v-else class="text-foreground-muted">Nie przypisano</span>
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-sm font-medium text-gray-500">Przypisany do</dt>
-                            <dd class="mt-1 text-gray-900">
+                            <dt class="text-sm font-medium text-foreground-muted">Przypisany do</dt>
+                            <dd class="mt-1 text-foreground">
                                 {{ task.assignee?.name || 'Nie przypisano' }}
                             </dd>
                         </div>
                         <div v-if="task.estimated_hours">
-                            <dt class="text-sm font-medium text-gray-500">Szacowany czas</dt>
-                            <dd class="mt-1 text-gray-900">{{ task.estimated_hours }} h</dd>
+                            <dt class="text-sm font-medium text-foreground-muted">Szacowany czas</dt>
+                            <dd class="mt-1 text-foreground">{{ task.estimated_hours }} h</dd>
                         </div>
                     </dl>
                 </Card>
@@ -386,18 +386,18 @@ function deleteTask() {
                 <Card title="Terminy">
                     <dl class="space-y-4">
                         <div>
-                            <dt class="text-sm font-medium text-gray-500">Data zgłoszenia</dt>
-                            <dd class="mt-1 text-gray-900">{{ formatDate(task.submit_date) }}</dd>
+                            <dt class="text-sm font-medium text-foreground-muted">Data zgłoszenia</dt>
+                            <dd class="mt-1 text-foreground">{{ formatDate(task.submit_date) }}</dd>
                         </div>
                         <div>
-                            <dt class="text-sm font-medium text-gray-500">Termin realizacji</dt>
-                            <dd class="mt-1" :class="isOverdue() ? 'text-red-600 font-medium' : 'text-gray-900'">
+                            <dt class="text-sm font-medium text-foreground-muted">Termin realizacji</dt>
+                            <dd class="mt-1" :class="isOverdue() ? 'text-red-500 font-medium' : 'text-foreground'">
                                 {{ formatDate(task.due_date) }}
                                 <span v-if="isOverdue()" class="ml-2 text-xs">(Przeterminowane!)</span>
                             </dd>
                         </div>
                         <div v-if="task.completed_at">
-                            <dt class="text-sm font-medium text-gray-500">Ukończono</dt>
+                            <dt class="text-sm font-medium text-foreground-muted">Ukończono</dt>
                             <dd class="mt-1 text-green-600">{{ formatDateTime(task.completed_at) }}</dd>
                         </div>
                     </dl>

@@ -63,25 +63,25 @@ const actionColors = {
         <!-- Header -->
         <div class="flex items-start justify-between">
             <div class="flex items-center gap-4">
-                <Link :href="route('admin.modules.index')" class="p-2 rounded-lg hover:bg-gray-100">
-                    <Icons name="chevron-left" class="w-5 h-5 text-gray-500" />
+                <Link :href="route('admin.modules.index')" class="p-2 rounded-lg hover:bg-surface-elevated">
+                    <Icons name="chevron-left" class="w-5 h-5 text-foreground-muted" />
                 </Link>
                 <div class="flex items-center gap-4">
                     <div :class="[
                         'p-4 rounded-xl',
-                        module.is_active ? 'bg-indigo-100' : 'bg-gray-100'
+                        module.is_active ? 'bg-amber-100 dark:bg-amber-900/30' : 'surface-elevated'
                     ]">
                         <Icons :name="module.icon || 'puzzle'" :class="[
                             'w-8 h-8',
-                            module.is_active ? 'text-indigo-600' : 'text-gray-400'
+                            module.is_active ? 'text-brand-primary' : 'text-foreground-muted'
                         ]" />
                     </div>
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-900">{{ module.display_name }}</h1>
+                        <h1 class="text-2xl font-bold gradient-brand-text">{{ module.display_name }}</h1>
                         <div class="flex items-center gap-2 mt-1">
-                            <span class="text-sm text-gray-500">v{{ module.version }}</span>
-                            <span class="text-gray-300">·</span>
-                            <span class="text-sm text-gray-500">{{ module.author || 'Nieznany autor' }}</span>
+                            <span class="text-sm text-foreground-muted">v{{ module.version }}</span>
+                            <span class="text-foreground-muted">·</span>
+                            <span class="text-sm text-foreground-muted">{{ module.author || 'Nieznany autor' }}</span>
                             <span v-if="module.is_core" class="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
                                 Systemowy
                             </span>
@@ -114,36 +114,36 @@ const actionColors = {
         </div>
 
         <!-- Description -->
-        <div v-if="module.description" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <p class="text-gray-600">{{ module.description }}</p>
+        <div v-if="module.description" class="glass-card p-6">
+            <p class="text-foreground-muted">{{ module.description }}</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Configuration -->
             <div class="lg:col-span-2 space-y-6">
-                <div v-for="(groupSettings, groupName) in settings" :key="groupName" class="bg-white rounded-xl shadow-sm border border-gray-200">
-                    <div class="px-6 py-4 border-b border-gray-200">
-                        <h2 class="text-lg font-semibold text-gray-900">
+                <div v-for="(groupSettings, groupName) in settings" :key="groupName" class="glass-card">
+                    <div class="px-6 py-4 border-b border-border">
+                        <h2 class="text-lg font-semibold text-foreground">
                             {{ groupLabels[groupName] || groupName }}
                         </h2>
                     </div>
-                    
+
                     <div class="p-6 space-y-6">
                         <div v-for="setting in groupSettings" :key="setting.key" class="space-y-2">
                             <label class="flex items-center justify-between">
                                 <div>
-                                    <span class="block text-sm font-medium text-gray-700">{{ setting.label }}</span>
-                                    <span v-if="setting.description" class="block text-xs text-gray-500">{{ setting.description }}</span>
+                                    <span class="block text-sm font-medium text-foreground">{{ setting.label }}</span>
+                                    <span v-if="setting.description" class="block text-xs text-foreground-muted">{{ setting.description }}</span>
                                 </div>
-                                
+
                                 <!-- Boolean toggle -->
-                                <button 
+                                <button
                                     v-if="setting.type === 'boolean'"
                                     type="button"
                                     @click="configForm[setting.key] = !configForm[setting.key]"
                                     :class="[
                                         'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2',
-                                        configForm[setting.key] ? 'bg-indigo-600' : 'bg-gray-200'
+                                        configForm[setting.key] ? 'bg-brand-primary' : 'bg-surface-elevated'
                                     ]"
                                 >
                                     <span :class="[
@@ -152,44 +152,44 @@ const actionColors = {
                                     ]" />
                                 </button>
                             </label>
-                            
+
                             <!-- Text input -->
-                            <input 
+                            <input
                                 v-if="setting.type === 'string'"
                                 v-model="configForm[setting.key]"
                                 type="text"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                                class="w-full px-3 py-2 border border-border-bright bg-surface-elevated rounded-lg focus:ring-2 focus:ring-brand-primary text-foreground"
                             />
-                            
+
                             <!-- Password input -->
-                            <input 
+                            <input
                                 v-if="setting.type === 'password'"
                                 v-model="configForm[setting.key]"
                                 type="password"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                                class="w-full px-3 py-2 border border-border-bright bg-surface-elevated rounded-lg focus:ring-2 focus:ring-brand-primary text-foreground"
                             />
-                            
+
                             <!-- Number input -->
-                            <input 
+                            <input
                                 v-if="setting.type === 'integer'"
                                 v-model.number="configForm[setting.key]"
                                 type="number"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary"
+                                class="w-full px-3 py-2 border border-border-bright bg-surface-elevated rounded-lg focus:ring-2 focus:ring-brand-primary text-foreground"
                             />
-                            
+
                             <!-- Textarea -->
-                            <textarea 
+                            <textarea
                                 v-if="setting.type === 'textarea'"
                                 v-model="configForm[setting.key]"
                                 rows="3"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary"
+                                class="w-full px-3 py-2 border border-border-bright bg-surface-elevated rounded-lg focus:ring-2 focus:ring-brand-primary text-foreground"
                             ></textarea>
-                            
+
                             <!-- Select -->
-                            <select 
+                            <select
                                 v-if="setting.type === 'select'"
                                 v-model="configForm[setting.key]"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary"
+                                class="w-full px-3 py-2 border border-border-bright bg-surface-elevated rounded-lg focus:ring-2 focus:ring-brand-primary text-foreground"
                             >
                                 <option v-for="(label, value) in setting.options" :key="value" :value="value">
                                     {{ label }}
@@ -197,9 +197,9 @@ const actionColors = {
                             </select>
                         </div>
                     </div>
-                    
-                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-                        <button 
+
+                    <div class="px-6 py-4 bg-surface-2/50 border-t border-border">
+                        <button
                             @click="saveConfig"
                             class="px-4 py-2 gradient-brand text-white rounded-lg hover:opacity-90 font-medium"
                         >
@@ -208,45 +208,45 @@ const actionColors = {
                     </div>
                 </div>
 
-                <div v-if="Object.keys(settings).length === 0" class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-                    <Icons name="settings" class="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">Brak ustawień</h3>
-                    <p class="text-gray-500">Ten moduł nie posiada konfigurowalnych ustawień.</p>
+                <div v-if="Object.keys(settings).length === 0" class="glass-card p-12 text-center">
+                    <Icons name="settings" class="w-12 h-12 text-foreground-muted mx-auto mb-4" />
+                    <h3 class="text-lg font-medium text-foreground mb-2">Brak ustawień</h3>
+                    <p class="text-foreground-muted">Ten moduł nie posiada konfigurowalnych ustawień.</p>
                 </div>
             </div>
 
             <!-- Sidebar - Info & Logs -->
             <div class="space-y-6">
                 <!-- Module Info -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-                    <div class="px-6 py-4 border-b border-gray-200">
-                        <h2 class="text-lg font-semibold text-gray-900">Informacje</h2>
+                <div class="glass-card">
+                    <div class="px-6 py-4 border-b border-border">
+                        <h2 class="text-lg font-semibold text-foreground">Informacje</h2>
                     </div>
                     <div class="p-6 space-y-4">
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Status</span>
+                            <span class="text-foreground-muted">Status</span>
                             <span :class="[
                                 'px-2 py-1 text-xs font-medium rounded-full',
-                                module.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                                module.is_active ? 'bg-green-100 text-green-800' : 'surface-elevated text-foreground-muted'
                             ]">
                                 {{ module.is_active ? 'Aktywny' : 'Nieaktywny' }}
                             </span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Wersja</span>
-                            <span class="font-medium">{{ module.version }}</span>
+                            <span class="text-foreground-muted">Wersja</span>
+                            <span class="font-medium text-foreground">{{ module.version }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Autor</span>
-                            <span class="font-medium">{{ module.author || '-' }}</span>
+                            <span class="text-foreground-muted">Autor</span>
+                            <span class="font-medium text-foreground">{{ module.author || '-' }}</span>
                         </div>
-                        <div v-if="module.dependencies?.length" class="pt-2 border-t">
-                            <span class="text-sm text-gray-500 block mb-2">Zależności</span>
+                        <div v-if="module.dependencies?.length" class="pt-2 border-t border-border">
+                            <span class="text-sm text-foreground-muted block mb-2">Zależności</span>
                             <div class="flex flex-wrap gap-1">
-                                <span 
-                                    v-for="dep in module.dependencies" 
+                                <span
+                                    v-for="dep in module.dependencies"
                                     :key="dep"
-                                    class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                                    class="px-2 py-1 surface-elevated text-foreground text-xs rounded"
                                 >
                                     {{ dep }}
                                 </span>
@@ -256,29 +256,29 @@ const actionColors = {
                 </div>
 
                 <!-- Activity Log -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-                    <div class="px-6 py-4 border-b border-gray-200">
-                        <h2 class="text-lg font-semibold text-gray-900">Historia zmian</h2>
+                <div class="glass-card">
+                    <div class="px-6 py-4 border-b border-border">
+                        <h2 class="text-lg font-semibold text-foreground">Historia zmian</h2>
                     </div>
-                    <div class="divide-y divide-gray-200 max-h-80 overflow-y-auto">
-                        <div 
-                            v-for="log in logs" 
+                    <div class="divide-y divide-border max-h-80 overflow-y-auto">
+                        <div
+                            v-for="log in logs"
                             :key="log.id"
                             class="px-6 py-4"
                         >
                             <div class="flex items-center justify-between mb-1">
-                                <span :class="['px-2 py-0.5 text-xs font-medium rounded-full', actionColors[log.action] || 'bg-gray-100 text-gray-800']">
+                                <span :class="['px-2 py-0.5 text-xs font-medium rounded-full', actionColors[log.action] || 'surface-elevated text-foreground']">
                                     {{ log.action }}
                                 </span>
-                                <span class="text-xs text-gray-500">
+                                <span class="text-xs text-foreground-muted">
                                     {{ new Date(log.created_at).toLocaleDateString('pl-PL') }}
                                 </span>
                             </div>
-                            <p class="text-sm text-gray-600">
+                            <p class="text-sm text-foreground-muted">
                                 {{ log.user?.name || 'System' }}
                             </p>
                         </div>
-                        <div v-if="logs.length === 0" class="px-6 py-8 text-center text-gray-500">
+                        <div v-if="logs.length === 0" class="px-6 py-8 text-center text-foreground-muted">
                             Brak historii zmian
                         </div>
                     </div>

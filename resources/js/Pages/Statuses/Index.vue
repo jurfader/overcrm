@@ -44,8 +44,8 @@ function deleteStatus() {
     <div class="space-y-6">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">Statusy</h1>
-                <p class="text-gray-600">Zarządzaj statusami zadań</p>
+                <h1 class="text-2xl font-bold gradient-brand-text">Statusy</h1>
+                <p class="text-foreground-muted text-sm mt-1">Zarządzaj statusami zadań i wizyt</p>
             </div>
             <Link :href="route('statuses.create')">
                 <Button>
@@ -55,40 +55,40 @@ function deleteStatus() {
             </Link>
         </div>
 
-        <Card :padding="false">
+        <Card no-padding>
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                <table class="min-w-full">
+                    <thead class="bg-surface-2/50 border-b border-border">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kolejność</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nazwa</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Typ</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kolor</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Zadania</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opcje</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Akcje</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Kolejność</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Nazwa</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Typ</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Kolor</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Zadania</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Opcje</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-foreground-muted uppercase tracking-wider">Akcje</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <tr v-for="status in statuses" :key="status.id" class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <tbody class="divide-y divide-border">
+                        <tr v-for="status in statuses" :key="status.id" class="hover:bg-surface-elevated/50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-foreground-muted">
                                 {{ status.order }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="w-3 h-3 rounded-full mr-3" :style="{ backgroundColor: status.color }"></div>
-                                    <span class="text-sm font-medium text-gray-900">{{ status.name }}</span>
+                                    <span class="text-sm font-medium text-foreground">{{ status.name }}</span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="text-sm text-gray-900">{{ types[status.type] }}</span>
+                                <span class="text-sm text-foreground">{{ types[status.type] }}</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium" :style="{ backgroundColor: status.color + '20', color: status.color }">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium font-mono" :style="{ backgroundColor: status.color + '20', color: status.color }">
                                     {{ status.color }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                                 {{ status.tasks_count }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -100,10 +100,10 @@ function deleteStatus() {
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end gap-2">
-                                    <Link :href="route('statuses.edit', status.id)" class="text-gray-400 hover:text-brand-primary">
+                                    <Link :href="route('statuses.edit', status.id)" class="text-foreground-muted hover:text-brand-primary transition-colors">
                                         <Icons name="edit" class="w-5 h-5" />
                                     </Link>
-                                    <button @click="confirmDelete(status)" class="text-gray-400 hover:text-red-600" :disabled="status.tasks_count > 0" :class="{ 'opacity-50 cursor-not-allowed': status.tasks_count > 0 }">
+                                    <button @click="confirmDelete(status)" class="text-foreground-muted hover:text-red-500 transition-colors" :disabled="status.tasks_count > 0" :class="{ 'opacity-50 cursor-not-allowed': status.tasks_count > 0 }">
                                         <Icons name="trash" class="w-5 h-5" />
                                     </button>
                                 </div>

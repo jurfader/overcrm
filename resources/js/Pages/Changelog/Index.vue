@@ -29,13 +29,13 @@ function formatDate(dateStr) {
 
     <div class="max-w-3xl mx-auto space-y-8">
         <div>
-            <h1 class="text-2xl font-bold text-foreground">Changelog</h1>
-            <p class="mt-1 text-foreground-muted">
+            <h1 class="text-2xl font-bold gradient-brand-text">Changelog</h1>
+            <p class="text-foreground-muted text-sm mt-1">
                 Historia zmian wprowadzonych na produkcję
             </p>
         </div>
 
-        <div v-if="entries.length === 0" class="rounded-xl border border-border surface p-8 text-center text-foreground-muted">
+        <div v-if="entries.length === 0" class="glass-card p-8 text-center text-foreground-muted">
             Brak wpisów w changelogu.
         </div>
 
@@ -43,12 +43,12 @@ function formatDate(dateStr) {
             <article
                 v-for="(entry, idx) in entries"
                 :key="idx"
-                class="relative rounded-xl border border-border surface overflow-hidden"
+                class="relative glass-card overflow-hidden"
             >
                 <!-- Linia łącząca -->
                 <div
                     v-if="idx < entries.length - 1"
-                    class="absolute left-6 top-16 bottom-0 w-px bg-slate-200 dark:bg-slate-600"
+                    class="absolute left-6 top-16 bottom-0 w-px bg-border"
                 />
                 <div class="relative p-6">
                     <div class="flex flex-wrap items-center gap-3 mb-4">
@@ -62,7 +62,7 @@ function formatDate(dateStr) {
 
                     <div class="space-y-4">
                         <div v-if="entry.added?.length" class="space-y-2">
-                            <h3 class="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+                            <h3 class="text-xs font-semibold uppercase tracking-wider text-emerald-600 flex items-center gap-2">
                                 <Icons name="plus" class="w-4 h-4" />
                                 Wprowadzone
                             </h3>
@@ -71,7 +71,7 @@ function formatDate(dateStr) {
                             </ul>
                         </div>
                         <div v-if="entry.fixed?.length" class="space-y-2">
-                            <h3 class="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+                            <h3 class="text-xs font-semibold uppercase tracking-wider text-emerald-600 flex items-center gap-2">
                                 <Icons name="check-circle" class="w-4 h-4" />
                                 Naprawione
                             </h3>

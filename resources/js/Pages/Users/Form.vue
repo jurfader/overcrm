@@ -129,8 +129,8 @@ function submit() {
     <div class="max-w-3xl mx-auto space-y-6">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">{{ isEditing ? 'Edytuj użytkownika' : 'Nowy użytkownik' }}</h1>
-                <p class="text-gray-600">{{ isEditing ? 'Zaktualizuj dane użytkownika' : 'Dodaj nowego użytkownika do systemu' }}</p>
+                <h1 class="text-2xl font-bold gradient-brand-text">{{ isEditing ? 'Edytuj użytkownika' : 'Nowy użytkownik' }}</h1>
+                <p class="text-foreground-muted text-sm mt-1">{{ isEditing ? 'Zaktualizuj dane użytkownika' : 'Dodaj nowego użytkownika do systemu' }}</p>
             </div>
             <Link :href="route('users.index')">
                 <Button variant="secondary">
@@ -146,10 +146,10 @@ function submit() {
                 <!-- Podgląd -->
                 <div class="shrink-0">
                     <div v-if="avatarPreview" class="relative group">
-                        <img 
-                            :src="avatarPreview" 
-                            :alt="user.name" 
-                            class="w-20 h-20 rounded-full object-cover border-2 border-slate-200 dark:border-slate-600"
+                        <img
+                            :src="avatarPreview"
+                            :alt="user.name"
+                            class="w-20 h-20 rounded-full object-cover border-2 border-border"
                         />
                         <button 
                             type="button"
@@ -187,34 +187,34 @@ function submit() {
             <Card title="Dane podstawowe">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Imię i nazwisko *</label>
+                        <label class="block text-sm font-medium text-foreground mb-1">Imię i nazwisko *</label>
                         <Input v-model="form.name" />
                         <p v-if="form.errors.name" class="mt-1 text-sm text-red-600">{{ form.errors.name }}</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                        <label class="block text-sm font-medium text-foreground mb-1">Email *</label>
                         <Input v-model="form.email" type="email" />
                         <p v-if="form.errors.email" class="mt-1 text-sm text-red-600">{{ form.errors.email }}</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
+                        <label class="block text-sm font-medium text-foreground mb-1">Telefon</label>
                         <Input v-model="form.phone" />
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Stanowisko</label>
+                        <label class="block text-sm font-medium text-foreground mb-1">Stanowisko</label>
                         <Input v-model="form.position" />
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Rola *</label>
+                        <label class="block text-sm font-medium text-foreground mb-1">Rola *</label>
                         <Select v-model="form.role" :options="roles" />
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Status *</label>
+                        <label class="block text-sm font-medium text-foreground mb-1">Status *</label>
                         <Select v-model="form.status" :options="statuses" />
                     </div>
                 </div>
@@ -223,16 +223,16 @@ function submit() {
             <Card :title="isEditing ? 'Zmiana hasła' : 'Hasło'">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                        <label class="block text-sm font-medium text-foreground mb-1">
                             {{ isEditing ? 'Nowe hasło' : 'Hasło' }} {{ !isEditing ? '*' : '' }}
                         </label>
                         <Input v-model="form.password" type="password" />
-                        <p v-if="isEditing" class="mt-1 text-xs text-gray-500">Pozostaw puste, aby nie zmieniać hasła</p>
+                        <p v-if="isEditing" class="mt-1 text-xs text-foreground-muted">Pozostaw puste, aby nie zmieniać hasła</p>
                         <p v-if="form.errors.password" class="mt-1 text-sm text-red-600">{{ form.errors.password }}</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Powtórz hasło {{ !isEditing ? '*' : '' }}</label>
+                        <label class="block text-sm font-medium text-foreground mb-1">Powtórz hasło {{ !isEditing ? '*' : '' }}</label>
                         <Input v-model="form.password_confirmation" type="password" />
                     </div>
                 </div>
@@ -240,20 +240,20 @@ function submit() {
 
             <!-- Uprawnienia (tylko dla nie-adminów) -->
             <Card v-if="form.role !== 'admin'" title="Uprawnienia">
-                <p class="text-sm text-gray-500 mb-4">Wybierz uprawnienia dla użytkownika. Administratorzy mają pełne uprawnienia.</p>
-                
+                <p class="text-sm text-foreground-muted mb-4">Wybierz uprawnienia dla użytkownika. Administratorzy mają pełne uprawnienia.</p>
+
                 <div class="space-y-6">
-                    <div v-for="(perms, module) in permissions" :key="module" class="border-b border-gray-200 pb-4 last:border-0 last:pb-0">
-                        <h4 class="text-sm font-medium text-gray-900 mb-3 capitalize">{{ module }}</h4>
+                    <div v-for="(perms, module) in permissions" :key="module" class="border-b border-border pb-4 last:border-0 last:pb-0">
+                        <h4 class="text-sm font-medium text-foreground mb-3 capitalize">{{ module }}</h4>
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                             <label v-for="perm in perms" :key="perm.id" class="flex items-center">
-                                <input 
-                                    type="checkbox" 
+                                <input
+                                    type="checkbox"
                                     :checked="form.permissions.includes(perm.id)"
                                     @change="togglePermission(perm.id)"
-                                    class="rounded border-gray-300 text-indigo-600 focus:ring-brand-primary" 
+                                    class="rounded border-border-bright text-brand-primary focus:ring-brand-primary"
                                 />
-                                <span class="ml-2 text-sm text-gray-700">{{ perm.name }}</span>
+                                <span class="ml-2 text-sm text-foreground">{{ perm.name }}</span>
                             </label>
                         </div>
                     </div>
@@ -269,25 +269,25 @@ function submit() {
 
             <!-- Zarządzane kalendarze (m2m) -->
             <Card v-if="isEditing" title="Zarządzane kalendarze">
-                <p class="text-sm text-gray-500 mb-4">
+                <p class="text-sm text-foreground-muted mb-4">
                     Wybrane kalendarze pojawią się jako pozycje w dropdownie tego użytkownika na stronie Kalendarz.
                     Może wtedy oglądać i edytować wizyty z tych kalendarzy tak jakby były jego.
                 </p>
-                <div v-if="availableCalendarUsers.length === 0" class="text-sm text-gray-400 italic">
+                <div v-if="availableCalendarUsers.length === 0" class="text-sm text-foreground-muted italic">
                     Brak innych użytkowników do wyboru.
                 </div>
                 <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <label v-for="cu in availableCalendarUsers" :key="cu.id"
-                           class="flex items-center p-2 rounded hover:bg-gray-50 cursor-pointer">
+                           class="flex items-center p-2 rounded hover:bg-surface-elevated/50 cursor-pointer">
                         <input
                             type="checkbox"
                             :checked="form.managed_calendars.includes(cu.id)"
                             @change="toggleManagedCalendar(cu.id)"
-                            class="rounded border-gray-300 text-indigo-600 focus:ring-brand-primary"
+                            class="rounded border-border-bright text-brand-primary focus:ring-brand-primary"
                         />
-                        <span class="ml-2 text-sm text-gray-700">
+                        <span class="ml-2 text-sm text-foreground">
                             {{ cu.name }}
-                            <span class="text-gray-400 text-xs">({{ cu.email }})</span>
+                            <span class="text-foreground-muted text-xs">({{ cu.email }})</span>
                         </span>
                     </label>
                 </div>
@@ -296,26 +296,26 @@ function submit() {
             <!-- Integracja z Fakturownia -->
             <Card v-if="hasFakturowniaIntegration" title="Integracja z Fakturownia">
                 <div class="space-y-4">
-                    <p class="text-sm text-gray-500">
+                    <p class="text-sm text-foreground-muted">
                         Przypisz użytkownika do działu w Fakturownia. Statystyki przychodów będą filtrowane dla tego działu.
                     </p>
-                    
+
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Dział w Fakturownia</label>
-                        <select 
+                        <label class="block text-sm font-medium text-foreground mb-1">Dział w Fakturownia</label>
+                        <select
                             v-model="form.fakturownia_department_id"
-                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-brand-primary focus:border-brand-primary"
+                            class="w-full border-border-bright bg-surface-elevated rounded-lg shadow-sm focus:ring-brand-primary focus:border-brand-primary"
                         >
                             <option :value="null">-- Brak przypisania --</option>
-                            <option 
-                                v-for="dept in fakturowniaDepartments" 
-                                :key="dept.id" 
+                            <option
+                                v-for="dept in fakturowniaDepartments"
+                                :key="dept.id"
                                 :value="dept.id"
                             >
                                 {{ dept.shortcut || dept.name }}
                             </option>
                         </select>
-                        <p class="mt-1 text-xs text-gray-500">
+                        <p class="mt-1 text-xs text-foreground-muted">
                             Przypisanie do działu pozwala na filtrowanie statystyk i faktur.
                         </p>
                     </div>
@@ -331,15 +331,15 @@ function submit() {
 
             <Card title="Apilo — zamówienia z kalendarza">
                 <div class="space-y-4">
-                    <p class="text-sm text-gray-500">
+                    <p class="text-sm text-foreground-muted">
                         Domyślny kanał sprzedaży przy tworzeniu zamówienia w panelu wizyty (zakładka Apilo).
                         Typ płatności domyślnie ustawiany jest na <strong>pobranie</strong>, jeśli Apilo zwraca taki wariant w mapowaniu płatności.
                     </p>
                     <div v-if="hasApiloPlatforms">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Domyślny kanał sprzedaży</label>
+                        <label class="block text-sm font-medium text-foreground mb-1">Domyślny kanał sprzedaży</label>
                         <select
                             v-model="form.apilo_default_platform_id"
-                            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-brand-primary focus:border-brand-primary"
+                            class="w-full border-border-bright bg-surface-elevated rounded-lg shadow-sm focus:ring-brand-primary focus:border-brand-primary"
                         >
                             <option value="">— Systemowy (pierwszy z listy Apilo) —</option>
                             <option

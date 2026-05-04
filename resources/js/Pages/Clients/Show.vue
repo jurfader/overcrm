@@ -78,7 +78,7 @@ const hasProfile = computed(() => {
                     {{ (client.short_name || client.name).substring(0, 2).toUpperCase() }}
                 </div>
                 <div class="ml-4">
-                    <h1 class="text-2xl font-bold text-foreground">{{ client.name }}</h1>
+                    <h1 class="text-2xl font-bold gradient-brand-text">{{ client.name }}</h1>
                     <div class="flex items-center gap-2 mt-1 flex-wrap">
                         <!-- Status klienta – wyraźnie widoczny -->
                         <Badge :color="client.status_color || statusColors[client.status]" size="lg">
@@ -123,42 +123,42 @@ const hasProfile = computed(() => {
                 <Card title="Dane podstawowe">
                     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div v-if="client.nip">
-                            <dt class="text-sm font-medium text-gray-500">NIP</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ client.nip }}</dd>
+                            <dt class="text-sm font-medium text-foreground-muted">NIP</dt>
+                            <dd class="mt-1 text-sm text-foreground">{{ client.nip }}</dd>
                         </div>
                         <div v-if="client.regon">
-                            <dt class="text-sm font-medium text-gray-500">REGON</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ client.regon }}</dd>
+                            <dt class="text-sm font-medium text-foreground-muted">REGON</dt>
+                            <dd class="mt-1 text-sm text-foreground">{{ client.regon }}</dd>
                         </div>
                         <div v-if="client.email">
-                            <dt class="text-sm font-medium text-gray-500">Email</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
+                            <dt class="text-sm font-medium text-foreground-muted">Email</dt>
+                            <dd class="mt-1 text-sm text-foreground">
                                 <a :href="'mailto:' + client.email" class="text-indigo-600 hover:text-indigo-800">{{ client.email }}</a>
                             </dd>
                         </div>
                         <div v-if="client.phone">
-                            <dt class="text-sm font-medium text-gray-500">Telefon</dt>
-                            <dd class="mt-1 text-sm text-gray-900 flex items-center gap-1">
+                            <dt class="text-sm font-medium text-foreground-muted">Telefon</dt>
+                            <dd class="mt-1 text-sm text-foreground flex items-center gap-1">
                                 <a :href="'tel:' + client.phone" class="text-indigo-600 hover:text-indigo-800">{{ client.phone }}</a>
                                 <ClickToCall :phone="client.phone" size="sm" />
                             </dd>
                         </div>
                         <div v-if="client.website">
-                            <dt class="text-sm font-medium text-gray-500">Strona WWW</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
+                            <dt class="text-sm font-medium text-foreground-muted">Strona WWW</dt>
+                            <dd class="mt-1 text-sm text-foreground">
                                 <a :href="client.website" target="_blank" class="text-indigo-600 hover:text-indigo-800">{{ client.website }}</a>
                             </dd>
                         </div>
                         <div v-if="client.birthday">
-                            <dt class="text-sm font-medium text-gray-500">Data urodzenia</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ new Date(client.birthday).toLocaleDateString('pl-PL') }}</dd>
+                            <dt class="text-sm font-medium text-foreground-muted">Data urodzenia</dt>
+                            <dd class="mt-1 text-sm text-foreground">{{ new Date(client.birthday).toLocaleDateString('pl-PL') }}</dd>
                         </div>
                     </dl>
                 </Card>
 
                 <!-- Adres -->
                 <Card v-if="client.street || client.city" title="Adres">
-                    <address class="not-italic text-sm text-gray-900">
+                    <address class="not-italic text-sm text-foreground">
                         <p v-if="client.street">
                             {{ client.street }} {{ client.building_number }}<span v-if="client.apartment_number">/{{ client.apartment_number }}</span>
                         </p>
@@ -173,18 +173,18 @@ const hasProfile = computed(() => {
                 <Card v-if="client.contact_person" title="Osoba kontaktowa">
                     <dl class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
-                            <dt class="text-sm font-medium text-gray-500">Imię i nazwisko</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ client.contact_person }}</dd>
+                            <dt class="text-sm font-medium text-foreground-muted">Imię i nazwisko</dt>
+                            <dd class="mt-1 text-sm text-foreground">{{ client.contact_person }}</dd>
                         </div>
                         <div v-if="client.contact_email">
-                            <dt class="text-sm font-medium text-gray-500">Email</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
+                            <dt class="text-sm font-medium text-foreground-muted">Email</dt>
+                            <dd class="mt-1 text-sm text-foreground">
                                 <a :href="'mailto:' + client.contact_email" class="text-indigo-600 hover:text-indigo-800">{{ client.contact_email }}</a>
                             </dd>
                         </div>
                         <div v-if="client.contact_phone">
-                            <dt class="text-sm font-medium text-gray-500">Telefon</dt>
-                            <dd class="mt-1 text-sm text-gray-900 flex items-center gap-1">
+                            <dt class="text-sm font-medium text-foreground-muted">Telefon</dt>
+                            <dd class="mt-1 text-sm text-foreground flex items-center gap-1">
                                 {{ client.contact_phone }}
                                 <ClickToCall :phone="client.contact_phone" size="sm" />
                             </dd>
@@ -222,7 +222,7 @@ const hasProfile = computed(() => {
                         <div
                             v-for="s in summaries"
                             :key="s.id"
-                            class="p-4 rounded-lg border border-border bg-slate-50/50 dark:bg-slate-800/30"
+                            class="p-4 rounded-lg surface-elevated"
                         >
                             <p class="text-sm text-foreground whitespace-pre-wrap">{{ s.summary }}</p>
                             <p class="mt-2 text-xs text-foreground-muted">
@@ -267,7 +267,7 @@ const hasProfile = computed(() => {
                                         >
                                             {{ email.status === 'sent' ? 'Wysłano' : email.status === 'failed' ? 'Błąd' : 'Oczekuje' }}
                                         </Badge>
-                                        <Icons :name="expandedEmailId === email.id ? 'chevron-up' : 'chevron-down'" class="w-4 h-4 text-gray-400" />
+                                        <Icons :name="expandedEmailId === email.id ? 'chevron-up' : 'chevron-down'" class="w-4 h-4 text-foreground-muted" />
                                     </div>
                                 </div>
                                 <div class="mt-1 flex items-center gap-3 text-xs text-foreground-muted">
@@ -384,11 +384,11 @@ const hasProfile = computed(() => {
                     <div class="space-y-3">
                         <Link :href="route('tasks.create', { client_id: client.id })" class="flex items-center p-3 rounded-lg border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors">
                             <Icons name="plus" class="w-5 h-5 text-indigo-600 mr-3" />
-                            <span class="text-sm font-medium text-gray-900">Nowe zadanie</span>
+                            <span class="text-sm font-medium text-foreground">Nowe zadanie</span>
                         </Link>
                         <Link :href="route('clients.edit', client.id)" class="flex items-center p-3 rounded-lg border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors">
                             <Icons name="edit" class="w-5 h-5 text-indigo-600 mr-3" />
-                            <span class="text-sm font-medium text-gray-900">Edytuj dane</span>
+                            <span class="text-sm font-medium text-foreground">Edytuj dane</span>
                         </Link>
                     </div>
                 </Card>
@@ -427,7 +427,7 @@ const hasProfile = computed(() => {
                                     </div>
                                     <div
                                         v-if="visit.description || visit.notes"
-                                        class="mt-1.5 text-xs text-slate-600 dark:text-slate-300 line-clamp-2 prose prose-sm max-w-none dark:prose-invert prose-p:my-0.5 prose-p:first:mt-0"
+                                        class="mt-1.5 text-xs text-foreground-muted line-clamp-2 prose prose-sm max-w-none dark:prose-invert prose-p:my-0.5 prose-p:first:mt-0"
                                         v-html="(visit.description || '') + (visit.notes ? (visit.description ? '<br>' : '') + visit.notes : '')"
                                     ></div>
                                 </Link>
@@ -440,25 +440,25 @@ const hasProfile = computed(() => {
                 <Card title="Informacje">
                     <dl class="space-y-3 text-sm">
                         <div v-if="assignedHandlowcy.length" class="flex justify-between items-start gap-2">
-                            <dt class="text-gray-500 shrink-0">Opiekun handlowy</dt>
-                            <dd class="text-gray-900 text-right">
+                            <dt class="text-foreground-muted shrink-0">Opiekun handlowy</dt>
+                            <dd class="text-foreground text-right">
                                 <template v-for="(h, i) in assignedHandlowcy" :key="h.id">
-                                    <span v-if="i > 0" class="text-gray-400">, </span>
+                                    <span v-if="i > 0" class="text-foreground-muted">, </span>
                                     <Link :href="route('users.show', h.id)" class="text-indigo-600 hover:text-indigo-800 hover:underline">{{ h.name }}</Link>
                                 </template>
                             </dd>
                         </div>
                         <div class="flex justify-between">
-                            <dt class="text-gray-500">Utworzono</dt>
-                            <dd class="text-gray-900">{{ new Date(client.created_at).toLocaleDateString('pl-PL') }}</dd>
+                            <dt class="text-foreground-muted">Utworzono</dt>
+                            <dd class="text-foreground">{{ new Date(client.created_at).toLocaleDateString('pl-PL') }}</dd>
                         </div>
                         <div v-if="client.creator" class="flex justify-between">
-                            <dt class="text-gray-500">Przez</dt>
-                            <dd class="text-gray-900">{{ client.creator.name }}</dd>
+                            <dt class="text-foreground-muted">Przez</dt>
+                            <dd class="text-foreground">{{ client.creator.name }}</dd>
                         </div>
                         <div class="flex justify-between">
-                            <dt class="text-gray-500">Aktualizacja</dt>
-                            <dd class="text-gray-900">{{ new Date(client.updated_at).toLocaleDateString('pl-PL') }}</dd>
+                            <dt class="text-foreground-muted">Aktualizacja</dt>
+                            <dd class="text-foreground">{{ new Date(client.updated_at).toLocaleDateString('pl-PL') }}</dd>
                         </div>
                     </dl>
                 </Card>

@@ -5,7 +5,6 @@ import FlashMessages from '@/Components/FlashMessages.vue';
 import Icons from '@/Components/Icons.vue';
 import KeyboardShortcutsHelp from '@/Components/KeyboardShortcutsHelp.vue';
 import FloatingVisitPanel from '@/Components/FloatingVisitPanel.vue';
-import HiddenGamesPanel from '@/Components/HiddenGamesPanel.vue';
 import ThemeToggle from '@/Components/UI/ThemeToggle.vue';
 import Tooltip from '@/Components/UI/Tooltip.vue';
 import BrandLogo from '@/Components/UI/BrandLogo.vue';
@@ -113,6 +112,7 @@ const navAdmin = [
     { name: 'Logi integracji', route: 'admin.integration-logs',       icon: 'activity',      pattern: 'admin.integration-logs',   roles: ['admin'] },
     { name: 'Moduły',          route: 'admin.modules.index',          icon: 'puzzle',        pattern: 'admin.modules.*',          roles: ['admin'] },
     { name: 'Cenniki',         route: 'admin.price-lists.index',      icon: 'price-list',    pattern: 'admin.price-lists.*',      roles: ['admin'] },
+    { name: 'Branding',        route: 'admin.branding.index',         icon: 'sparkles',      pattern: 'admin.branding.*',         roles: ['admin'] },
     { name: 'Ustawienia',      route: 'admin.settings.index',         icon: 'settings',      pattern: 'admin.settings.*',         roles: ['admin'] },
 ];
 
@@ -360,6 +360,5 @@ const visibleAdmin = computed(() => navAdmin.filter(canAccess));
 
         <KeyboardShortcutsHelp v-model="showHelp" :shortcuts="shortcuts" />
         <FloatingVisitPanel v-model="showFloatingVisitSearch" />
-        <HiddenGamesPanel />
     </div>
 </template>

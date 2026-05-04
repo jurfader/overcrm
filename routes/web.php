@@ -1,13 +1,9 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\BrandingController;
 use App\Http\Controllers\Admin\PriceListController as AdminPriceListController;
 use App\Http\Controllers\PriceListController;
-use App\Http\Controllers\GameController;
-use App\Http\Controllers\BattleshipController;
-use App\Http\Controllers\WarController;
-use App\Http\Controllers\GbaController;
-use App\Http\Controllers\MultiplayerGameController;
 use App\Http\Controllers\Admin\DailyReportController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\IntegrationLogController;
@@ -24,17 +20,6 @@ use App\Http\Controllers\UserMailConfigController;
 use App\Http\Controllers\VisitEmailController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
-// Publiczne endpointy gier (iframe, bez sesji – ustawienia i leaderboard)
-Route::prefix('games')->name('games.')->group(function () {
-    Route::get('/{id}/settings', [GameController::class, 'getSettings'])->name('settings.public');
-    Route::get('/{id}/leaderboard', [GameController::class, 'leaderboard'])->name('leaderboard.public');
-});
-
-// ROM GBA z podpisem (dla gba.ninja – dostęp bez auth, ważny 10 min)
-Route::get('/games/gba/roms/{filename}/signed', [GbaController::class, 'serveRomSigned'])
-    ->middleware('signed')
-    ->name('games.gba.roms.signed');
 
 // Publiczny cennik (bez logowania)
 Route::get('/cennik/{slug}', [PriceListController::class, 'show'])->name('price-lists.show');
@@ -171,46 +156,6 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
         Route::post('/{visit}/preview-email', [VisitEmailController::class, 'preview'])->name('preview-email');
     });
 
-    // Gry (ukryty panel – sekwencja „bojarchuj”)
-    Route::prefix('games')->name('games.')->group(function () {
-        Route::get('/', [GameController::class, 'index'])->name('index');
-        Route::post('/', [GameController::class, 'store'])->name('store');
-        Route::post('/scores', [GameController::class, 'storeScore'])->name('scores.store');
-        Route::put('/{id}/settings', [GameController::class, 'updateSettings'])->name('settings.update');
-        Route::delete('/{id}', [GameController::class, 'destroy'])->name('destroy');
-
-        Route::prefix('multiplayer')->name('multiplayer.')->group(function () {
-            Route::post('/rooms', [MultiplayerGameController::class, 'createRoom'])->name('rooms.create');
-            Route::get('/rooms/{code}', [MultiplayerGameController::class, 'getRoom'])->name('rooms.show');
-            Route::post('/rooms/{code}/join', [MultiplayerGameController::class, 'joinRoom'])->name('rooms.join');
-            Route::post('/rooms/{code}/move', [MultiplayerGameController::class, 'makeMove'])->name('rooms.move');
-        });
-
-        Route::prefix('battleship')->name('battleship.')->group(function () {
-            Route::post('/rooms', [BattleshipController::class, 'createRoom'])->name('rooms.create');
-            Route::get('/rooms/{code}', [BattleshipController::class, 'getRoom'])->name('rooms.show');
-            Route::post('/rooms/{code}/join', [BattleshipController::class, 'joinRoom'])->name('rooms.join');
-            Route::post('/rooms/{code}/shot', [BattleshipController::class, 'makeShot'])->name('rooms.shot');
-        });
-
-        Route::prefix('war')->name('war.')->group(function () {
-            Route::post('/rooms', [WarController::class, 'createRoom'])->name('rooms.create');
-            Route::get('/rooms/{code}', [WarController::class, 'getRoom'])->name('rooms.show');
-            Route::post('/rooms/{code}/join', [WarController::class, 'joinRoom'])->name('rooms.join');
-            Route::post('/rooms/{code}/play', [WarController::class, 'play'])->name('rooms.play');
-        });
-
-        Route::prefix('gba')->name('gba.')->group(function () {
-            Route::get('/roms', [GbaController::class, 'listRoms'])->name('roms.list');
-            Route::get('/roms/{filename}', [GbaController::class, 'serveRom'])->name('roms.serve');
-            Route::get('/saves/{romKey}', [GbaController::class, 'getSaveState'])->name('saves.get');
-            Route::post('/saves/{romKey}', [GbaController::class, 'saveSaveState'])->name('saves.store');
-            Route::get('/play/{romKey}', [GbaController::class, 'play'])->name('play');
-        });
-
-        Route::get('/{id}/{path?}', [GameController::class, 'serve'])->where('path', '.*')->name('serve');
-    });
-
     // Ustawienia użytkownika - konfiguracja SMTP
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::put('/email-footer', [UserMailConfigController::class, 'updateEmailFooter'])->name('email-footer.update');
@@ -241,6 +186,14 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
             Route::post('/{module}/config', [ModuleController::class, 'saveConfig'])->name('config');
         });
         
+        // Branding (kolory, logo, nazwy)
+        Route::prefix('branding')->name('branding.')->group(function () {
+            Route::get('/', [BrandingController::class, 'index'])->name('index');
+            Route::post('/', [BrandingController::class, 'update'])->name('update');
+            Route::post('/upload', [BrandingController::class, 'uploadAsset'])->name('upload');
+            Route::delete('/asset', [BrandingController::class, 'removeAsset'])->name('remove-asset');
+        });
+
         // Ustawienia systemowe
         Route::prefix('settings')->name('settings.')->group(function () {
             Route::get('/', [SettingController::class, 'index'])->name('index');

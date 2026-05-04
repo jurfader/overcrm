@@ -2243,12 +2243,12 @@ const invoiceStatusLabels = {
                                         >
                                             <Icons name="close" class="w-4 h-4" />
                                         </button>
-                                        <Icons v-else-if="!clientSearchOpen" name="search" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                                        <Icons v-else-if="!clientSearchOpen" name="search" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-foreground-subtle pointer-events-none" />
                                         <div
                                             v-if="clientSearchOpen"
                                             class="absolute top-full left-0 right-0 mt-1 surface border border-slate-200 dark:border-slate-600 rounded-lg shadow-xl z-50 max-h-64 overflow-y-auto"
                                         >
-                                            <div v-if="clientSearchLoading" class="p-4 text-center text-slate-500 text-sm">
+                                            <div v-if="clientSearchLoading" class="p-4 text-center text-foreground-muted text-sm">
                                                 <Icons name="spinner" class="w-5 h-5 animate-spin mx-auto" />
                                             </div>
                                             <template v-else>
@@ -2257,12 +2257,12 @@ const invoiceStatusLabels = {
                                                     :key="c.id"
                                                     type="button"
                                                     @click="selectClient(c)"
-                                                    class="w-full px-4 py-2.5 text-left hover:bg-amber-50 dark:hover:bg-slate-700 text-sm flex justify-between items-center gap-2"
+                                                    class="w-full px-4 py-2.5 text-left hover:bg-surface-elevated text-sm flex justify-between items-center gap-2 transition-colors"
                                                 >
                                                     <span class="truncate">{{ c.name }}</span>
-                                                    <span v-if="c.full_name && c.full_name !== c.name" class="text-slate-400 text-xs truncate shrink-0">{{ c.full_name }}</span>
+                                                    <span v-if="c.full_name && c.full_name !== c.name" class="text-foreground-muted text-xs truncate shrink-0">{{ c.full_name }}</span>
                                                 </button>
-                                                <p v-if="clientSearchResults.length === 0 && !clientSearchLoading" class="p-4 text-slate-500 text-sm">
+                                                <p v-if="clientSearchResults.length === 0 && !clientSearchLoading" class="p-4 text-foreground-muted text-sm">
                                                     {{ clientSearchQuery.length >= 2 ? 'Brak wyników' : 'Wpisz min. 2 znaki, aby wyszukać' }}
                                                 </p>
                                             </template>
@@ -2298,7 +2298,7 @@ const invoiceStatusLabels = {
                                                 type="button"
                                                 @click="fetchFromGusForNewClient"
                                                 :disabled="gusLoadingNewClient || !newClientForm.nip"
-                                                class="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-sm whitespace-nowrap flex items-center gap-1"
+                                                class="px-3 py-2 bg-info text-white rounded hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap flex items-center gap-1 transition-opacity"
                                                 title="Pobierz dane z GUS"
                                             >
                                                 <Icons name="search" class="w-4 h-4" />
@@ -2340,7 +2340,7 @@ const invoiceStatusLabels = {
                                     <button 
                                         type="button" 
                                         title="Źródło dokumentu"
-                                        :class="{ 'bg-gray-200 dark:bg-slate-600': showDescriptionSource }"
+                                        :class="{ 'bg-surface-elevated': showDescriptionSource }"
                                         @click="showDescriptionSource = !showDescriptionSource"
                                     >
                                         <Icons name="document" class="w-4 h-4" />
@@ -2356,7 +2356,7 @@ const invoiceStatusLabels = {
                                         <button
                                             type="button"
                                             title="Kolor tekstu"
-                                            :class="{ 'bg-gray-200 dark:bg-slate-600': showTextColorPicker }"
+                                            :class="{ 'bg-surface-elevated': showTextColorPicker }"
                                             @click.stop="showTextColorPicker = !showTextColorPicker; showBgColorPicker = false"
                                         >
                                             <span class="text-sm font-bold" style="color: #333;">A</span>
@@ -2382,7 +2382,7 @@ const invoiceStatusLabels = {
                                         <button
                                             type="button"
                                             title="Kolor tła"
-                                            :class="{ 'bg-gray-200 dark:bg-slate-600': showBgColorPicker }"
+                                            :class="{ 'bg-surface-elevated': showBgColorPicker }"
                                             @click.stop="showBgColorPicker = !showBgColorPicker; showTextColorPicker = false"
                                         >
                                             <span class="text-sm font-bold px-0.5 rounded" style="background: #ffeb3b; color: #333;">A</span>
@@ -2631,13 +2631,13 @@ const invoiceStatusLabels = {
                                     placeholder="0.00"
                                     step="0.01"
                                 />
-                                <span class="text-gray-500">PLN</span>
+                                <span class="text-foreground-muted">PLN</span>
                             </div>
                         </div>
                         
                         <!-- Wybór szablonu lub własna wiadomość -->
                         <div class="email-template-section">
-                            <h5 class="font-semibold text-gray-700 mb-3">Wyślij ofertę emailem</h5>
+                            <h5 class="font-semibold text-foreground mb-3">Wyślij ofertę emailem</h5>
                             
                             <div class="flex gap-4 mb-4">
                                 <label class="flex items-center gap-2 cursor-pointer">
@@ -2664,7 +2664,7 @@ const invoiceStatusLabels = {
                                             {{ template.name }} ({{ template.category === 'offer' ? 'Oferta' : template.category }})
                                         </option>
                                     </select>
-                                    <p v-if="selectedTemplate?.description" class="text-sm text-gray-500 mt-1">
+                                    <p v-if="selectedTemplate?.description" class="text-sm text-foreground-muted mt-1">
                                         {{ selectedTemplate.description }}
                                     </p>
                                 </div>
@@ -2720,7 +2720,7 @@ const invoiceStatusLabels = {
                                         class="inline-flex items-center gap-1 px-2 py-1 rounded surface-elevated text-sm"
                                     >
                                         {{ f.name }}
-                                        <button type="button" @click="removeEmailAttachment(i)" class="text-slate-500 hover:text-red-500">
+                                        <button type="button" @click="removeEmailAttachment(i)" class="text-foreground-muted hover:text-red-500 transition-colors">
                                             <Icons name="close" class="w-3.5 h-3.5" />
                                         </button>
                                     </span>
@@ -2779,9 +2779,9 @@ const invoiceStatusLabels = {
                         
                         <!-- Brak szablonów -->
                         <div v-if="emailTemplates.length === 0" class="empty-templates mt-6">
-                            <Icons name="document" class="w-10 h-10 text-gray-300 mb-2" />
-                            <p class="text-gray-500">Brak szablonów email.</p>
-                            <p class="text-sm text-gray-400">Szablony możesz utworzyć w Panelu administracyjnym → Szablony Email</p>
+                            <Icons name="document" class="w-10 h-10 text-foreground-subtle mb-2" />
+                            <p class="text-foreground-muted">Brak szablonów email.</p>
+                            <p class="text-sm text-foreground-subtle">Szablony możesz utworzyć w Panelu administracyjnym → Szablony Email</p>
                         </div>
                     </div>
                     
@@ -2960,7 +2960,7 @@ const invoiceStatusLabels = {
                                         <button 
                                             v-if="product.name" 
                                             @click="clearProductSelection(index)"
-                                            class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400"
+                                            class="absolute right-2 top-1/2 -translate-y-1/2 text-foreground-muted hover:text-red-500 transition-colors"
                                             type="button"
                                         >
                                             <Icons name="close" class="w-3.5 h-3.5" />
@@ -3238,7 +3238,7 @@ const invoiceStatusLabels = {
                                     </button>
                                 </div>
                                 <div class="order-footer">
-                                    <span :class="['status-badge', invoiceStatusColors[order.status] || 'bg-gray-100']">
+                                    <span :class="['status-badge', invoiceStatusColors[order.status] || 'bg-surface-elevated text-foreground']">
                                         {{ invoiceStatusLabels[order.status] || order.status }}
                                     </span>
                                     <span class="order-total">{{ formatCurrency(order.total) }}</span>
@@ -3327,12 +3327,12 @@ const invoiceStatusLabels = {
                     <div v-else class="invoices-list">
                         <div v-for="invoice in invoices" :key="invoice.id" class="invoice-item">
                             <div 
-                                class="invoice-row cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors"
+                                class="invoice-row cursor-pointer hover:bg-surface-elevated/50 transition-colors"
                                 @click="toggleInvoicePositions(invoice.id)"
                             >
                                 <div class="invoice-header">
                                     <span class="invoice-number">{{ invoice.number }}</span>
-                                    <span :class="['status-badge', invoiceStatusColors[invoice.status] || 'bg-gray-100']">
+                                    <span :class="['status-badge', invoiceStatusColors[invoice.status] || 'bg-surface-elevated text-foreground']">
                                         {{ invoiceStatusLabels[invoice.status] || invoice.status }}
                                     </span>
                                     <a
@@ -3348,7 +3348,7 @@ const invoiceStatusLabels = {
                                     </a>
                                     <Icons
                                         :name="(invoiceDetailsCache[invoice.id] || loadingInvoiceId === invoice.id) ? 'chevron-down' : 'chevron-right'"
-                                        class="w-4 h-4 text-gray-400 ml-1"
+                                        class="w-4 h-4 text-foreground-muted ml-1"
                                     />
                                 </div>
                                 <div class="invoice-details">
@@ -3614,7 +3614,7 @@ const invoiceStatusLabels = {
                                                 <label class="form-label">Cechy osobowości</label>
                                                 <div class="flex flex-wrap gap-2 mt-1">
                                                     <label v-for="(label, val) in profileOptions.personalities" :key="val" class="flex items-center gap-1.5">
-                                                        <input type="checkbox" :value="val" v-model="clientForm.profile.mental.personality" class="rounded border-gray-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                                        <input type="checkbox" :value="val" v-model="clientForm.profile.mental.personality" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary" />
                                                         <span class="text-sm text-foreground">{{ label }}</span>
                                                     </label>
                                                 </div>
@@ -3754,7 +3754,7 @@ const invoiceStatusLabels = {
                                     <div v-if="openProfileSections.sales" class="profile-accordion-body">
                                         <div class="space-y-3">
                                             <label class="flex items-center gap-2">
-                                                <input type="checkbox" v-model="clientForm.profile.sales.delivery" class="rounded border-gray-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                                <input type="checkbox" v-model="clientForm.profile.sales.delivery" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary" />
                                                 <span class="text-sm text-foreground">Dostawa</span>
                                             </label>
                                             <div v-if="clientForm.profile.sales.delivery">
@@ -3765,7 +3765,7 @@ const invoiceStatusLabels = {
                                                 <label class="form-label">Platformy</label>
                                                 <div class="flex flex-wrap gap-2 mt-1">
                                                     <label v-for="(label, val) in profileOptions.platforms" :key="val" class="flex items-center gap-1.5">
-                                                        <input type="checkbox" :value="val" v-model="clientForm.profile.sales.platforms" class="rounded border-gray-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                                        <input type="checkbox" :value="val" v-model="clientForm.profile.sales.platforms" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary" />
                                                         <span class="text-sm text-foreground">{{ label }}</span>
                                                     </label>
                                                 </div>
@@ -3787,7 +3787,7 @@ const invoiceStatusLabels = {
                                     <div v-if="openProfileSections.customers" class="profile-accordion-body">
                                         <div class="flex flex-wrap gap-2">
                                             <label v-for="(label, val) in profileOptions.customer_profiles" :key="val" class="flex items-center gap-1.5">
-                                                <input type="checkbox" :value="val" v-model="clientForm.profile.customers.profiles" class="rounded border-gray-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                                <input type="checkbox" :value="val" v-model="clientForm.profile.customers.profiles" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary" />
                                                 <span class="text-sm text-foreground">{{ label }}</span>
                                             </label>
                                         </div>
@@ -3803,11 +3803,11 @@ const invoiceStatusLabels = {
                                     <div v-if="openProfileSections.kitchen" class="profile-accordion-body">
                                         <div class="space-y-3">
                                             <label class="flex items-center gap-2">
-                                                <input type="checkbox" v-model="clientForm.profile.kitchen.own_production" class="rounded border-gray-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                                <input type="checkbox" v-model="clientForm.profile.kitchen.own_production" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary" />
                                                 <span class="text-sm text-foreground">Własna produkcja</span>
                                             </label>
                                             <label class="flex items-center gap-2">
-                                                <input type="checkbox" v-model="clientForm.profile.kitchen.uses_semi_finished" class="rounded border-gray-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                                <input type="checkbox" v-model="clientForm.profile.kitchen.uses_semi_finished" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary" />
                                                 <span class="text-sm text-foreground">Używa półproduktów</span>
                                             </label>
                                             <div>
@@ -3836,11 +3836,11 @@ const invoiceStatusLabels = {
                                             </div>
                                             <div class="flex gap-6">
                                                 <label class="flex items-center gap-2">
-                                                    <input type="checkbox" v-model="clientForm.profile.potential.menu_changes" class="rounded border-gray-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                                    <input type="checkbox" v-model="clientForm.profile.potential.menu_changes" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary" />
                                                     <span class="text-sm text-foreground">Zmiany w menu</span>
                                                 </label>
                                                 <label class="flex items-center gap-2">
-                                                    <input type="checkbox" v-model="clientForm.profile.potential.open_to_tests" class="rounded border-gray-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                                    <input type="checkbox" v-model="clientForm.profile.potential.open_to_tests" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary" />
                                                     <span class="text-sm text-foreground">Otwarty na testy</span>
                                                 </label>
                                             </div>
@@ -3916,7 +3916,7 @@ const invoiceStatusLabels = {
 
                     <div v-else-if="clientCalls.length === 0" class="empty-state">
                         <p>Brak zarejestrowanych połączeń z tym klientem</p>
-                        <p class="text-xs mt-1 text-slate-400">Połączenia są synchronizowane z Ringostat</p>
+                        <p class="text-xs mt-1 text-foreground-muted">Połączenia są synchronizowane z Ringostat</p>
                     </div>
 
                     <div v-else class="space-y-2">
@@ -3950,7 +3950,7 @@ const invoiceStatusLabels = {
                                     @click="toggleCallPlay(call)"
                                     :class="[
                                         'p-1.5 rounded-lg text-xs transition',
-                                        playingId === call.id ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 'bg-slate-200 text-slate-600 hover:bg-slate-300 dark:bg-slate-600 dark:text-slate-300'
+                                        playingId === call.id ? 'gradient-brand text-white' : 'surface-elevated text-foreground-muted hover:text-foreground'
                                     ]"
                                 >
                                     <Icons :name="playingId === call.id ? 'pause' : 'play'" class="h-4 w-4" />
@@ -4417,5 +4417,238 @@ const invoiceStatusLabels = {
 .email-preview-footer {
     @apply flex items-center justify-end gap-3 px-6 py-4 border-t bg-gray-50
            dark:bg-slate-800 dark:border-slate-700;
+}
+
+/* === Semantic overrides — działają w obu motywach === */
+.modal-overlay,
+.email-preview-modal {
+    background: rgba(0, 0, 0, 0.65) !important;
+    backdrop-filter: blur(4px);
+}
+
+.client-modal,
+.email-preview-content {
+    background: var(--color-surface) !important;
+    border: 1px solid var(--color-border);
+}
+
+.modal-header,
+.modal-footer,
+.email-preview-header,
+.email-preview-footer {
+    background: var(--color-surface-2) !important;
+    border-color: var(--color-border) !important;
+}
+
+.email-preview-meta {
+    background: var(--color-surface-2) !important;
+    border-color: var(--color-border) !important;
+    color: var(--color-foreground);
+}
+
+.meta-row {
+    color: var(--color-foreground) !important;
+}
+
+.close-btn {
+    color: var(--color-muted-foreground) !important;
+}
+
+.close-btn:hover {
+    background: var(--color-surface-elevated) !important;
+    color: var(--color-foreground) !important;
+}
+
+.tabs {
+    border-color: var(--color-border) !important;
+}
+
+.tab-btn {
+    color: var(--color-muted-foreground) !important;
+    background: transparent !important;
+}
+
+.tab-btn:hover {
+    color: var(--color-foreground) !important;
+    background: var(--color-surface-elevated) !important;
+}
+
+.tab-btn.active {
+    color: var(--brand-primary) !important;
+    background: var(--color-surface) !important;
+    border-color: var(--brand-primary) !important;
+}
+
+.modal-content {
+    background: var(--color-surface) !important;
+    color: var(--color-foreground);
+}
+
+.form-hint {
+    color: var(--color-subtle) !important;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    background: var(--color-surface-elevated) !important;
+    border-color: var(--color-border-bright) !important;
+    color: var(--color-foreground) !important;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+    color: var(--color-subtle) !important;
+}
+
+.editor-toolbar {
+    background: var(--color-surface-2) !important;
+    border-color: var(--color-border-bright) !important;
+}
+
+.editor-toolbar button {
+    color: var(--color-foreground-muted) !important;
+}
+
+.editor-toolbar button:hover {
+    background: var(--color-surface-elevated) !important;
+    color: var(--color-foreground) !important;
+}
+
+.toolbar-separator {
+    background: var(--color-border) !important;
+}
+
+.color-picker-popover {
+    background: var(--color-surface) !important;
+    border-color: var(--color-border-bright) !important;
+}
+
+.color-swatch {
+    border-color: var(--color-border) !important;
+}
+
+.icon-btn {
+    background: var(--color-surface-elevated) !important;
+    border-color: var(--color-border-bright) !important;
+    color: var(--color-foreground) !important;
+}
+
+.icon-btn:hover {
+    opacity: 0.85;
+}
+
+.add-client-link,
+.btn-link {
+    color: var(--brand-primary) !important;
+}
+
+.add-client-link:hover,
+.btn-link:hover {
+    color: var(--brand-secondary) !important;
+}
+
+.profile-accordion {
+    border-color: var(--color-border) !important;
+}
+
+.profile-accordion-btn {
+    color: var(--color-foreground) !important;
+}
+
+.profile-accordion-btn:hover {
+    background: var(--color-surface-elevated) !important;
+}
+
+.new-client-mini {
+    background: var(--color-surface-elevated) !important;
+    border-color: var(--color-border) !important;
+}
+
+.section-title {
+    color: var(--color-foreground) !important;
+}
+
+.products-list {
+    border-color: var(--color-border) !important;
+}
+
+.products-header {
+    background: var(--color-surface-2) !important;
+    color: var(--color-muted-foreground) !important;
+}
+
+.product-row {
+    border-color: var(--color-border) !important;
+}
+
+.total-value {
+    color: var(--color-foreground) !important;
+}
+
+.order-item,
+.invoice-item {
+    border-color: var(--color-border) !important;
+    background: var(--color-surface-elevated) !important;
+}
+
+.invoice-details {
+    color: var(--color-muted-foreground) !important;
+}
+
+.invoice-amount {
+    color: var(--color-foreground) !important;
+}
+
+.result-row .label {
+    color: var(--color-muted-foreground) !important;
+}
+
+.result-row .value {
+    color: var(--color-foreground) !important;
+}
+
+.invoices-summary {
+    background: var(--color-surface-elevated) !important;
+}
+
+.summary-row {
+    color: var(--color-foreground) !important;
+}
+
+.btn-delete,
+.btn-cancel {
+    background: var(--color-surface-elevated) !important;
+    border-color: var(--color-border-bright) !important;
+    color: var(--color-foreground) !important;
+}
+
+.btn-delete:hover,
+.btn-cancel:hover {
+    opacity: 0.85;
+}
+
+.btn-secondary {
+    background: var(--color-surface-elevated) !important;
+    color: var(--color-foreground) !important;
+}
+
+.btn-secondary:hover {
+    opacity: 0.85;
+}
+
+.email-template-section,
+.recipient-box {
+    background: var(--color-surface-elevated) !important;
+    border-color: var(--color-border) !important;
+}
+
+.empty-templates {
+    color: var(--color-muted-foreground) !important;
+}
+
+.email-preview-body {
+    background: var(--color-surface) !important;
+    color: var(--color-foreground);
 }
 </style>

@@ -165,8 +165,8 @@ function isOverdue(task) {
     <div class="space-y-6">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-foreground">Zadania</h1>
-                <p class="text-foreground-muted">{{ trashed ? 'Kosz - usunięte zadania' : 'Zarządzaj zadaniami i planami' }}</p>
+                <h1 class="text-2xl font-bold gradient-brand-text">Zadania</h1>
+                <p class="text-foreground-muted text-sm mt-1">{{ trashed ? 'Kosz — usunięte zadania' : 'Zarządzaj zadaniami i planami' }}</p>
             </div>
             <div class="flex items-center gap-3">
                 <Link v-if="hasKanban" :href="route('kanban.index')">
@@ -191,7 +191,7 @@ function isOverdue(task) {
         </div>
 
         <!-- Filtry -->
-        <Card :padding="false">
+        <Card no-padding>
             <div class="p-4 border-b border-border space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                     <div class="md:col-span-2">
@@ -203,19 +203,19 @@ function isOverdue(task) {
                 </div>
                 <div class="flex flex-wrap items-center gap-4">
                     <label class="flex items-center">
-                        <input type="checkbox" v-model="myTasks" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                        <input type="checkbox" v-model="myTasks" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary" />
                         <span class="ml-2 text-sm text-foreground">Tylko moje</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" v-model="today" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                        <input type="checkbox" v-model="today" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary" />
                         <span class="ml-2 text-sm text-foreground">Na dziś</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" v-model="overdue" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                        <input type="checkbox" v-model="overdue" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary" />
                         <span class="ml-2 text-sm text-foreground">Przeterminowane</span>
                     </label>
                     <label class="flex items-center">
-                        <input type="checkbox" v-model="trashed" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                        <input type="checkbox" v-model="trashed" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary" />
                         <span class="ml-2 text-sm text-foreground">Kosz</span>
                     </label>
                 </div>
@@ -230,10 +230,10 @@ function isOverdue(task) {
 
                 <!-- Zmień status -->
                 <div class="relative group">
-                    <button class="text-sm px-3 py-1.5 rounded-lg surface border border-border-bright text-foreground hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">
+                    <button class="text-sm px-3 py-1.5 rounded-lg surface-elevated text-foreground hover:bg-surface-elevated/70 transition-colors">
                         Zmień status ▾
                     </button>
-                    <div class="hidden group-hover:block absolute top-full left-0 mt-1 surface rounded-lg shadow-xl border dark:border-slate-700 py-1 z-50 min-w-[160px]">
+                    <div class="hidden group-hover:block absolute top-full left-0 mt-1 glass-card py-1 z-50 min-w-[160px]">
                         <button
                             v-for="s in statuses"
                             :key="s.id"
@@ -248,10 +248,10 @@ function isOverdue(task) {
 
                 <!-- Zmień priorytet -->
                 <div class="relative group">
-                    <button class="text-sm px-3 py-1.5 rounded-lg surface border border-border-bright text-foreground hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">
+                    <button class="text-sm px-3 py-1.5 rounded-lg surface-elevated text-foreground hover:bg-surface-elevated/70 transition-colors">
                         Zmień priorytet ▾
                     </button>
-                    <div class="hidden group-hover:block absolute top-full left-0 mt-1 surface rounded-lg shadow-xl border dark:border-slate-700 py-1 z-50 min-w-[140px]">
+                    <div class="hidden group-hover:block absolute top-full left-0 mt-1 glass-card py-1 z-50 min-w-[140px]">
                         <button
                             v-for="(label, key) in priorities"
                             :key="key"
@@ -265,10 +265,10 @@ function isOverdue(task) {
 
                 <!-- Przypisz do -->
                 <div class="relative group">
-                    <button class="text-sm px-3 py-1.5 rounded-lg surface border border-border-bright text-foreground hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors">
+                    <button class="text-sm px-3 py-1.5 rounded-lg surface-elevated text-foreground hover:bg-surface-elevated/70 transition-colors">
                         Przypisz do ▾
                     </button>
-                    <div class="hidden group-hover:block absolute top-full left-0 mt-1 surface rounded-lg shadow-xl border dark:border-slate-700 py-1 z-50 min-w-[180px] max-h-60 overflow-y-auto">
+                    <div class="hidden group-hover:block absolute top-full left-0 mt-1 glass-card py-1 z-50 min-w-[180px] max-h-60 overflow-y-auto">
                         <button
                             @click="bulkAssign(null)"
                             class="block w-full text-left px-4 py-2 text-sm text-foreground-subtle hover:bg-surface-elevated italic"
@@ -299,7 +299,7 @@ function isOverdue(task) {
                 <!-- Odznacz -->
                 <button
                     @click="selectedIds = []"
-                    class="ml-auto text-sm text-foreground-muted hover:text-gray-700 dark:hover:text-slate-300"
+                    class="ml-auto text-sm text-foreground-muted hover:text-foreground transition-colors"
                 >
                     Odznacz wszystko
                 </button>
@@ -308,10 +308,10 @@ function isOverdue(task) {
             <!-- Tabela -->
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-border">
-                    <thead class="bg-surface-2">
+                    <thead class="bg-surface-2/50 border-b border-border">
                         <tr>
                             <th class="px-3 py-3 w-10">
-                                <input type="checkbox" v-model="allSelected" class="rounded border-border-bright text-amber-600 focus:ring-brand-primary dark:bg-slate-700" />
+                                <input type="checkbox" v-model="allSelected" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary" />
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Zadanie</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Klient</th>
@@ -322,19 +322,19 @@ function isOverdue(task) {
                             <th class="px-6 py-3 text-right text-xs font-medium text-foreground-muted uppercase tracking-wider">Akcje</th>
                         </tr>
                     </thead>
-                    <tbody class="surface divide-y divide-border">
-                        <tr v-for="task in tasks.data" :key="task.id" class="hover:bg-surface-elevated" :class="{ 'bg-destructive/10': isOverdue(task) }">
+                    <tbody class="divide-y divide-border">
+                        <tr v-for="task in tasks.data" :key="task.id" class="hover:bg-surface-elevated/50 transition-colors" :class="{ 'bg-destructive/10': isOverdue(task) }">
                             <td class="px-3 py-4 w-10">
-                                <input type="checkbox" :value="task.id" v-model="selectedIds" class="rounded border-border-bright text-amber-600 focus:ring-brand-primary dark:bg-slate-700" />
+                                <input type="checkbox" :value="task.id" v-model="selectedIds" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary" />
                             </td>
                             <td class="px-6 py-4">
-                                <Link :href="route('tasks.show', task.id)" class="text-sm font-medium text-foreground hover:text-brand-primary hover:text-brand-primary">
+                                <Link :href="route('tasks.show', task.id)" class="text-sm font-medium text-foreground hover:text-brand-primary transition-colors">
                                     {{ task.title }}
                                 </Link>
                                 <p v-if="task.description" class="text-xs text-foreground-muted mt-1 truncate max-w-xs">{{ task.description }}</p>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <Link v-if="task.client" :href="route('clients.show', task.client.id)" class="text-sm text-foreground hover:text-brand-primary hover:text-brand-primary">
+                                <Link v-if="task.client" :href="route('clients.show', task.client.id)" class="text-sm text-foreground hover:text-brand-primary transition-colors">
                                     {{ task.client.short_name || task.client.name }}
                                 </Link>
                                 <span v-else class="text-sm text-foreground-subtle">—</span>
@@ -369,10 +369,10 @@ function isOverdue(task) {
                                         <Link :href="route('tasks.show', task.id)" class="text-foreground-muted hover:text-foreground">
                                             <Icons name="eye" class="w-5 h-5" />
                                         </Link>
-                                        <Link :href="route('tasks.edit', task.id)" class="text-slate-400 hover:text-brand-primary dark:text-slate-500 hover:text-brand-primary">
+                                        <Link :href="route('tasks.edit', task.id)" class="text-foreground-muted hover:text-brand-primary transition-colors">
                                             <Icons name="edit" class="w-5 h-5" />
                                         </Link>
-                                        <button @click="confirmDelete(task)" class="text-slate-400 hover:text-red-600 dark:text-slate-500 dark:hover:text-red-400">
+                                        <button @click="confirmDelete(task)" class="text-foreground-muted hover:text-red-500 transition-colors">
                                             <Icons name="trash" class="w-5 h-5" />
                                         </button>
                                     </template>

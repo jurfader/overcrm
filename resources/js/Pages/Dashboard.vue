@@ -193,7 +193,7 @@ function tileIconClass(color) {
         <!-- Header -->
         <div class="flex items-center justify-between gap-4 flex-wrap">
             <div>
-                <h1 class="text-2xl font-bold text-foreground">Witaj, {{ userName }}!</h1>
+                <h1 class="text-2xl font-bold gradient-brand-text">Witaj, {{ userName }}!</h1>
                 <p class="text-sm text-foreground-muted mt-0.5">Oto podsumowanie Twojego dnia</p>
             </div>
             <Link :href="route('tasks.create')">
@@ -277,13 +277,13 @@ function tileIconClass(color) {
 
             <!-- Wykresy -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="surface rounded-lg p-4">
+                <div class="surface-elevated rounded-lg p-4">
                     <h3 class="text-xs font-semibold text-foreground-muted uppercase tracking-wide mb-4">Trend przychodów</h3>
                     <div class="h-64">
                         <Line :data="lineChartData" :options="lineChartOptions" />
                     </div>
                 </div>
-                <div class="surface rounded-lg p-4">
+                <div class="surface-elevated rounded-lg p-4">
                     <h3 class="text-xs font-semibold text-foreground-muted uppercase tracking-wide mb-4">Płatności</h3>
                     <div class="h-64">
                         <Bar :data="barChartData" :options="barChartOptions" />
@@ -562,7 +562,7 @@ function tileIconClass(color) {
                     <Link
                         v-for="client in recentClients" :key="client.id"
                         :href="route('clients.show', client.id)"
-                        class="flex items-center gap-3 p-3 rounded-md surface hover:border-brand-primary/50 transition-all group"
+                        class="flex items-center gap-3 p-3 rounded-md surface-elevated hover:border-brand-primary/50 transition-all group"
                     >
                         <div class="w-9 h-9 shrink-0 rounded-full gradient-brand flex items-center justify-center text-white text-xs font-semibold">
                             {{ (client.short_name || client.name).substring(0, 2).toUpperCase() }}

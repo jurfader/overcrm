@@ -213,8 +213,8 @@ function submit() {
     <div class="max-w-4xl mx-auto space-y-6">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-foreground">{{ isEditing ? 'Edytuj klienta' : 'Nowy klient' }}</h1>
-                <p class="text-foreground-muted">{{ isEditing ? 'Zaktualizuj dane klienta' : 'Dodaj nowego klienta do systemu' }}</p>
+                <h1 class="text-2xl font-bold gradient-brand-text">{{ isEditing ? 'Edytuj klienta' : 'Nowy klient' }}</h1>
+                <p class="text-foreground-muted text-sm mt-1">{{ isEditing ? 'Zaktualizuj dane klienta' : 'Dodaj nowego klienta do systemu' }}</p>
             </div>
             <Link :href="route('clients.index')">
                 <Button variant="secondary">
@@ -229,12 +229,12 @@ function submit() {
             <!-- ============ ACCORDION SECTION COMPONENT ============ -->
             <!-- Basic info -->
             <div class="surface rounded-xl border border-border overflow-hidden">
-                <button type="button" @click="toggleSection('basic')" class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                <button type="button" @click="toggleSection('basic')" class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-surface-elevated/50 transition-colors">
                     <div class="flex items-center gap-3">
                         <Icons name="user" class="w-5 h-5 text-amber-500" />
                         <span class="font-semibold text-foreground">Podstawowe informacje</span>
                     </div>
-                    <Icons :name="isSectionOpen('basic') ? 'chevron-up' : 'chevron-down'" class="w-4 h-4 text-slate-400" />
+                    <Icons :name="isSectionOpen('basic') ? 'chevron-up' : 'chevron-down'" class="w-4 h-4 text-foreground-muted" />
                 </button>
                 <div v-show="isSectionOpen('basic')" class="px-5 pb-5 border-t border-slate-100 dark:border-slate-700">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-4">
@@ -298,12 +298,12 @@ function submit() {
 
             <!-- Contact -->
             <div class="surface rounded-xl border border-border overflow-hidden">
-                <button type="button" @click="toggleSection('contact')" class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                <button type="button" @click="toggleSection('contact')" class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-surface-elevated/50 transition-colors">
                     <div class="flex items-center gap-3">
                         <Icons name="phone" class="w-5 h-5 text-amber-500" />
                         <span class="font-semibold text-foreground">Dane kontaktowe i adres</span>
                     </div>
-                    <Icons :name="isSectionOpen('contact') ? 'chevron-up' : 'chevron-down'" class="w-4 h-4 text-slate-400" />
+                    <Icons :name="isSectionOpen('contact') ? 'chevron-up' : 'chevron-down'" class="w-4 h-4 text-foreground-muted" />
                 </button>
                 <div v-show="isSectionOpen('contact')" class="px-5 pb-5 border-t border-slate-100 dark:border-slate-700">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-4">
@@ -382,7 +382,7 @@ function submit() {
                 class="surface rounded-xl border overflow-hidden transition-colors"
                 :class="sectionHasErrors(section.id) ? 'border-red-300 dark:border-red-700' : 'border-border'"
             >
-                <button type="button" @click="toggleSection(section.id)" class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                <button type="button" @click="toggleSection(section.id)" class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-surface-elevated/50 transition-colors">
                     <div class="flex items-center gap-3">
                         <Icons :name="section.icon" class="w-5 h-5 text-amber-500" />
                         <span class="font-semibold text-foreground">{{ section.label }}</span>
@@ -390,12 +390,12 @@ function submit() {
                     <div class="flex items-center gap-3">
                         <span class="text-xs px-2 py-0.5 rounded-full"
                             :class="sectionFillCount(section).filled === sectionFillCount(section).total
-                                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                                : 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400'"
+                                ? 'bg-success/15 text-success'
+                                : 'surface-elevated text-foreground-muted'"
                         >
                             {{ sectionFillCount(section).filled }}/{{ sectionFillCount(section).total }}
                         </span>
-                        <Icons :name="isSectionOpen(section.id) ? 'chevron-up' : 'chevron-down'" class="w-4 h-4 text-slate-400" />
+                        <Icons :name="isSectionOpen(section.id) ? 'chevron-up' : 'chevron-down'" class="w-4 h-4 text-foreground-muted" />
                     </div>
                 </button>
 
@@ -405,7 +405,7 @@ function submit() {
                     <div v-if="section.id === 'venue'" class="grid grid-cols-1 md:grid-cols-3 gap-5 pt-4">
                         <div>
                             <label class="block text-sm font-medium text-foreground mb-1">Wielkość miejscowości</label>
-                            <select v-model="form.profile.venue.city_size" class="block w-full rounded-lg border-border-bright dark:bg-slate-700 dark:text-white text-sm">
+                            <select v-model="form.profile.venue.city_size" class="block w-full rounded-lg border border-border-bright bg-surface-elevated text-foreground text-sm px-3 py-2">
                                 <option value="">— wybierz —</option>
                                 <option v-for="(label, val) in profileOptions.city_sizes" :key="val" :value="val">{{ label }}</option>
                             </select>
@@ -413,7 +413,7 @@ function submit() {
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-foreground mb-1">Położenie</label>
-                            <select v-model="form.profile.venue.location" class="block w-full rounded-lg border-border-bright dark:bg-slate-700 dark:text-white text-sm">
+                            <select v-model="form.profile.venue.location" class="block w-full rounded-lg border border-border-bright bg-surface-elevated text-foreground text-sm px-3 py-2">
                                 <option value="">— wybierz —</option>
                                 <option v-for="(label, val) in profileOptions.locations" :key="val" :value="val">{{ label }}</option>
                             </select>
@@ -421,7 +421,7 @@ function submit() {
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-foreground mb-1">Typ lokalu</label>
-                            <select v-model="form.profile.venue.venue_type" class="block w-full rounded-lg border-border-bright dark:bg-slate-700 dark:text-white text-sm">
+                            <select v-model="form.profile.venue.venue_type" class="block w-full rounded-lg border border-border-bright bg-surface-elevated text-foreground text-sm px-3 py-2">
                                 <option value="">— wybierz —</option>
                                 <option v-for="(label, val) in profileOptions.venue_types" :key="val" :value="val">{{ label }}</option>
                             </select>
@@ -465,7 +465,7 @@ function submit() {
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-foreground mb-1">Poziom cen</label>
-                            <select v-model="form.profile.concept.price_level" class="block w-full rounded-lg border-border-bright dark:bg-slate-700 dark:text-white text-sm">
+                            <select v-model="form.profile.concept.price_level" class="block w-full rounded-lg border border-border-bright bg-surface-elevated text-foreground text-sm px-3 py-2">
                                 <option value="">— wybierz —</option>
                                 <option v-for="(label, val) in profileOptions.price_levels" :key="val" :value="val">{{ label }}</option>
                             </select>
@@ -476,7 +476,7 @@ function submit() {
                     <div v-if="section.id === 'sales'" class="space-y-5 pt-4">
                         <div class="flex items-center gap-4">
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" v-model="form.profile.sales.delivery" class="rounded border-slate-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                <input type="checkbox" v-model="form.profile.sales.delivery" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary" />
                                 <span class="text-sm font-medium text-foreground">Dowozy</span>
                             </label>
                             <div v-if="form.profile.sales.delivery" class="flex-1 max-w-xs">
@@ -520,11 +520,11 @@ function submit() {
                     <div v-if="section.id === 'kitchen'" class="space-y-5 pt-4">
                         <div class="flex flex-wrap gap-6">
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" v-model="form.profile.kitchen.own_production" class="rounded border-slate-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                <input type="checkbox" v-model="form.profile.kitchen.own_production" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary" />
                                 <span class="text-sm font-medium text-foreground">Własna produkcja</span>
                             </label>
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" v-model="form.profile.kitchen.uses_semi_finished" class="rounded border-slate-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                <input type="checkbox" v-model="form.profile.kitchen.uses_semi_finished" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary" />
                                 <span class="text-sm font-medium text-foreground">Używa półproduktów</span>
                             </label>
                         </div>
@@ -539,7 +539,7 @@ function submit() {
                     <div v-if="section.id === 'organization'" class="grid grid-cols-1 md:grid-cols-3 gap-5 pt-4">
                         <div>
                             <label class="block text-sm font-medium text-foreground mb-1">Kto decyduje</label>
-                            <select v-model="form.profile.organization.decision_maker" class="block w-full rounded-lg border-border-bright dark:bg-slate-700 dark:text-white text-sm">
+                            <select v-model="form.profile.organization.decision_maker" class="block w-full rounded-lg border border-border-bright bg-surface-elevated text-foreground text-sm px-3 py-2">
                                 <option value="">— wybierz —</option>
                                 <option v-for="(label, val) in profileOptions.decision_makers" :key="val" :value="val">{{ label }}</option>
                             </select>
@@ -590,11 +590,11 @@ function submit() {
                                 </div>
                                 <div class="flex flex-wrap gap-6 items-center">
                                     <label class="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" v-model="form.profile.potential.menu_changes" class="rounded border-slate-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                        <input type="checkbox" v-model="form.profile.potential.menu_changes" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary" />
                                         <span class="text-sm text-foreground">Zmiany menu</span>
                                     </label>
                                     <label class="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" v-model="form.profile.potential.open_to_tests" class="rounded border-slate-300 text-amber-500 focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                                        <input type="checkbox" v-model="form.profile.potential.open_to_tests" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary" />
                                         <span class="text-sm text-foreground">Otwartość na testy</span>
                                     </label>
                                 </div>
@@ -611,12 +611,12 @@ function submit() {
 
             <!-- Notes -->
             <div class="surface rounded-xl border border-border overflow-hidden">
-                <button type="button" @click="toggleSection('notes')" class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                <button type="button" @click="toggleSection('notes')" class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-surface-elevated/50 transition-colors">
                     <div class="flex items-center gap-3">
                         <Icons name="edit" class="w-5 h-5 text-amber-500" />
                         <span class="font-semibold text-foreground">Notatki</span>
                     </div>
-                    <Icons :name="isSectionOpen('notes') ? 'chevron-up' : 'chevron-down'" class="w-4 h-4 text-slate-400" />
+                    <Icons :name="isSectionOpen('notes') ? 'chevron-up' : 'chevron-down'" class="w-4 h-4 text-foreground-muted" />
                 </button>
                 <div v-show="isSectionOpen('notes')" class="px-5 pb-5 border-t border-slate-100 dark:border-slate-700">
                     <div class="pt-4">

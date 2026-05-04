@@ -106,7 +106,7 @@ const showStatusMenu = ref(false);
         <!-- Header -->
         <div class="flex items-center justify-between gap-4 flex-wrap">
             <div>
-                <h1 class="text-2xl font-bold text-foreground">Klienci</h1>
+                <h1 class="text-2xl font-bold gradient-brand-text">Klienci</h1>
                 <p class="text-sm text-foreground-muted mt-0.5">Zarządzaj bazą klientów</p>
             </div>
             <div class="flex items-center gap-2 flex-wrap">

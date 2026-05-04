@@ -824,7 +824,7 @@ watch(() => props.clients, (newClients) => {
                 <button @click="changeView('week')" class="view-btn" :class="{ active: currentView === 'week' }">Tydzień</button>
                 <button @click="changeView('day')" class="view-btn" :class="{ active: currentView === 'day' }">Dzień</button>
                 <label class="flex items-center gap-2 ml-2 cursor-pointer">
-                    <input type="checkbox" v-model="trashedFilter" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary dark:border-slate-600 dark:bg-slate-700" />
+                    <input type="checkbox" v-model="trashedFilter" class="rounded border-border-bright text-brand-primary focus:ring-brand-primary" />
                     <span class="text-sm text-foreground">Kosz</span>
                 </label>
             </div>
@@ -838,7 +838,7 @@ watch(() => props.clients, (newClients) => {
                     v-model="calendarSearchQuery"
                     type="text"
                     placeholder="Szukaj spotkania lub klienta..."
-                    class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-600 surface text-foreground placeholder-slate-400 focus:ring-2 focus:ring-brand-primary focus:border-brand-primary dark:focus:ring-brand-primary/50"
+                    class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border-bright bg-surface-elevated text-foreground placeholder:text-foreground-subtle focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition-colors"
                     @focus="calendarSearchOpen = true"
                     @input="onCalendarSearchInput"
                     @keydown="handleCalendarSearchKeydown"
@@ -846,7 +846,7 @@ watch(() => props.clients, (newClients) => {
                 <button
                     v-if="calendarSearchQuery"
                     type="button"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted hover:text-foreground dark:hover:text-slate-300"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-muted hover:text-foreground transition-colors"
                     @click="calendarSearchQuery = ''; calendarSearchResults = { visits: [], clients: [] }; calendarSearchOpen = false"
                 >
                     <Icons name="close" class="w-4 h-4" />
@@ -855,7 +855,7 @@ watch(() => props.clients, (newClients) => {
             <!-- Wyniki wyszukiwania -->
             <div
                 v-if="calendarSearchOpen && (calendarSearchQuery.length >= 2 || calendarSearchFlat.length > 0)"
-                class="absolute left-0 right-0 top-full mt-1 z-50 surface rounded-lg shadow-xl border border-border overflow-hidden max-h-80 overflow-y-auto"
+                class="absolute left-0 right-0 top-full mt-1 z-50 glass-card overflow-hidden max-h-80 overflow-y-auto"
             >
                 <div v-if="calendarSearchLoading" class="p-4 text-center text-foreground-muted text-sm">
                     <Icons name="spinner" class="w-5 h-5 animate-spin inline mr-2" />
@@ -871,8 +871,8 @@ watch(() => props.clients, (newClients) => {
                     :class="[
                         'w-full flex items-center gap-3 px-4 py-3 text-left transition-colors',
                         i === calendarSearchSelectedIndex
-                            ? 'bg-amber-500/20 dark:bg-amber-500/30'
-                            : 'hover:bg-slate-50 dark:hover:bg-slate-700/50',
+                            ? 'gradient-subtle'
+                            : 'hover:bg-surface-elevated/50',
                     ]"
                     @click="selectCalendarSearchResult(entry)"
                 >
@@ -893,7 +893,7 @@ watch(() => props.clients, (newClients) => {
                             </template>
                         </div>
                     </div>
-                    <span class="text-xs px-2 py-0.5 rounded surface-elevated text-slate-600 dark:text-slate-300 shrink-0">
+                    <span class="text-xs px-2 py-0.5 rounded surface-elevated text-foreground-muted shrink-0">
                         {{ entry.type === 'visit' ? 'Spotkanie' : 'Klient' }}
                     </span>
                 </button>
@@ -904,13 +904,13 @@ watch(() => props.clients, (newClients) => {
         <div class="month-display">
             <div class="flex items-center gap-4">
                 <template v-if="currentView === 'month'">
-                    <span class="text-3xl font-bold text-slate-800">{{ monthNames[month - 1] }} {{ year }}</span>
+                    <span class="text-3xl font-bold gradient-brand-text">{{ monthNames[month - 1] }} {{ year }}</span>
                 </template>
                 <template v-else-if="currentView === 'week'">
                     <button @click="navigateWeek(-1)" class="nav-btn-sm">
                         <Icons name="chevron-left" class="w-4 h-4" />
                     </button>
-                    <span class="text-2xl font-bold text-slate-800">
+                    <span class="text-2xl font-bold text-foreground">
                         Tydzień {{ weekDays[0]?.day }}-{{ weekDays[6]?.day }} {{ monthNames[month - 1] }}
                     </span>
                     <button @click="navigateWeek(1)" class="nav-btn-sm">
@@ -921,7 +921,7 @@ watch(() => props.clients, (newClients) => {
                     <button @click="navigateDay(-1)" class="nav-btn-sm">
                         <Icons name="chevron-left" class="w-4 h-4" />
                     </button>
-                    <span class="text-2xl font-bold text-slate-800">
+                    <span class="text-2xl font-bold text-foreground">
                         {{ selectedDay ? new Date(selectedDay).getDate() : '' }} {{ monthNames[month - 1] }} {{ year }}
                     </span>
                     <button @click="navigateDay(1)" class="nav-btn-sm">
@@ -929,7 +929,7 @@ watch(() => props.clients, (newClients) => {
                     </button>
                 </template>
             </div>
-            <div class="text-sm text-slate-500 mt-1">
+            <div class="text-sm text-foreground-muted mt-1">
                 <Icons name="info" class="w-4 h-4 inline mr-1" />
                 Przeciągnij wizytę, aby zmienić jej datę
             </div>
@@ -1006,14 +1006,14 @@ watch(() => props.clients, (newClients) => {
                     :class="{ 'today': day.isToday }"
                     @click="selectedDay = day.dateStr; currentView = 'day'"
                 >
-                    <div class="text-xs text-slate-500 uppercase">{{ day.dayName }}</div>
-                    <div class="text-lg font-bold" :class="day.isToday ? 'text-amber-600' : 'text-slate-800'">{{ day.day }}</div>
+                    <div class="text-xs text-foreground-muted uppercase">{{ day.dayName }}</div>
+                    <div class="text-lg font-bold" :class="day.isToday ? 'text-brand-primary' : 'text-foreground'">{{ day.day }}</div>
                 </div>
             </div>
             
             <!-- Wizyty całodniowe -->
             <div class="week-all-day">
-                <div class="time-label text-xs text-gray-500 shrink-0"></div>
+                <div class="time-label text-xs text-foreground-muted shrink-0"></div>
                 <div 
                     v-for="day in weekDays" 
                     :key="'allday-' + day.dateStr" 
@@ -1127,7 +1127,7 @@ watch(() => props.clients, (newClients) => {
                     </select>
 
                     <!-- Quick form nowego klienta -->
-                    <div v-else class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-border">
+                    <div v-else class="p-3 surface-elevated rounded-lg">
                         <ClientQuickForm
                             @created="onClientCreated"
                             @cancel="showNewClientForm = false"
@@ -1559,5 +1559,197 @@ watch(() => props.clients, (newClients) => {
 .visit-item-day-full {
     @apply px-4 py-3 rounded text-white cursor-pointer hover:opacity-90 hover:shadow-md mb-2;
     border-left: 4px solid;
+}
+
+/* === Semantic overrides — works in both dark and light themes === */
+.calendar-container {
+    background: var(--color-background) !important;
+}
+
+.calendar-header,
+.month-display {
+    background: var(--color-surface) !important;
+    border-color: var(--color-border) !important;
+}
+
+.calendar-title {
+    @apply gradient-brand-text !important;
+}
+
+.nav-btn,
+.nav-btn-sm {
+    background: var(--color-surface-elevated) !important;
+    color: var(--color-foreground) !important;
+}
+
+.nav-btn:hover,
+.nav-btn-sm:hover {
+    background: var(--color-surface-hover, var(--color-surface-elevated)) !important;
+    opacity: 0.85;
+}
+
+.view-btn {
+    color: var(--color-muted-foreground) !important;
+}
+
+.view-btn:hover {
+    background: var(--color-surface-elevated) !important;
+    color: var(--color-foreground) !important;
+}
+
+.view-btn.active {
+    color: white !important;
+}
+
+.calendar-grid {
+    background: var(--color-surface) !important;
+}
+
+.day-header {
+    background: var(--color-surface-2) !important;
+    color: var(--color-muted-foreground) !important;
+    border-color: var(--color-border) !important;
+    @apply uppercase text-xs font-semibold tracking-wider;
+}
+
+.calendar-day {
+    background: var(--color-surface) !important;
+    border-color: var(--color-border) !important;
+    color: var(--color-foreground);
+}
+
+.calendar-day:hover {
+    background: var(--color-surface-elevated) !important;
+}
+
+.calendar-day.other-month {
+    background: var(--color-surface-2) !important;
+    color: var(--color-subtle) !important;
+    opacity: 0.55;
+}
+
+.calendar-day.today {
+    border-left: 2px solid var(--brand-primary) !important;
+}
+
+.calendar-day.today .day-number {
+    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%) !important;
+    color: white !important;
+    @apply rounded-full w-7 h-7 flex items-center justify-center font-semibold;
+}
+
+.calendar-day.drag-over {
+    background: color-mix(in srgb, var(--brand-primary) 18%, transparent) !important;
+}
+
+.day-number {
+    color: var(--color-foreground) !important;
+}
+
+.visit-tooltip {
+    background: var(--color-surface-elevated) !important;
+    color: var(--color-foreground) !important;
+    border: 1px solid var(--color-border-bright);
+}
+
+.visit-ghost {
+    background: var(--color-surface-elevated) !important;
+}
+
+.modal-overlay {
+    background: rgba(0, 0, 0, 0.65) !important;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background: var(--color-surface) !important;
+    border: 1px solid var(--color-border);
+}
+
+.modal-header,
+.modal-footer {
+    border-color: var(--color-border) !important;
+}
+
+.close-btn {
+    color: var(--color-muted-foreground) !important;
+}
+
+.close-btn:hover {
+    background: var(--color-surface-elevated) !important;
+    color: var(--color-foreground) !important;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    background: var(--color-surface-elevated) !important;
+    border-color: var(--color-border-bright) !important;
+    color: var(--color-foreground) !important;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+    color: var(--color-subtle) !important;
+}
+
+.color-btn.selected {
+    border-color: var(--color-foreground) !important;
+}
+
+.btn-secondary {
+    background: var(--color-surface-elevated) !important;
+    color: var(--color-foreground) !important;
+}
+
+.btn-secondary:hover {
+    opacity: 0.85;
+}
+
+.new-client-form {
+    background: var(--color-surface-elevated) !important;
+    border-color: var(--color-border) !important;
+}
+
+.week-view,
+.day-view {
+    background: var(--color-surface) !important;
+    border: 1px solid var(--color-border);
+}
+
+.week-header,
+.day-all-day {
+    background: var(--color-surface-2) !important;
+    border-color: var(--color-border) !important;
+}
+
+.week-day-header,
+.week-cell,
+.week-all-day-cell,
+.day-cell {
+    border-color: var(--color-border) !important;
+    color: var(--color-foreground);
+}
+
+.week-day-header:hover,
+.week-cell:hover,
+.day-cell:hover {
+    background: var(--color-surface-elevated) !important;
+}
+
+.week-day-header.today,
+.week-cell.today {
+    border-bottom-color: var(--brand-primary);
+}
+
+.week-grid,
+.day-grid {
+    border-color: var(--color-border);
+}
+
+.time-label {
+    background: var(--color-surface-2) !important;
+    color: var(--color-muted-foreground) !important;
+    border-color: var(--color-border) !important;
 }
 </style>

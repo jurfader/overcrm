@@ -15,28 +15,39 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('client_visits', function (Blueprint $table) {
+        $isSqlite = DB::getDriverName() === 'sqlite';
+
+        Schema::table('client_visits', function (Blueprint $table) use ($isSqlite) {
             if (!Schema::hasColumn('client_visits', 'phones')) {
-                $table->json('phones')->nullable()->after('notes');
+                $col = $table->json('phones')->nullable();
+                if (!$isSqlite) $col->after('notes');
+            }
+            if (!Schema::hasColumn('client_visits', 'phones_normalized')) {
+                $col = $table->string('phones_normalized', 500)->nullable();
+                if (!$isSqlite) $col->after('phones');
             }
         });
 
-        // phones_normalized musi być VARCHAR (nie TEXT) — MySQL wymaga długości dla indexu na TEXT
-        // Jeśli w poprzednim deploy było utworzone jako TEXT — zmień na VARCHAR.
-        if (!Schema::hasColumn('client_visits', 'phones_normalized')) {
-            DB::statement("ALTER TABLE client_visits ADD COLUMN phones_normalized VARCHAR(500) NULL AFTER phones");
-        } else {
-            // Upewnij się że typ to VARCHAR (poprzedni deploy mógł dać TEXT)
+        if (!$isSqlite && Schema::hasColumn('client_visits', 'phones_normalized')) {
+            // MySQL: upewnij się że to VARCHAR (poprzedni deploy mógł dać TEXT)
             DB::statement("ALTER TABLE client_visits MODIFY COLUMN phones_normalized VARCHAR(500) NULL");
         }
 
-        $indexExists = DB::select(
-            "SELECT COUNT(1) as cnt FROM information_schema.statistics
-             WHERE table_schema = DATABASE()
-             AND table_name = 'client_visits'
-             AND index_name = 'client_visits_phones_norm_idx'"
-        );
-        if (($indexExists[0]->cnt ?? 0) == 0) {
+        $indexExists = false;
+        if ($isSqlite) {
+            $rows = DB::select("SELECT name FROM sqlite_master WHERE type='index' AND name='client_visits_phones_norm_idx'");
+            $indexExists = count($rows) > 0;
+        } else {
+            $rows = DB::select(
+                "SELECT COUNT(1) as cnt FROM information_schema.statistics
+                 WHERE table_schema = DATABASE()
+                 AND table_name = 'client_visits'
+                 AND index_name = 'client_visits_phones_norm_idx'"
+            );
+            $indexExists = ($rows[0]->cnt ?? 0) > 0;
+        }
+
+        if (!$indexExists) {
             Schema::table('client_visits', function (Blueprint $table) {
                 $table->index(['phones_normalized'], 'client_visits_phones_norm_idx');
             });

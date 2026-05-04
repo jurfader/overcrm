@@ -157,14 +157,14 @@ function insertVariable(variable) {
     <div class="space-y-6">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-slate-800">
+                <h1 class="text-2xl font-bold gradient-brand-text">
                     {{ isEditing ? 'Edycja szablonu' : 'Nowy szablon email' }}
                 </h1>
-                <p class="text-slate-500">Utwórz lub edytuj szablon wiadomości email</p>
+                <p class="text-foreground-muted text-sm mt-1">Utwórz lub edytuj szablon wiadomości email</p>
             </div>
             <Link
                 :href="route('admin.email-templates.index')"
-                class="text-slate-600 hover:text-slate-800"
+                class="text-foreground-muted hover:text-foreground"
             >
                 ← Powrót do listy
             </Link>
@@ -173,10 +173,10 @@ function insertVariable(variable) {
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Formularz -->
             <div class="lg:col-span-2">
-                <form @submit.prevent="submit" class="bg-white rounded-xl shadow-sm p-6 space-y-6">
+                <form @submit.prevent="submit" class="glass-card p-6 space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="name" class="block text-sm font-medium text-slate-700 mb-1">
+                            <label for="name" class="block text-sm font-medium text-foreground mb-1">
                                 Nazwa szablonu *
                             </label>
                             <input
@@ -184,21 +184,21 @@ function insertVariable(variable) {
                                 v-model="form.name"
                                 type="text"
                                 required
-                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                                class="w-full px-4 py-2 border border-border-bright bg-surface-elevated rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                                 placeholder="np. Oferta handlowa"
                             />
                             <div v-if="form.errors.name" class="text-red-500 text-sm mt-1">{{ form.errors.name }}</div>
                         </div>
 
                         <div>
-                            <label for="category" class="block text-sm font-medium text-slate-700 mb-1">
+                            <label for="category" class="block text-sm font-medium text-foreground mb-1">
                                 Kategoria *
                             </label>
                             <select
                                 id="category"
                                 v-model="form.category"
                                 required
-                                class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                                class="w-full px-4 py-2 border border-border-bright bg-surface-elevated rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                             >
                                 <option v-for="(label, key) in categories" :key="key" :value="key">
                                     {{ label }}
@@ -208,7 +208,7 @@ function insertVariable(variable) {
                     </div>
 
                     <div>
-                        <label for="subject" class="block text-sm font-medium text-slate-700 mb-1">
+                        <label for="subject" class="block text-sm font-medium text-foreground mb-1">
                             Temat wiadomości *
                         </label>
                         <input
@@ -216,29 +216,29 @@ function insertVariable(variable) {
                             v-model="form.subject"
                             type="text"
                             required
-                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                            class="w-full px-4 py-2 border border-border-bright bg-surface-elevated rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                             placeholder="np. Oferta dla {{client_name}}"
                         />
-                        <p class="text-sm text-slate-500 mt-1">Możesz użyć zmiennych, np. {{client_name}}</p>
+                        <p class="text-sm text-foreground-muted mt-1">Możesz użyć zmiennych, np. {{client_name}}</p>
                         <div v-if="form.errors.subject" class="text-red-500 text-sm mt-1">{{ form.errors.subject }}</div>
                     </div>
 
                     <div>
-                        <label for="description" class="block text-sm font-medium text-slate-700 mb-1">
+                        <label for="description" class="block text-sm font-medium text-foreground mb-1">
                             Opis szablonu
                         </label>
                         <input
                             id="description"
                             v-model="form.description"
                             type="text"
-                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                            class="w-full px-4 py-2 border border-border-bright bg-surface-elevated rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                             placeholder="Krótki opis kiedy używać tego szablonu"
                         />
                     </div>
 
                     <div>
                         <div class="flex items-center justify-between mb-1">
-                            <label for="html_content" class="block text-sm font-medium text-slate-700">
+                            <label for="html_content" class="block text-sm font-medium text-foreground">
                                 Treść HTML *
                             </label>
                             <button
@@ -255,7 +255,7 @@ function insertVariable(variable) {
                             v-model="form.html_content"
                             required
                             rows="20"
-                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary font-mono text-sm"
+                            class="w-full px-4 py-2 border border-border-bright bg-surface-elevated rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary font-mono text-sm"
                             placeholder="Wpisz lub wklej kod HTML szablonu..."
                         ></textarea>
                         <div v-if="form.errors.html_content" class="text-red-500 text-sm mt-1">{{ form.errors.html_content }}</div>
@@ -266,17 +266,17 @@ function insertVariable(variable) {
                             id="is_active"
                             v-model="form.is_active"
                             type="checkbox"
-                            class="w-4 h-4 text-amber-600 border-slate-300 rounded focus:ring-brand-primary"
+                            class="w-4 h-4 text-brand-primary border-border-bright rounded focus:ring-brand-primary"
                         />
-                        <label for="is_active" class="ml-2 text-sm text-slate-700">
+                        <label for="is_active" class="ml-2 text-sm text-foreground">
                             Szablon aktywny (widoczny do wyboru)
                         </label>
                     </div>
 
-                    <div class="flex items-center justify-end gap-4 pt-4 border-t">
+                    <div class="flex items-center justify-end gap-4 pt-4 border-t border-border">
                         <Link
                             :href="route('admin.email-templates.index')"
-                            class="px-4 py-2 text-slate-600 hover:text-slate-800"
+                            class="px-4 py-2 text-foreground-muted hover:text-foreground"
                         >
                             Anuluj
                         </Link>
@@ -293,10 +293,10 @@ function insertVariable(variable) {
 
             <!-- Panel boczny ze zmiennymi -->
             <div class="space-y-6">
-                <div class="bg-white rounded-xl shadow-sm p-6">
-                    <h3 class="text-lg font-semibold text-slate-800 mb-4">Wstaw zmienną</h3>
-                    <p class="text-sm text-slate-500 mb-4">Kliknij, aby wstawić zmienną w miejsce kursora</p>
-                    
+                <div class="glass-card p-6">
+                    <h3 class="text-lg font-semibold text-foreground mb-4">Wstaw zmienną</h3>
+                    <p class="text-sm text-foreground-muted mb-4">Kliknij, aby wstawić zmienną w miejsce kursora</p>
+
                     <div class="space-y-2">
                         <button
                             v-for="(description, variable) in availableVariables"
@@ -305,10 +305,10 @@ function insertVariable(variable) {
                             @click="insertVariable(variable)"
                             class="w-full text-left p-2 hover:bg-amber-50 rounded-lg transition-colors group"
                         >
-                            <code class="text-sm font-mono bg-slate-100 group-hover:bg-amber-100 px-2 py-1 rounded text-amber-700">
+                            <code class="text-sm font-mono bg-surface-elevated group-hover:bg-amber-100 px-2 py-1 rounded text-amber-700">
                                 {{ variable }}
                             </code>
-                            <span class="block text-xs text-slate-500 mt-1 ml-1">{{ description }}</span>
+                            <span class="block text-xs text-foreground-muted mt-1 ml-1">{{ description }}</span>
                         </button>
                     </div>
                 </div>
@@ -330,17 +330,17 @@ function insertVariable(variable) {
 
         <!-- Modal podglądu -->
         <div v-if="showPreview" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-                <div class="flex items-center justify-between px-6 py-4 border-b bg-slate-50">
+            <div class="glass-card shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-border bg-surface-2/50">
                     <div>
-                        <h3 class="font-semibold text-slate-800">Podgląd szablonu</h3>
-                        <p v-if="preview?.subject" class="text-sm text-slate-500">Temat: {{ preview.subject }}</p>
+                        <h3 class="font-semibold text-foreground">Podgląd szablonu</h3>
+                        <p v-if="preview?.subject" class="text-sm text-foreground-muted">Temat: {{ preview.subject }}</p>
                     </div>
-                    <button @click="showPreview = false" class="p-2 hover:bg-slate-200 rounded-lg">
+                    <button @click="showPreview = false" class="p-2 hover:bg-surface-elevated rounded-lg">
                         <Icons name="close" class="w-5 h-5" />
                     </button>
                 </div>
-                <div class="flex-1 overflow-auto p-6 bg-slate-100">
+                <div class="flex-1 overflow-auto p-6 bg-surface-2">
                     <div class="bg-white rounded-lg shadow max-w-2xl mx-auto">
                         <div v-if="preview?.html" v-html="preview.html"></div>
                     </div>

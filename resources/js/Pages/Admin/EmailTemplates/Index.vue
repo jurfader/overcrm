@@ -32,8 +32,8 @@ const categoryColors = {
     <div class="space-y-6">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-slate-800">Szablony Email</h1>
-                <p class="text-slate-500">Zarządzaj szablonami wiadomości email</p>
+                <h1 class="text-2xl font-bold gradient-brand-text">Szablony Email</h1>
+                <p class="text-foreground-muted text-sm mt-1">Zarządzaj szablonami wiadomości email</p>
             </div>
             <Link
                 :href="route('admin.email-templates.create')"
@@ -45,33 +45,33 @@ const categoryColors = {
         </div>
 
         <!-- Lista szablonów -->
-        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div v-if="templates.length === 0" class="p-12 text-center text-slate-500">
-                <Icons name="document" class="w-12 h-12 mx-auto mb-4 text-slate-300" />
+        <div class="glass-card overflow-hidden">
+            <div v-if="templates.length === 0" class="p-12 text-center text-foreground-muted">
+                <Icons name="document" class="w-12 h-12 mx-auto mb-4 text-foreground-muted" />
                 <p class="text-lg font-medium">Brak szablonów</p>
                 <p class="mt-1">Utwórz pierwszy szablon email</p>
             </div>
 
-            <table v-else class="min-w-full divide-y divide-slate-200">
-                <thead class="bg-slate-50">
+            <table v-else class="min-w-full">
+                <thead class="bg-surface-2/50 border-b border-border">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Nazwa</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Kategoria</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Temat</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Akcje</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Nazwa</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Kategoria</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Temat</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-foreground-muted uppercase tracking-wider">Akcje</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-slate-200">
-                    <tr v-for="template in templates" :key="template.id" class="hover:bg-slate-50">
+                <tbody class="divide-y divide-border">
+                    <tr v-for="template in templates" :key="template.id" class="hover:bg-surface-elevated/50 transition-colors">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center mr-3">
                                     <Icons name="document" class="w-5 h-5 text-amber-600" />
                                 </div>
                                 <div>
-                                    <div class="text-sm font-medium text-slate-900">{{ template.name }}</div>
-                                    <div class="text-sm text-slate-500">{{ template.slug }}</div>
+                                    <div class="text-sm font-medium text-foreground">{{ template.name }}</div>
+                                    <div class="text-sm text-foreground-muted">{{ template.slug }}</div>
                                 </div>
                             </div>
                         </td>
@@ -81,7 +81,7 @@ const categoryColors = {
                             </span>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="text-sm text-slate-900 truncate max-w-xs">{{ template.subject }}</div>
+                            <div class="text-sm text-foreground truncate max-w-xs">{{ template.subject }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span v-if="template.is_active" class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
@@ -117,18 +117,18 @@ const categoryColors = {
         </div>
 
         <!-- Dostępne zmienne -->
-        <div class="bg-white rounded-xl shadow-sm p-6">
-            <h3 class="text-lg font-semibold text-slate-800 mb-4">Dostępne zmienne</h3>
-            <p class="text-sm text-slate-500 mb-4">Możesz użyć poniższych zmiennych w treści szablonu. Zostaną one automatycznie zastąpione danymi.</p>
-            
+        <div class="glass-card p-6">
+            <h3 class="text-lg font-semibold text-foreground mb-4">Dostępne zmienne</h3>
+            <p class="text-sm text-foreground-muted mb-4">Możesz użyć poniższych zmiennych w treści szablonu. Zostaną one automatycznie zastąpione danymi.</p>
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                <div 
-                    v-for="(description, variable) in availableVariables" 
+                <div
+                    v-for="(description, variable) in availableVariables"
                     :key="variable"
-                    class="flex items-center p-3 bg-slate-50 rounded-lg"
+                    class="flex items-center p-3 bg-surface-2/50 rounded-lg"
                 >
-                    <code class="text-sm font-mono bg-slate-200 px-2 py-1 rounded text-amber-700">{{ variable }}</code>
-                    <span class="ml-3 text-sm text-slate-600">{{ description }}</span>
+                    <code class="text-sm font-mono bg-surface-elevated px-2 py-1 rounded text-amber-700">{{ variable }}</code>
+                    <span class="ml-3 text-sm text-foreground-muted">{{ description }}</span>
                 </div>
             </div>
         </div>

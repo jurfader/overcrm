@@ -215,8 +215,8 @@ function formatValue(key, value) {
         <!-- Nagłówek -->
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-foreground">Raport dzienny pracy</h1>
-                <p class="mt-1 text-sm text-foreground-muted">Sprawdź z jakimi klientami pracował użytkownik danego dnia</p>
+                <h1 class="text-2xl font-bold gradient-brand-text">Raport dzienny pracy</h1>
+                <p class="text-foreground-muted text-sm mt-1">Sprawdź z jakimi klientami pracował użytkownik danego dnia</p>
             </div>
         </div>
 
@@ -228,7 +228,7 @@ function formatValue(key, value) {
                     <label class="block text-sm font-medium text-foreground mb-1">Użytkownik</label>
                     <select
                         v-model="userId"
-                        class="w-full px-3 py-2 border border-border-bright dark:bg-slate-700 dark:text-slate-200 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary text-sm"
+                        class="w-full px-3 py-2 border border-border-bright bg-surface-elevated text-foreground rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary text-sm"
                     >
                         <option value="">— Wybierz użytkownika —</option>
                         <option v-for="user in users" :key="user.id" :value="user.id">
@@ -243,18 +243,18 @@ function formatValue(key, value) {
                     <div class="flex items-center gap-1">
                         <button
                             @click="prevDay"
-                            class="p-2 rounded-lg border border-border-bright hover:bg-gray-100 dark:hover:bg-slate-600 text-foreground-muted transition-colors"
+                            class="p-2 rounded-lg border border-border-bright hover:bg-surface-elevated/50 text-foreground-muted transition-colors"
                         >
                             <Icons name="chevron-left" class="w-4 h-4" />
                         </button>
                         <input
                             type="date"
                             v-model="date"
-                            class="flex-1 px-3 py-2 border border-border-bright dark:bg-slate-700 dark:text-slate-200 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary text-sm"
+                            class="flex-1 px-3 py-2 border border-border-bright bg-surface-elevated text-foreground rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary text-sm"
                         />
                         <button
                             @click="nextDay"
-                            class="p-2 rounded-lg border border-border-bright hover:bg-gray-100 dark:hover:bg-slate-600 text-foreground-muted transition-colors"
+                            class="p-2 rounded-lg border border-border-bright hover:bg-surface-elevated/50 text-foreground-muted transition-colors"
                         >
                             <Icons name="chevron-right" class="w-4 h-4" />
                         </button>
@@ -289,23 +289,23 @@ function formatValue(key, value) {
         <template v-else>
             <!-- Statystyki dnia -->
             <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
-                <div class="surface rounded-xl border border-border p-4 text-center">
+                <div class="glass-card p-4 text-center">
                     <div class="text-2xl font-bold text-foreground">{{ stats.total }}</div>
                     <div class="text-xs text-foreground-muted mt-1">Wszystkich akcji</div>
                 </div>
-                <div class="surface rounded-xl border border-border p-4 text-center">
+                <div class="glass-card p-4 text-center">
                     <div class="text-2xl font-bold text-brand-primary">{{ stats.updates }}</div>
                     <div class="text-xs text-foreground-muted mt-1">Aktualizacji</div>
                 </div>
-                <div class="surface rounded-xl border border-border p-4 text-center">
+                <div class="glass-card p-4 text-center">
                     <div class="text-2xl font-bold text-success">{{ stats.creates }}</div>
                     <div class="text-xs text-foreground-muted mt-1">Utworzeń</div>
                 </div>
-                <div class="surface rounded-xl border border-border p-4 text-center">
+                <div class="glass-card p-4 text-center">
                     <div class="text-2xl font-bold text-destructive">{{ stats.deletes }}</div>
                     <div class="text-xs text-foreground-muted mt-1">Usunięć</div>
                 </div>
-                <div class="surface rounded-xl border border-border p-4 text-center">
+                <div class="glass-card p-4 text-center">
                     <div class="text-2xl font-bold text-info">{{ stats.uniqueClients }}</div>
                     <div class="text-xs text-foreground-muted mt-1">Klientów/zadań</div>
                 </div>
@@ -326,10 +326,10 @@ function formatValue(key, value) {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr 
-                                v-for="visit in visitsSummary" 
+                            <tr
+                                v-for="visit in visitsSummary"
                                 :key="visit.id"
-                                class="border-b border-gray-100 dark:border-slate-700/50 hover:bg-surface-elevated/30 transition-colors"
+                                class="border-b border-border hover:bg-surface-elevated/30 transition-colors"
                             >
                                 <td class="py-2.5 px-3 text-foreground-muted font-mono text-xs">
                                     {{ visit.visit_time || '—' }}
@@ -337,7 +337,7 @@ function formatValue(key, value) {
                                 <td class="py-2.5 px-3 font-medium text-foreground">
                                     {{ visit.client_name }}
                                 </td>
-                                <td class="py-2.5 px-3 text-gray-600 dark:text-slate-300">
+                                <td class="py-2.5 px-3 text-foreground-muted">
                                     {{ visit.title || '—' }}
                                 </td>
                                 <td class="py-2.5 px-3">
@@ -365,8 +365,8 @@ function formatValue(key, value) {
 
             <!-- Połączenia z Ringostat -->
             <Card title="Połączenia telefoniczne">
-                <div v-if="loadingReportCalls" class="text-center py-6 text-gray-400">Ładowanie połączeń...</div>
-                <div v-else-if="reportCalls.length === 0" class="text-center py-6 text-gray-400">
+                <div v-if="loadingReportCalls" class="text-center py-6 text-foreground-muted">Ładowanie połączeń...</div>
+                <div v-else-if="reportCalls.length === 0" class="text-center py-6 text-foreground-muted">
                     <Icons name="phone" class="w-8 h-8 mx-auto mb-2 opacity-30" />
                     <p>Brak połączeń w tym dniu</p>
                 </div>
@@ -386,7 +386,7 @@ function formatValue(key, value) {
                             <p class="text-[10px] text-red-500">Nieodebrane</p>
                         </div>
                         <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-2 text-center">
-                            <p class="text-lg font-bold text-purple-600 dark:text-purple-400">{{ reportCallStats.formatted_total_duration }}</p>
+                            <p class="text-lg font-bold text-purple-600">{{ reportCallStats.formatted_total_duration }}</p>
                             <p class="text-[10px] text-purple-500">Łączny czas</p>
                         </div>
                     </div>
@@ -405,16 +405,16 @@ function formatValue(key, value) {
                                     <th class="py-2 px-3 text-left text-xs font-medium text-foreground-muted">Nagranie</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100 dark:divide-slate-700/50">
+                            <tbody class="divide-y divide-border">
                                 <tr v-for="call in reportCalls" :key="call.id" class="hover:bg-surface-elevated/30">
-                                    <td class="py-2 px-3 font-mono text-gray-600 dark:text-slate-300">{{ call.call_date }}</td>
+                                    <td class="py-2 px-3 font-mono text-foreground-muted">{{ call.call_date }}</td>
                                     <td class="py-2 px-3">
                                         <div class="flex items-center gap-1">
                                             <Icons
                                                 :name="call.call_type === 'out' ? 'phone-outgoing' : 'phone-incoming'"
                                                 :class="['h-3.5 w-3.5', call.call_type === 'out' ? 'text-blue-500' : 'text-green-500']"
                                             />
-                                            <span class="text-xs text-gray-500">{{ call.call_type_label }}</span>
+                                            <span class="text-xs text-foreground-muted">{{ call.call_type_label }}</span>
                                         </div>
                                     </td>
                                     <td class="py-2 px-3 font-mono text-foreground">
@@ -422,31 +422,31 @@ function formatValue(key, value) {
                                     </td>
                                     <td class="py-2 px-3">
                                         <span v-if="call.client" class="text-brand-primary font-medium">{{ call.client.name }}</span>
-                                        <span v-else class="text-gray-400">—</span>
+                                        <span v-else class="text-foreground-muted">—</span>
                                     </td>
                                     <td class="py-2 px-3">
                                         <span :class="[
                                             'px-1.5 py-0.5 rounded text-xs font-medium',
                                             call.disposition === 'ANSWERED'
-                                                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                                                : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                                                ? 'bg-green-100 text-green-700'
+                                                : 'bg-red-100 text-red-700'
                                         ]">
                                             {{ call.disposition_label }}
                                         </span>
                                     </td>
-                                    <td class="py-2 px-3 text-gray-600 dark:text-slate-300">{{ call.formatted_duration }}</td>
+                                    <td class="py-2 px-3 text-foreground-muted">{{ call.formatted_duration }}</td>
                                     <td class="py-2 px-3">
                                         <button
                                             v-if="call.has_recording"
                                             @click="toggleReportPlay(call)"
                                             :class="[
                                                 'p-1 rounded text-xs transition',
-                                                playingReportCallId === call.id ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600 hover:surface-elevated dark:text-slate-300'
+                                                playingReportCallId === call.id ? 'bg-amber-100 text-amber-700' : 'surface-elevated text-foreground-muted hover:bg-surface-elevated/70'
                                             ]"
                                         >
                                             <Icons :name="playingReportCallId === call.id ? 'pause' : 'play'" class="h-3.5 w-3.5" />
                                         </button>
-                                        <span v-else class="text-gray-400 text-xs">—</span>
+                                        <span v-else class="text-foreground-muted text-xs">—</span>
                                     </td>
                                 </tr>
                             </tbody>
@@ -468,29 +468,29 @@ function formatValue(key, value) {
                             <!-- Nagłówek grupy -->
                             <div class="bg-surface-2/50 px-4 py-3 flex items-center gap-2 border-b border-border">
                                 <span class="text-xs font-medium uppercase tracking-wider px-2 py-0.5 rounded" :class="{
-                                    'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400': group.model_name === 'Wizyta',
-                                    'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400': group.model_name === 'Zadanie',
-                                    'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400': group.model_name === 'Klient',
-                                    'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300': !['Wizyta','Zadanie','Klient'].includes(group.model_name),
+                                    'bg-blue-100 text-blue-600': group.model_name === 'Wizyta',
+                                    'bg-amber-100 text-amber-600': group.model_name === 'Zadanie',
+                                    'bg-green-100 text-green-600': group.model_name === 'Klient',
+                                    'surface-elevated text-foreground-muted': !['Wizyta','Zadanie','Klient'].includes(group.model_name),
                                 }">{{ group.model_name }}</span>
                                 <span class="font-medium text-foreground">{{ group.label }}</span>
                                 <Badge color="gray" class="ml-auto">{{ group.entries.length }} zmian</Badge>
                             </div>
 
                             <!-- Wpisy -->
-                            <div class="divide-y divide-gray-100 dark:divide-slate-700/50">
-                                <div 
-                                    v-for="entry in group.entries" 
+                            <div class="divide-y divide-border">
+                                <div
+                                    v-for="entry in group.entries"
                                     :key="entry.id"
                                     class="px-4 py-3"
                                 >
                                     <div class="flex items-center gap-2 mb-1">
                                         <span class="text-xs font-mono text-foreground-subtle w-16">{{ entry.time }}</span>
                                         <span class="text-xs px-1.5 py-0.5 rounded font-medium" :class="{
-                                            'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': entry.action === 'create',
-                                            'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400': entry.action === 'update',
-                                            'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400': entry.action === 'delete',
-                                            'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300': !['create','update','delete'].includes(entry.action),
+                                            'bg-green-100 text-green-700': entry.action === 'create',
+                                            'bg-amber-100 text-amber-700': entry.action === 'update',
+                                            'bg-red-100 text-red-700': entry.action === 'delete',
+                                            'surface-elevated text-foreground-muted': !['create','update','delete'].includes(entry.action),
                                         }">{{ entry.action_label }}</span>
                                         <span v-if="entry.description" class="text-xs text-foreground-muted">{{ entry.description }}</span>
                                     </div>
@@ -503,8 +503,8 @@ function formatValue(key, value) {
                                             class="text-xs surface-2 rounded px-3 py-1.5 flex items-start gap-2 flex-wrap"
                                         >
                                             <span class="font-medium text-foreground-muted shrink-0 min-w-[100px]">{{ change.field }}:</span>
-                                            <span v-if="change.old !== '—'" class="text-red-500 dark:text-red-400 line-through break-all">{{ change.old }}</span>
-                                            <span class="text-gray-400 dark:text-slate-600">→</span>
+                                            <span v-if="change.old !== '—'" class="text-red-500 line-through break-all">{{ change.old }}</span>
+                                            <span class="text-foreground-muted">→</span>
                                             <span class="text-success font-medium break-all">{{ change.new }}</span>
                                         </div>
                                     </div>
@@ -515,7 +515,7 @@ function formatValue(key, value) {
 
                     <!-- Wszystkie akcje chronologicznie -->
                     <details class="mt-6">
-                        <summary class="cursor-pointer text-sm font-medium text-foreground-muted hover:text-gray-700 dark:hover:text-slate-300">
+                        <summary class="cursor-pointer text-sm font-medium text-foreground-muted hover:text-foreground">
                             Pokaż chronologicznie ({{ activities.length }} akcji)
                         </summary>
                         <div class="mt-3 space-y-0">
@@ -529,16 +529,16 @@ function formatValue(key, value) {
 
                                 <!-- Kropka -->
                                 <div class="absolute left-0 top-1 w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center" :class="{
-                                    'bg-green-100 border-green-400 dark:bg-green-900/30 dark:border-green-600': act.action === 'create',
-                                    'bg-amber-100 border-amber-400 dark:bg-amber-900/30 dark:border-amber-600': act.action === 'update',
-                                    'bg-red-100 border-red-400 dark:bg-red-900/30 dark:border-red-600': act.action === 'delete',
-                                    'bg-gray-100 border-gray-400 dark:bg-gray-700 dark:border-gray-500': !['create','update','delete'].includes(act.action),
+                                    'bg-green-100 border-green-400': act.action === 'create',
+                                    'bg-amber-100 border-amber-400': act.action === 'update',
+                                    'bg-red-100 border-red-400': act.action === 'delete',
+                                    'surface-elevated border-border-bright': !['create','update','delete'].includes(act.action),
                                 }">
                                     <div class="w-1.5 h-1.5 rounded-full" :class="{
                                         'bg-green-500': act.action === 'create',
                                         'bg-amber-500': act.action === 'update',
                                         'bg-red-500': act.action === 'delete',
-                                        'bg-gray-400': !['create','update','delete'].includes(act.action),
+                                        'bg-foreground-muted': !['create','update','delete'].includes(act.action),
                                     }"></div>
                                 </div>
 
@@ -546,10 +546,10 @@ function formatValue(key, value) {
                                     <div class="flex items-center gap-2 flex-wrap">
                                         <span class="text-xs font-mono text-foreground-subtle">{{ act.time }}</span>
                                         <span class="text-xs px-1.5 py-0.5 rounded font-medium" :class="{
-                                            'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': act.action === 'create',
-                                            'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400': act.action === 'update',
-                                            'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400': act.action === 'delete',
-                                            'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300': !['create','update','delete'].includes(act.action),
+                                            'bg-green-100 text-green-700': act.action === 'create',
+                                            'bg-amber-100 text-amber-700': act.action === 'update',
+                                            'bg-red-100 text-red-700': act.action === 'delete',
+                                            'surface-elevated text-foreground-muted': !['create','update','delete'].includes(act.action),
                                         }">{{ act.action_label }}</span>
                                         <Badge color="gray" size="sm">{{ act.model_name }}</Badge>
                                         <span class="text-xs text-foreground-muted">{{ act.description }}</span>
@@ -563,8 +563,8 @@ function formatValue(key, value) {
                                             class="text-xs surface-2 rounded px-3 py-1.5 flex items-start gap-2 flex-wrap"
                                         >
                                             <span class="font-medium text-foreground-muted shrink-0 min-w-[100px]">{{ change.field }}:</span>
-                                            <span v-if="change.old !== '—'" class="text-red-500 dark:text-red-400 line-through break-all">{{ change.old }}</span>
-                                            <span class="text-gray-400 dark:text-slate-600">→</span>
+                                            <span v-if="change.old !== '—'" class="text-red-500 line-through break-all">{{ change.old }}</span>
+                                            <span class="text-foreground-muted">→</span>
                                             <span class="text-success font-medium break-all">{{ change.new }}</span>
                                         </div>
                                     </div>

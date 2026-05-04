@@ -97,16 +97,16 @@ function submit() {
         <div class="flex items-center gap-4">
             <Link
                 :href="route('admin.price-lists.index')"
-                class="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                class="text-foreground-muted hover:text-foreground"
             >
                 <Icons name="arrow-left" class="w-5 h-5" />
             </Link>
-            <h1 class="text-2xl font-bold text-foreground">
+            <h1 class="text-2xl font-bold gradient-brand-text">
                 {{ isEdit ? 'Edytuj cennik' : 'Nowy cennik' }}
             </h1>
         </div>
 
-        <form class="space-y-5 surface rounded-xl border border-border p-6" @submit.prevent="submit">
+        <form class="space-y-5 glass-card p-6" @submit.prevent="submit">
             <!-- Nazwa -->
             <div>
                 <label class="block text-sm font-medium text-foreground mb-1">Nazwa *</label>
@@ -149,15 +149,15 @@ function submit() {
             <!-- Przełączniki -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <label class="flex items-center gap-3 cursor-pointer select-none">
-                    <input v-model="form.is_active" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-amber-500 focus:ring-brand-primary" />
+                    <input v-model="form.is_active" type="checkbox" class="h-4 w-4 rounded border-border-bright text-amber-500 focus:ring-brand-primary" />
                     <span class="text-sm text-foreground">Aktywny</span>
                 </label>
                 <label class="flex items-center gap-3 cursor-pointer select-none">
-                    <input v-model="form.is_public" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-amber-500 focus:ring-brand-primary" />
+                    <input v-model="form.is_public" type="checkbox" class="h-4 w-4 rounded border-border-bright text-amber-500 focus:ring-brand-primary" />
                     <span class="text-sm text-foreground">Publiczny (bez logowania)</span>
                 </label>
                 <label class="flex items-center gap-3 cursor-pointer select-none">
-                    <input v-model="form.sync_from_fakturownia" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-amber-500 focus:ring-brand-primary" />
+                    <input v-model="form.sync_from_fakturownia" type="checkbox" class="h-4 w-4 rounded border-border-bright text-amber-500 focus:ring-brand-primary" />
                     <span class="text-sm text-foreground">Sync z Fakturownią</span>
                 </label>
             </div>
@@ -201,7 +201,7 @@ function submit() {
                     <input
                         type="file"
                         accept=".html,.htm"
-                        class="block w-full text-sm text-slate-600 dark:text-slate-300 file:mr-3 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100"
+                        class="block w-full text-sm text-foreground-muted file:mr-3 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100"
                         @change="onFileChange"
                     />
                     <p class="mt-1 text-xs text-foreground-muted">
@@ -223,7 +223,7 @@ function submit() {
             <div class="flex items-center justify-between pt-2">
                 <Link
                     :href="route('admin.price-lists.index')"
-                    class="text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                    class="text-sm text-foreground-muted hover:text-foreground"
                 >
                     Anuluj
                 </Link>
@@ -233,7 +233,7 @@ function submit() {
                         :href="`/cennik/${priceList.slug}`"
                         target="_blank"
                         rel="noopener"
-                        class="inline-flex items-center gap-1.5 px-4 py-2 text-sm text-slate-600 dark:text-slate-300 border border-border-bright rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 text-sm text-foreground-muted border border-border-bright rounded-lg hover:bg-surface-elevated/50 transition-colors"
                     >
                         <Icons name="eye" class="w-4 h-4" />
                         Podgląd

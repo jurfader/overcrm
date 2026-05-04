@@ -80,8 +80,8 @@ const statusColors = {
     <div class="space-y-6">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">Użytkownicy</h1>
-                <p class="text-gray-600">Zarządzaj kontami użytkowników</p>
+                <h1 class="text-2xl font-bold gradient-brand-text">Użytkownicy</h1>
+                <p class="text-foreground-muted text-sm mt-1">Zarządzaj kontami użytkowników</p>
             </div>
             <Link :href="route('users.create')">
                 <Button>
@@ -91,8 +91,8 @@ const statusColors = {
             </Link>
         </div>
 
-        <Card :padding="false">
-            <div class="p-4 border-b border-gray-200">
+        <Card no-padding>
+            <div class="p-4 border-b border-border">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="md:col-span-2">
                         <Input v-model="search" placeholder="Szukaj po nazwie, email..." />
@@ -103,35 +103,35 @@ const statusColors = {
             </div>
 
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                <table class="min-w-full">
+                    <thead class="bg-surface-2/50 border-b border-border">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Użytkownik</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rola</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stanowisko</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Zadania</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Akcje</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Użytkownik</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Rola</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Stanowisko</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Zadania</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-foreground-muted uppercase tracking-wider">Akcje</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <tr v-for="user in users.data" :key="user.id" class="hover:bg-gray-50">
+                    <tbody class="divide-y divide-border">
+                        <tr v-for="user in users.data" :key="user.id" class="hover:bg-surface-elevated/50 transition-colors">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    <img 
-                                        v-if="user.avatar_url" 
-                                        :src="user.avatar_url" 
-                                        :alt="user.name" 
-                                        class="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-600"
+                                    <img
+                                        v-if="user.avatar_url"
+                                        :src="user.avatar_url"
+                                        :alt="user.name"
+                                        class="w-10 h-10 rounded-full object-cover border border-border"
                                     />
                                     <div v-else class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-brand-primary font-medium">
                                         {{ user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() }}
                                     </div>
                                     <div class="ml-4">
-                                        <Link :href="route('users.show', user.id)" class="text-sm font-medium text-gray-900 hover:text-brand-primary">
+                                        <Link :href="route('users.show', user.id)" class="text-sm font-medium text-foreground hover:text-brand-primary">
                                             {{ user.name }}
                                         </Link>
-                                        <div class="text-sm text-gray-500">{{ user.email }}</div>
+                                        <div class="text-sm text-foreground-muted">{{ user.email }}</div>
                                     </div>
                                 </div>
                             </td>
@@ -140,12 +140,12 @@ const statusColors = {
                                     {{ roles[user.role] }}
                                 </Badge>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                                 {{ user.position || '-' }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                                 <span class="font-medium">{{ user.active_tasks_count }}</span>
-                                <span class="text-gray-500"> / {{ user.assigned_tasks_count }}</span>
+                                <span class="text-foreground-muted"> / {{ user.assigned_tasks_count }}</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <Badge :color="statusColors[user.status]">
@@ -157,12 +157,12 @@ const statusColors = {
                                     <Link :href="route('users.show', user.id)" class="text-foreground-muted hover:text-foreground">
                                         <Icons name="eye" class="w-5 h-5" />
                                     </Link>
-                                    <Link :href="route('users.edit', user.id)" class="text-gray-400 hover:text-brand-primary">
+                                    <Link :href="route('users.edit', user.id)" class="text-foreground-muted hover:text-brand-primary">
                                         <Icons name="edit" class="w-5 h-5" />
                                     </Link>
-                                    <button 
-                                        @click="confirmDelete(user)" 
-                                        class="text-gray-400 hover:text-red-600"
+                                    <button
+                                        @click="confirmDelete(user)"
+                                        class="text-foreground-muted hover:text-red-500"
                                         :disabled="user.id === $page.props.auth.user.id"
                                         :class="{ 'opacity-50 cursor-not-allowed': user.id === $page.props.auth.user.id }"
                                     >
