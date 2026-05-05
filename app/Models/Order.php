@@ -50,11 +50,18 @@ class Order extends Model
         $this->save();
     }
 
-    /** Generuj kolejny numer w formacie ZAM/YYYY/MM/NNN */
+    /**
+     * Generuj kolejny numer w formacie ZAM/YYYY/MM/NNN.
+     *
+     * Krytyczne: withTrashed() — unique index 'orders.number' w DB obejmuje też
+     * soft-deleted rzędy, więc musimy je uwzględnić przy wyborze kolejnego seq,
+     * inaczej duplicate entry violation gdy user usunie zamówienie i tworzy nowe.
+     */
     public static function nextNumber(): string
     {
         $prefix = 'ZAM/' . now()->format('Y/m');
-        $last = self::where('number', 'like', $prefix . '/%')
+        $last = self::withTrashed()
+            ->where('number', 'like', $prefix . '/%')
             ->orderBy('id', 'desc')
             ->value('number');
 
