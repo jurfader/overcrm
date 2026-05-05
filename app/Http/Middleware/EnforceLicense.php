@@ -46,6 +46,17 @@ class EnforceLicense
             return $next($request);
         }
 
+        // Post-Etap-1 upgrade: instalacja z active license sprzed wprowadzenia HMAC.
+        // Nie ufamy DB → ale spróbujmy online validate raz; serwer rozsądzi.
+        $status = \App\Models\Setting::get('license_status', 'missing');
+        $hmac   = \App\Models\Setting::get('license_state_hmac', null);
+        if (!$hmac && in_array($status, ['active', 'grace'], true)) {
+            $this->license->validate();
+            if ($this->license->isValid()) {
+                return $next($request);
+            }
+        }
+
         // Auth users → redirect do /license żeby mogli wpisać/odświeżyć klucz
         if ($request->user()) {
             return redirect()->route('license.show')

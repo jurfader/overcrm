@@ -2,8 +2,12 @@
 
 return [
     // OVERMEDIA license server (sprawdzany co 24h)
+    // public_key: base64 raw 32-byte ED25519 public key z license-servera. Wygeneruj raz:
+    //   node -e "const c=require('crypto');const k=c.createPrivateKey({key:'-----BEGIN PRIVATE KEY-----\n'+process.env.LICENSE_SIGNING_KEY+'\n-----END PRIVATE KEY-----',format:'pem'});console.log(c.createPublicKey(k).export({format:'der',type:'spki'}).slice(-32).toString('base64'))"
+    // Pusta wartość = signature verification wyłączona (DEV mode, NIE w produkcji).
     'license' => [
-        'url' => env('LICENSE_SERVER_URL', 'http://51.38.137.199:3002'),
+        'url'        => env('LICENSE_SERVER_URL', 'http://51.38.137.199:3002'),
+        'public_key' => env('LICENSE_SIGNING_PUBLIC_KEY', ''),
     ],
 
     // Support inbox (zgłoszenia z formularza w aplikacji)

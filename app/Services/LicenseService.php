@@ -69,6 +69,12 @@ class LicenseService
 
     public function isValid(): bool
     {
+        // Anti-tamper: jeśli HMAC zapisanego state nie zgadza się z aktualnym, ktoś
+        // zmienil DB recznie. Wracamy do invalid (ignorujemy zmiane).
+        if (!$this->verifyStateLock()) {
+            return false;
+        }
+
         $status = Setting::get('license_status', self::STATUS_MISSING);
 
         if ($status === self::STATUS_ACTIVE) {
@@ -121,6 +127,11 @@ class LicenseService
             $body = $resp->json() ?? [];
 
             if ($resp->successful() && ($body['success'] ?? false)) {
+                // Activate response payload signed: { success, plan, expiresAt }
+                if (!$this->verifyResponseSignature($body, ['success', 'plan', 'expiresAt'])) {
+                    $this->saveErrorStatus('INVALID_SIGNATURE', $body);
+                    return ['success' => false, 'message' => 'Odpowiedź serwera licencji ma nieprawidłowy podpis (możliwy MITM)', 'data' => $body];
+                }
                 $this->saveActiveStatus($body);
                 return ['success' => true, 'message' => 'Licencja aktywowana', 'data' => $body];
             }
@@ -157,6 +168,12 @@ class LicenseService
             $body = $resp->json() ?? [];
 
             if ($resp->successful() && ($body['valid'] ?? false)) {
+                // Validate response payload signed: { valid, plan, expiresAt }
+                if (!$this->verifyResponseSignature($body, ['valid', 'plan', 'expiresAt'])) {
+                    $this->saveErrorStatus('INVALID_SIGNATURE', $body);
+                    Log::warning('License response signature mismatch', ['domain' => $this->domain()]);
+                    return ['success' => false, 'message' => 'Nieprawidłowy podpis odpowiedzi serwera licencji', 'status' => self::STATUS_INVALID];
+                }
                 $this->saveActiveStatus($body);
                 return ['success' => true, 'message' => 'Licencja aktywna', 'status' => self::STATUS_ACTIVE];
             }
@@ -181,6 +198,7 @@ class LicenseService
         Setting::set('license_grace_until', null);
         Setting::set('license_last_error', null);
         Setting::set('setup_completed', '1');
+        $this->writeStateLock();
         Cache::flush();
     }
 
@@ -191,13 +209,15 @@ class LicenseService
             'INVALID_LICENSE',
             'DOMAIN_NOT_ACTIVATED',
             'LICENSE_INACTIVE',
-            'MAX_INSTALLATIONS_REACHED' => self::STATUS_INVALID,
+            'MAX_INSTALLATIONS_REACHED',
+            'INVALID_SIGNATURE'      => self::STATUS_INVALID,
             default                  => self::STATUS_INVALID,
         };
         Setting::set('license_status', $status);
         Setting::set('license_last_check_at', now()->toIso8601String());
         Setting::set('license_last_error', $err);
         Setting::set('license_grace_until', null);
+        $this->writeStateLock();
         Cache::flush();
     }
 
@@ -211,6 +231,7 @@ class LicenseService
         Setting::set('license_status', self::STATUS_GRACE);
         Setting::set('license_last_check_at', now()->toIso8601String());
         Setting::set('license_last_error', $reason);
+        $this->writeStateLock();
         Cache::flush();
     }
 
@@ -222,7 +243,115 @@ class LicenseService
             'LICENSE_INACTIVE'         => 'Licencja nieaktywna',
             'DOMAIN_NOT_ACTIVATED'     => 'Klucz nie jest przypisany do tej domeny',
             'MAX_INSTALLATIONS_REACHED'=> 'Osiągnięto maksymalną liczbę instalacji dla tej licencji',
+            'INVALID_SIGNATURE'        => 'Nieprawidłowy podpis odpowiedzi serwera (możliwy MITM)',
             default                    => "Błąd licencji ({$code})",
         };
+    }
+
+    // ===================================================================
+    // ANTI-TAMPER (Etap 1 zabezpieczeń):
+    //  - verifyResponseSignature: ED25519 weryfikacja każdej odpowiedzi z license-server
+    //    (klucz publiczny w env LICENSE_SIGNING_PUBLIC_KEY). Powstrzymuje MITM/fake DNS.
+    //  - writeStateLock + verifyStateLock: HMAC nad zapisanym state w DB (klucz=APP_KEY).
+    //    Manualna edycja DB (`UPDATE settings SET value='active'…`) → HMAC się rozjedzie
+    //    → isValid() zwróci false. Pirat musi też znać APP_KEY.
+    // ===================================================================
+
+    /**
+     * Weryfikacja podpisu ED25519 z license-server.
+     * Format: server podpisuje JSON.stringify(payload) używając ED25519 private key,
+     * klient weryfikuje używając klucza publicznego.
+     *
+     * KRYTYCZNE: kolejność i format JSON musi się zgadzać 1:1 z tym co server podpisał.
+     * Server (Node): JSON.stringify({success, plan, expiresAt})
+     * Tutaj (PHP):   json_encode(['success'=>…, 'plan'=>…, 'expiresAt'=>…], UNESCAPED_UNICODE|UNESCAPED_SLASHES)
+     */
+    protected function verifyResponseSignature(array $body, array $payloadKeys): bool
+    {
+        $publicKeyB64 = config('services.license.public_key', '');
+
+        // Brak public key w env = fail-closed w produkcji, fail-open w dev
+        if (empty($publicKeyB64)) {
+            if (app()->environment('production')) {
+                Log::error('License signature verification skipped — LICENSE_SIGNING_PUBLIC_KEY not set');
+                return false;
+            }
+            return true; // dev/staging — pozwól bez podpisu
+        }
+
+        $signatureB64 = $body['signature'] ?? null;
+        if (!$signatureB64) return false;
+
+        try {
+            $publicKey = base64_decode($publicKeyB64, true);
+            $signature = base64_decode($signatureB64, true);
+            if (!$publicKey || strlen($publicKey) !== SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES) return false;
+            if (!$signature || strlen($signature) !== SODIUM_CRYPTO_SIGN_BYTES) return false;
+
+            // Zbuduj payload w DOKŁADNIE tej kolejności co server (kolejność kluczy w JSON ma znaczenie!)
+            $payload = [];
+            foreach ($payloadKeys as $k) {
+                $payload[$k] = $body[$k] ?? null;
+            }
+            $message = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+            return sodium_crypto_sign_verify_detached($signature, $message, $publicKey);
+        } catch (\Throwable $e) {
+            Log::warning('License signature verify exception', ['error' => $e->getMessage()]);
+            return false;
+        }
+    }
+
+    /**
+     * Lista pól licencji które są pod ochroną HMAC. Zmiana któregokolwiek z nich
+     * w DB ręcznie unieważnia stan.
+     */
+    protected function lockedKeys(): array
+    {
+        return [
+            'license_key', 'license_status', 'license_plan',
+            'license_expires_at', 'license_grace_until', 'license_installation_id',
+        ];
+    }
+
+    /** Po każdej zmianie state → przelicz i zapisz HMAC. */
+    protected function writeStateLock(): void
+    {
+        $hmac = $this->computeStateHmac();
+        Setting::set('license_state_hmac', $hmac);
+    }
+
+    /**
+     * Sprawdź czy zapisany HMAC zgadza się z aktualnym state.
+     *
+     * KRYTYCZNE: nie wolno bootstrapować HMAC dla istniejącego active state — to byłby
+     * wektor ataku (pirat usuwa HMAC, app go odtwarza dla tampered state). Brak HMAC =
+     * nieufanie state aż do następnej online walidacji (która zapisze nowy HMAC).
+     */
+    protected function verifyStateLock(): bool
+    {
+        $stored = Setting::get('license_state_hmac', null);
+        $status = Setting::get('license_status', self::STATUS_MISSING);
+
+        if (!$stored) {
+            // Brak HMAC = albo świeża instalacja (status=missing OK), albo ktoś go usunął
+            // żeby ominąć weryfikację. W obu przypadkach: nie ufamy active/grace.
+            return $status === self::STATUS_MISSING;
+        }
+
+        $current = $this->computeStateHmac();
+        return hash_equals($stored, $current);
+    }
+
+    /** HMAC-SHA256 nad konkatenacją locked fields, klucz = APP_KEY. */
+    protected function computeStateHmac(): string
+    {
+        $parts = [];
+        foreach ($this->lockedKeys() as $k) {
+            $parts[$k] = (string) Setting::get($k, '');
+        }
+        $material = json_encode($parts, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $appKey = config('app.key') ?: 'no-app-key';
+        return hash_hmac('sha256', $material, $appKey);
     }
 }
