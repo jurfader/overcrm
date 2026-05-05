@@ -9,6 +9,7 @@ use App\Models\SentEmail;
 use App\Models\Task;
 use App\Models\User;
 use App\Services\GusService;
+use App\Support\License;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -261,6 +262,7 @@ class ClientController extends Controller
      */
     public function store(Request $request): RedirectResponse|JsonResponse
     {
+        License::guard('Dodawanie klienta wymaga ważnej licencji');
         try {
             $validated = $this->validateStore($request);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -565,6 +567,7 @@ class ClientController extends Controller
      */
     public function update(Request $request, Client $client): RedirectResponse|JsonResponse
     {
+        License::guard('Edycja klienta wymaga ważnej licencji');
         $validated = $request->validate(array_merge([
             'type' => 'required|in:company,person',
             'name' => 'required|string|max:255',

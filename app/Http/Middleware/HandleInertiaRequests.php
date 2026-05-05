@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\Module;
 use App\Models\Setting;
 use App\Models\User;
+use App\Support\License;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -47,6 +48,7 @@ class HandleInertiaRequests extends Middleware
                 'openedVisitId' => fn () => $request->session()->get('openedVisitId'),
             ],
             'brand' => fn () => brand(),
+            'appLicensed' => fn () => License::ok(),
             'appSettings' => fn () => $this->getAppSettings(),
             'inpostGeowidgetToken' => fn () => $this->getInpostToken(),
             'inpostOrganizationId' => fn () => $this->getInpostOrganizationId(),

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Support\Dashboard\WidgetRegistry;
+use App\Support\License;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -14,6 +15,10 @@ class DashboardController extends Controller
 
     public function index(Request $request): Response
     {
+        // Etap 2a anti-piracy: nawet gdyby pirat wykomentował middleware EnforceLicense,
+        // dashboard nadal odmówi pokazania prawdziwych danych bez ważnej licencji.
+        License::guard('Dashboard niedostępny — wymagana ważna licencja');
+
         $user = $request->user();
         $available = $this->registry->forUser($user);
 

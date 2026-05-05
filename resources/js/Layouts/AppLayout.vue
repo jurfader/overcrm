@@ -77,6 +77,7 @@ const userInitials = computed(() => {
 const inboxUnreadCount = computed(() => page.props.inboxUnreadCount ?? 0);
 const showSupportModal = ref(false);
 const environmentBanner = computed(() => page.props.environmentBanner || '');
+const appLicensed = computed(() => page.props.appLicensed !== false);
 const activeModules = computed(() => page.props.activeModules || []);
 
 // Graceful — nie crashuj UI gdy moduł Email nie jest aktywny (route nie istnieje w Ziggy)
@@ -335,6 +336,15 @@ const visibleAdmin = computed(() => navAdmin.filter(canAccess));
 
             <!-- ====================== CONTENT ====================== -->
             <main class="flex-1 relative p-4 sm:p-6">
+                <!-- License invalid banner — defense in depth (gdy middleware nie zadziałał, frontend ostrzega) -->
+                <Link v-if="!appLicensed" :href="route('license.show')" class="block mb-4 rounded-lg p-3 bg-destructive/10 border border-destructive/40 hover:bg-destructive/15 transition-colors flex items-center gap-3">
+                    <Icons name="lock" class="w-5 h-5 text-destructive shrink-0" />
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-destructive">Licencja nieważna lub nieaktywna</p>
+                        <p class="text-xs text-foreground-muted">Zapis nowych klientów, zadań i większości funkcji jest zablokowany. Kliknij aby przejść do ekranu licencji.</p>
+                    </div>
+                </Link>
+
                 <FlashMessages />
                 <slot />
             </main>

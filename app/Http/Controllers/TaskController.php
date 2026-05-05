@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Status;
 use App\Models\Task;
 use App\Models\User;
+use App\Support\License;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -181,6 +182,7 @@ class TaskController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        License::guard('Tworzenie zadania wymaga ważnej licencji');
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -294,6 +296,7 @@ class TaskController extends Controller
      */
     public function update(Request $request, Task $task): RedirectResponse
     {
+        License::guard('Edycja zadania wymaga ważnej licencji');
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
