@@ -3,7 +3,9 @@
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\BrandingController;
 use App\Http\Controllers\Admin\PriceListController as AdminPriceListController;
+use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\PriceListController;
+use App\Http\Controllers\SupportController;
 use App\Http\Controllers\Admin\DailyReportController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\IntegrationLogController;
@@ -32,6 +34,16 @@ Route::get('/', function () {
     }
     return redirect()->route('login');
 })->name('welcome');
+
+// Licencja — zalogowany user musi móc tu wejść NAWET gdy licencja wygasła (whitelisted w EnforceLicense)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/license', [LicenseController::class, 'show'])->name('license.show');
+    Route::post('/license/activate', [LicenseController::class, 'activate'])->name('license.activate');
+    Route::post('/license/refresh', [LicenseController::class, 'refresh'])->name('license.refresh');
+
+    // Support — zgłoszenia błędów (whitelisted, dostępne nawet gdy licencja invalid)
+    Route::post('/support/ticket', [SupportController::class, 'submit'])->name('support.submit');
+});
 
 // Routing dla zalogowanych użytkowników
 Route::middleware(['auth', 'verified', '2fa'])->group(function () {

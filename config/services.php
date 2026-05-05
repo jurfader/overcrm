@@ -1,6 +1,16 @@
 <?php
 
 return [
+    // OVERMEDIA license server (sprawdzany co 24h)
+    'license' => [
+        'url' => env('LICENSE_SERVER_URL', 'http://51.38.137.199:3002'),
+    ],
+
+    // Support inbox (zgłoszenia z formularza w aplikacji)
+    'support' => [
+        'email' => env('SUPPORT_EMAIL', 'support@overmedia.pl'),
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

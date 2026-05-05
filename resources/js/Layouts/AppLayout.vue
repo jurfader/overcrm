@@ -5,6 +5,7 @@ import FlashMessages from '@/Components/FlashMessages.vue';
 import Icons from '@/Components/Icons.vue';
 import KeyboardShortcutsHelp from '@/Components/KeyboardShortcutsHelp.vue';
 import FloatingVisitPanel from '@/Components/FloatingVisitPanel.vue';
+import SupportTicketModal from '@/Components/SupportTicketModal.vue';
 import ThemeToggle from '@/Components/UI/ThemeToggle.vue';
 import Tooltip from '@/Components/UI/Tooltip.vue';
 import BrandLogo from '@/Components/UI/BrandLogo.vue';
@@ -74,6 +75,7 @@ const userInitials = computed(() => {
     return name.split(' ').slice(0, 2).map(s => s[0] || '').join('').toUpperCase();
 });
 const inboxUnreadCount = computed(() => page.props.inboxUnreadCount ?? 0);
+const showSupportModal = ref(false);
 const environmentBanner = computed(() => page.props.environmentBanner || '');
 const activeModules = computed(() => page.props.activeModules || []);
 
@@ -265,6 +267,16 @@ const visibleAdmin = computed(() => navAdmin.filter(canAccess));
                     </span>
                 </Link>
 
+                <!-- Zgłoś problem -->
+                <button
+                    type="button"
+                    @click="showSupportModal = true"
+                    class="h-9 w-9 inline-flex items-center justify-center rounded-md text-foreground-muted hover:text-foreground hover:bg-surface-elevated transition-colors"
+                    title="Zgłoś problem do supportu"
+                >
+                    <Icons name="info" class="w-4 h-4" />
+                </button>
+
                 <!-- Theme toggle -->
                 <ThemeToggle />
 
@@ -359,5 +371,6 @@ const visibleAdmin = computed(() => navAdmin.filter(canAccess));
 
         <KeyboardShortcutsHelp v-model="showHelp" :shortcuts="shortcuts" />
         <FloatingVisitPanel v-model="showFloatingVisitSearch" />
+        <SupportTicketModal v-model="showSupportModal" />
     </div>
 </template>
