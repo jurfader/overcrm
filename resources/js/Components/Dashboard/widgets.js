@@ -1,3 +1,5 @@
+import { defineAsyncComponent } from 'vue';
+
 import KpiTiles from './Widgets/KpiTiles.vue';
 import TasksToday from './Widgets/TasksToday.vue';
 import TasksOverdue from './Widgets/TasksOverdue.vue';
@@ -8,12 +10,17 @@ import UpcomingVisits from './Widgets/UpcomingVisits.vue';
 /**
  * Frontend widget registry.
  *
- * Mapping: backend Widget.component (string) → faktyczny Vue component.
+ * Mapping: backend Widget.component (string) → Vue component.
  *
- * Moduły dorzucają swoje widgety do tego rejestru przez `registerWidget()`
- * w swoim entry pointcie (np. modules/Fakturownia/resources/js/index.js).
+ * Core widgety = static imports (zawsze obecne).
+ * Module widgety = lazy z `modules/* /resources/js/Widgets/*.vue` przez import.meta.glob.
+ *   Klucz w mapie = nazwa pliku bez rozszerzenia (np. DailyReportMyActivity).
+ *   Match z backend: WidgetRegistry::register(component: 'DailyReportMyActivity').
+ *
+ * Moduł nie musi wywoływać żadnego API — wystarczy że wrzuci .vue do
+ * modules/{ModuleName}/resources/js/Widgets/. Vite zbuduje, glob wykryje.
  */
-const registry = {
+const coreRegistry = {
     KpiTiles,
     TasksToday,
     TasksOverdue,
@@ -21,6 +28,19 @@ const registry = {
     VenueBirthdays,
     UpcomingVisits,
 };
+
+// Lazy-loaded widgety modułów. import.meta.glob skanuje przy buildzie Vite.
+const moduleWidgetGlob = import.meta.glob('../../../../modules/*/resources/js/Widgets/*.vue');
+const moduleRegistry = {};
+for (const path in moduleWidgetGlob) {
+    // path = '../../../../modules/DailyReport/resources/js/Widgets/DailyReportMyActivity.vue'
+    const match = path.match(/\/Widgets\/([^/]+)\.vue$/);
+    if (match) {
+        moduleRegistry[match[1]] = defineAsyncComponent(moduleWidgetGlob[path]);
+    }
+}
+
+const registry = { ...coreRegistry, ...moduleRegistry };
 
 export function registerWidget(name, component) {
     registry[name] = component;

@@ -59,7 +59,7 @@ function toggleReportPlay(call) {
 }
 
 function applyFilters() {
-    router.get(route('admin.daily-report'), {
+    router.get(route('dailyreport.index'), {
         date: date.value,
         user_id: userId.value,
     }, {

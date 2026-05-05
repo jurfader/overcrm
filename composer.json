@@ -42,8 +42,8 @@
             "Modules\\Inpost\\": ["modules/Inpost/", "modules/Inpost/src/"],
             "Modules\\Kanban\\": ["modules/Kanban/", "modules/Kanban/src/"],
             "Modules\\Timeline\\": ["modules/Timeline/", "modules/Timeline/src/"],
-            "Modules\\Test\\": ["modules/Test/", "modules/Test/src/"],
-            "Modules\\Leads\\": ["modules/Leads/", "modules/Leads/src/"]
+            "Modules\\Leads\\": ["modules/Leads/", "modules/Leads/src/"],
+            "Modules\\DailyReport\\": ["modules/DailyReport/", "modules/DailyReport/src/"]
         }
     },
     "autoload-dev": {

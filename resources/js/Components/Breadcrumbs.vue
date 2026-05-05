@@ -107,7 +107,7 @@ const routeMap = {
         { label: 'Statusy', route: 'statuses.index' },
         { label: 'Edycja' },
     ],
-    'admin.daily-report': [
+    'dailyreport.index': [
         { label: 'Dashboard', route: 'dashboard' },
         { label: 'Raport dzienny' },
     ],

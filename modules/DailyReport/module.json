@@ -1,0 +1,24 @@
+{
+    "name": "dailyreport",
+    "display_name": "Raport dzienny",
+    "description": "Historia pracy użytkowników: aktywność (ActivityLog) + wizyty per dzień, podsumowanie czasu i wykonanych zadań",
+    "version": "1.0.0",
+    "author": "OVERMEDIA",
+    "icon": "document-text",
+    "is_core": false,
+    "order": 30,
+    "dependencies": [],
+    "permissions": {
+        "dailyreport_view": "Podgląd raportu dziennego (wszyscy użytkownicy)",
+        "dailyreport_view_others": "Podgląd raportu dziennego innych użytkowników (admin/manager)"
+    },
+    "settings": {},
+    "menu": [
+        {
+            "label": "Raport dzienny",
+            "route": "dailyreport.index",
+            "icon": "document-text",
+            "roles": ["admin", "manager"]
+        }
+    ]
+}

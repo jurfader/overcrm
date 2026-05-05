@@ -111,7 +111,6 @@ const navAdmin = [
     { name: 'Użytkownicy',     route: 'users.index',                  icon: 'users',         pattern: 'users.*',                  roles: ['admin', 'manager'] },
     { name: 'Statusy',         route: 'statuses.index',               icon: 'statuses',      pattern: 'statuses.*',               roles: ['admin'] },
     { name: 'Szablony Email',  route: 'admin.email-templates.index',  icon: 'mail',          pattern: 'admin.email-templates.*',  roles: ['admin'] },
-    { name: 'Raport dzienny',  route: 'admin.daily-report',           icon: 'document-text', pattern: 'admin.daily-report',       roles: ['admin'] },
     { name: 'Logi integracji', route: 'admin.integration-logs',       icon: 'activity',      pattern: 'admin.integration-logs',   roles: ['admin'] },
     { name: 'Moduły',          route: 'admin.modules.index',          icon: 'puzzle',        pattern: 'admin.modules.*',          roles: ['admin'] },
     { name: 'Cenniki',         route: 'admin.price-lists.index',      icon: 'price-list',    pattern: 'admin.price-lists.*',      roles: ['admin'] },

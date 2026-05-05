@@ -6,7 +6,6 @@ use App\Http\Controllers\Admin\PriceListController as AdminPriceListController;
 use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\PriceListController;
 use App\Http\Controllers\SupportController;
-use App\Http\Controllers\Admin\DailyReportController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\IntegrationLogController;
 use App\Http\Controllers\Admin\ModuleController;
@@ -218,9 +217,6 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
 
         // Logi integracji
         Route::get('/integration-logs', [IntegrationLogController::class, 'index'])->name('integration-logs');
-
-        // Raport dzienny pracy użytkowników
-        Route::get('/daily-report', [DailyReportController::class, 'index'])->name('daily-report');
 
         // Cenniki (admin)
         Route::prefix('price-lists')->name('price-lists.')->group(function () {
