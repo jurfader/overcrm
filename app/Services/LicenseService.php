@@ -112,7 +112,7 @@ class LicenseService
         try {
             $resp = Http::timeout(self::HTTP_TIMEOUT)
                 ->acceptJson()
-                ->post($this->serverUrl() . '/license/activate', [
+                ->post($this->serverUrl() . '/activate', [
                     'licenseKey'     => $key,
                     'domain'         => $this->domain(),
                     'installationId' => $this->installationId(),
@@ -148,7 +148,7 @@ class LicenseService
         try {
             $resp = Http::timeout(self::HTTP_TIMEOUT)
                 ->acceptJson()
-                ->post($this->serverUrl() . '/license/validate', [
+                ->post($this->serverUrl() . '/validate', [
                     'licenseKey'     => $key,
                     'domain'         => $this->domain(),
                     'installationId' => $this->installationId(),
