@@ -122,6 +122,7 @@ class LicenseService
                     'licenseKey'     => $key,
                     'domain'         => $this->domain(),
                     'installationId' => $this->installationId(),
+                    'metrics'        => $this->collectMetrics(),
                 ]);
 
             $body = $resp->json() ?? [];
@@ -163,6 +164,7 @@ class LicenseService
                     'licenseKey'     => $key,
                     'domain'         => $this->domain(),
                     'installationId' => $this->installationId(),
+                    'metrics'        => $this->collectMetrics(),
                 ]);
 
             $body = $resp->json() ?? [];
@@ -353,5 +355,65 @@ class LicenseService
         $material = json_encode($parts, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $appKey = config('app.key') ?: 'no-app-key';
         return hash_hmac('sha256', $material, $appKey);
+    }
+
+    // ===================================================================
+    // ETAP 2b: Telemetry phone-home
+    // Wysyłane przy każdym activate/validate. License-server zapisuje w lic_audit
+    // (event='telemetry'). Admin OVERMEDIA może wykryć anomalie:
+    //   - 5 instancji z różnymi build_hash dla tego samego klucza solo = klonowanie
+    //   - duże skoki w liczbie userów/klientów (potencjalny re-sale)
+    //   - brak telemetry przez X dni (instalacja offline / cracked)
+    // ===================================================================
+
+    protected function collectMetrics(): array
+    {
+        try {
+            return [
+                'app_version'   => $this->buildVersion(),
+                'php_version'   => PHP_VERSION,
+                'laravel_version' => \Illuminate\Foundation\Application::VERSION,
+                'users_count'   => $this->safeCount(fn () => \App\Models\User::query()->count()),
+                'clients_count' => $this->safeCount(fn () => \App\Models\Client::query()->count()),
+                'tasks_count'   => $this->safeCount(fn () => \App\Models\Task::query()->count()),
+                'modules'       => $this->activeModules(),
+                'timezone'      => config('app.timezone'),
+                'locale'        => config('app.locale'),
+            ];
+        } catch (\Throwable $e) {
+            // Telemetry nie może wywalić aktywacji — wracamy minimum
+            return ['app_version' => 'unknown', 'error' => substr($e->getMessage(), 0, 100)];
+        }
+    }
+
+    protected function buildVersion(): string
+    {
+        $manifestPath = public_path('build/manifest.json');
+        if (!file_exists($manifestPath)) return 'dev';
+        try {
+            $manifest = json_decode(file_get_contents($manifestPath), true);
+            $entry = $manifest['resources/js/app.js']['file'] ?? null;
+            return $entry ? basename($entry) : (string) filemtime($manifestPath);
+        } catch (\Throwable $e) {
+            return 'dev';
+        }
+    }
+
+    protected function safeCount(callable $fn): int
+    {
+        try { return (int) $fn(); } catch (\Throwable $e) { return 0; }
+    }
+
+    protected function activeModules(): array
+    {
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('modules')) return [];
+            return \App\Models\Module::query()
+                ->where('is_active', true)
+                ->pluck('name')
+                ->toArray();
+        } catch (\Throwable $e) {
+            return [];
+        }
     }
 }
