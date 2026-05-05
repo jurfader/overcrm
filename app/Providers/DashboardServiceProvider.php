@@ -3,10 +3,12 @@
 namespace App\Providers;
 
 use App\Models\Client;
+use App\Models\ClientVisit;
 use App\Models\Task;
 use App\Models\User;
 use App\Support\Dashboard\Widget;
 use App\Support\Dashboard\WidgetRegistry;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
 class DashboardServiceProvider extends ServiceProvider
@@ -88,6 +90,40 @@ class DashboardServiceProvider extends ServiceProvider
             minWidth: 3,
             description: '5 najnowszych klientów w systemie',
             handler: fn (?User $user) => Client::latest()->limit(5)->get()->toArray(),
+        ));
+
+        $registry->register(new Widget(
+            key: 'core.upcoming-visits',
+            title: 'Najbliższe wizyty',
+            icon: 'calendar',
+            component: 'UpcomingVisits',
+            defaultWidth: 6,
+            minWidth: 4,
+            description: 'Wizyty z kalendarza zaplanowane na najbliższe dni',
+            handler: function (?User $user) {
+                if (!$user || !Schema::hasTable('client_visits')) return [];
+
+                return ClientVisit::with(['client', 'user'])
+                    ->whereDate('visit_date', '>=', now()->startOfDay())
+                    ->when(!$user->hasAdminRights(), fn($q) => $q->where('user_id', $user->id))
+                    ->orderBy('visit_date')
+                    ->orderBy('visit_time')
+                    ->limit(8)
+                    ->get()
+                    ->map(fn($v) => [
+                        'id'         => $v->id,
+                        'title'      => $v->title,
+                        'visit_date' => $v->visit_date?->format('Y-m-d'),
+                        'visit_time' => $v->visit_time,
+                        'client'     => $v->client ? [
+                            'id'   => $v->client->id,
+                            'name' => $v->client->short_name ?: $v->client->name,
+                        ] : null,
+                        'user' => $v->user ? ['id' => $v->user->id, 'name' => $v->user->name] : null,
+                        'color' => $v->color,
+                    ])
+                    ->toArray();
+            },
         ));
 
         $registry->register(new Widget(

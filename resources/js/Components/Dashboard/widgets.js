@@ -3,6 +3,7 @@ import TasksToday from './Widgets/TasksToday.vue';
 import TasksOverdue from './Widgets/TasksOverdue.vue';
 import RecentClients from './Widgets/RecentClients.vue';
 import VenueBirthdays from './Widgets/VenueBirthdays.vue';
+import UpcomingVisits from './Widgets/UpcomingVisits.vue';
 
 /**
  * Frontend widget registry.
@@ -18,6 +19,7 @@ const registry = {
     TasksOverdue,
     RecentClients,
     VenueBirthdays,
+    UpcomingVisits,
 };
 
 export function registerWidget(name, component) {

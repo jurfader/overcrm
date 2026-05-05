@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
-use App\Services\ApiloService;
-use App\Services\FakturowniaService;
 use App\Support\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -113,55 +111,6 @@ class SettingController extends Controller
         Cache::flush();
 
         return back()->with('success', 'Logo zostało zaktualizowane');
-    }
-
-    /**
-     * Testuj połączenie z Fakturownia
-     */
-    public function testFakturownia(FakturowniaService $fakturownia)
-    {
-        $result = $fakturownia->testConnection();
-
-        if ($result['success']) {
-            return back()->with('success', "Połączenie z Fakturownia aktywne. Konto: {$result['account']['name']}");
-        }
-
-        return back()->with('error', "Błąd połączenia: {$result['message']}");
-    }
-
-    /**
-     * Testuj połączenie z Apilo
-     */
-    public function testApilo(ApiloService $apilo)
-    {
-        $result = $apilo->testConnection();
-
-        if ($result['success']) {
-            return back()->with('success', $result['message']);
-        }
-
-        return back()->with('error', "Błąd Apilo: {$result['message']}");
-    }
-
-    /**
-     * Autoryzuj Apilo kodem autoryzacyjnym
-     * Wymienia authorization_code na access_token + refresh_token
-     */
-    public function authorizeApilo(Request $request, ApiloService $apilo)
-    {
-        $request->validate([
-            'authorization_code' => 'required|string',
-        ]);
-
-        $result = $apilo->authorizeWithCode($request->authorization_code);
-
-        if ($result['success']) {
-            // Wyczyść cache po zapisie nowych tokenów
-            Cache::flush();
-            return back()->with('success', $result['message'] . ' Token ważny do: ' . ($result['expires_at'] ?? ''));
-        }
-
-        return back()->with('error', $result['message']);
     }
 
 }

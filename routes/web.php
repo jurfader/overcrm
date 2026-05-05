@@ -201,9 +201,6 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
             Route::post('/', [SettingController::class, 'update'])->name('update');
             Route::post('/add', [SettingController::class, 'store'])->name('store');
             Route::post('/upload-logo', [SettingController::class, 'uploadLogo'])->name('upload-logo');
-            Route::post('/test-fakturownia', [SettingController::class, 'testFakturownia'])->name('test-fakturownia');
-            Route::post('/test-apilo', [SettingController::class, 'testApilo'])->name('test-apilo');
-            Route::post('/authorize-apilo', [SettingController::class, 'authorizeApilo'])->name('authorize-apilo');
             Route::delete('/{setting}', [SettingController::class, 'destroy'])->name('destroy');
         });
 
