@@ -43,6 +43,14 @@ function changeStatus(order, status) {
     router.patch(route('admin.orders.update-status', order.id), { status }, { preserveScroll: true });
 }
 
+const expanded = ref(new Set());
+function toggleExpand(id) {
+    if (expanded.value.has(id)) expanded.value.delete(id);
+    else expanded.value.add(id);
+    // trigger reactivity (Set mutations aren't auto-detected)
+    expanded.value = new Set(expanded.value);
+}
+
 const showDelete = ref(false);
 const toDelete = ref(null);
 function confirmDelete(o) { toDelete.value = o; showDelete.value = true; }
@@ -130,6 +138,7 @@ function fmt(n) {
                 <table class="min-w-full">
                     <thead class="bg-surface-2/50 border-b border-border">
                         <tr class="text-xs uppercase text-foreground-muted">
+                            <th class="w-8"></th>
                             <th class="px-4 py-3 text-left tracking-wider font-medium">Numer</th>
                             <th class="px-4 py-3 text-left tracking-wider font-medium">Klient</th>
                             <th class="px-4 py-3 text-left tracking-wider font-medium">Data</th>
@@ -141,44 +150,96 @@ function fmt(n) {
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-border">
-                        <tr v-for="o in orders.data" :key="o.id" class="hover:bg-surface-elevated/50 transition-colors">
-                            <td class="px-4 py-3">
-                                <span class="font-mono text-sm font-semibold text-foreground">{{ o.number }}</span>
-                            </td>
-                            <td class="px-4 py-3">
-                                <Link v-if="o.client" :href="route('clients.show', o.client.id)" class="text-sm text-foreground hover:text-brand-primary">
-                                    {{ o.client.name }}
-                                </Link>
-                                <span v-else class="text-foreground-subtle">—</span>
-                            </td>
-                            <td class="px-4 py-3 text-sm text-foreground font-mono">
-                                {{ o.order_date }}
-                                <span v-if="o.delivery_date" class="block text-xs text-foreground-muted">→ {{ o.delivery_date }}</span>
-                            </td>
-                            <td class="px-4 py-3">
-                                <select :value="o.status" @change="changeStatus(o, $event.target.value)"
-                                        :class="['text-xs px-2 py-1 rounded-full border-0 font-medium cursor-pointer focus:ring-1 focus:ring-brand-primary', statusBadgeClass[o.status]]">
-                                    <option v-for="(label, key) in statuses" :key="key" :value="key">{{ label }}</option>
-                                </select>
-                            </td>
-                            <td class="px-4 py-3 text-sm text-right text-foreground-muted">{{ o.items_count }}</td>
-                            <td class="px-4 py-3 text-sm text-right text-foreground font-mono font-semibold">{{ fmt(o.total_gross) }}</td>
-                            <td class="px-4 py-3 text-sm text-foreground-muted">{{ o.user_name || '—' }}</td>
-                            <td class="px-4 py-3 text-right">
-                                <div class="flex items-center justify-end gap-1">
-                                    <a :href="route('orders.pdf', o.id)" target="_blank"
-                                       class="p-1.5 rounded text-foreground-muted hover:text-brand-primary hover:bg-surface-elevated transition-colors" title="Drukuj PDF">
-                                        <Icons name="document-arrow-down" class="w-4 h-4" />
-                                    </a>
-                                    <button @click="confirmDelete(o)"
-                                            class="p-1.5 rounded text-foreground-muted hover:text-destructive hover:bg-destructive/10 transition-colors" title="Usuń">
-                                        <Icons name="trash" class="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                        <template v-for="o in orders.data" :key="o.id">
+                            <tr class="hover:bg-surface-elevated/50 transition-colors cursor-pointer" @click="toggleExpand(o.id)">
+                                <td class="px-2 py-3 text-center">
+                                    <Icons :name="expanded.has(o.id) ? 'chevron-down' : 'chevron-right'" class="w-4 h-4 text-foreground-muted mx-auto" />
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="font-mono text-sm font-semibold text-foreground">{{ o.number }}</span>
+                                </td>
+                                <td class="px-4 py-3" @click.stop>
+                                    <Link v-if="o.client" :href="route('clients.show', o.client.id)" class="text-sm text-foreground hover:text-brand-primary">
+                                        {{ o.client.name }}
+                                    </Link>
+                                    <span v-else class="text-foreground-subtle">—</span>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-foreground font-mono">
+                                    {{ o.order_date }}
+                                    <span v-if="o.delivery_date" class="block text-xs text-foreground-muted">→ {{ o.delivery_date }}</span>
+                                </td>
+                                <td class="px-4 py-3" @click.stop>
+                                    <select :value="o.status" @change="changeStatus(o, $event.target.value)"
+                                            :class="['text-xs px-2 py-1 rounded-full border-0 font-medium cursor-pointer focus:ring-1 focus:ring-brand-primary', statusBadgeClass[o.status]]">
+                                        <option v-for="(label, key) in statuses" :key="key" :value="key">{{ label }}</option>
+                                    </select>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-right text-foreground-muted">{{ o.items_count }}</td>
+                                <td class="px-4 py-3 text-sm text-right text-foreground font-mono font-semibold">{{ fmt(o.total_gross) }}</td>
+                                <td class="px-4 py-3 text-sm text-foreground-muted">{{ o.user_name || '—' }}</td>
+                                <td class="px-4 py-3 text-right" @click.stop>
+                                    <div class="flex items-center justify-end gap-1">
+                                        <a :href="route('orders.pdf', o.id)" target="_blank"
+                                           class="p-1.5 rounded text-foreground-muted hover:text-brand-primary hover:bg-surface-elevated transition-colors" title="Drukuj PDF">
+                                            <Icons name="document-arrow-down" class="w-4 h-4" />
+                                        </a>
+                                        <button @click="confirmDelete(o)"
+                                                class="p-1.5 rounded text-foreground-muted hover:text-destructive hover:bg-destructive/10 transition-colors" title="Usuń">
+                                            <Icons name="trash" class="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Expandable: lista pozycji + uwagi -->
+                            <tr v-if="expanded.has(o.id)" class="bg-surface-2/30">
+                                <td></td>
+                                <td colspan="8" class="px-4 py-4">
+                                    <div v-if="!o.items?.length" class="text-sm text-foreground-muted py-2">
+                                        Brak pozycji w zamówieniu.
+                                    </div>
+                                    <div v-else class="surface-elevated rounded-lg overflow-hidden border border-border">
+                                        <table class="min-w-full text-xs">
+                                            <thead class="bg-surface-2 border-b border-border">
+                                                <tr class="text-foreground-muted uppercase tracking-wider">
+                                                    <th class="px-3 py-2 text-left">Pozycja</th>
+                                                    <th class="px-3 py-2 text-left">SKU</th>
+                                                    <th class="px-3 py-2 text-right">Ilość</th>
+                                                    <th class="px-3 py-2 text-right">Cena netto</th>
+                                                    <th class="px-3 py-2 text-right">VAT</th>
+                                                    <th class="px-3 py-2 text-right">Wart. netto</th>
+                                                    <th class="px-3 py-2 text-right">Wart. brutto</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-border">
+                                                <tr v-for="item in o.items" :key="item.id">
+                                                    <td class="px-3 py-2 text-foreground">{{ item.name }}</td>
+                                                    <td class="px-3 py-2 text-foreground-muted font-mono">{{ item.sku || '—' }}</td>
+                                                    <td class="px-3 py-2 text-foreground text-right font-mono">{{ Number(item.quantity).toLocaleString('pl-PL') }} {{ item.unit }}</td>
+                                                    <td class="px-3 py-2 text-foreground text-right font-mono">{{ fmt(item.price_net) }}</td>
+                                                    <td class="px-3 py-2 text-foreground-muted text-right">{{ item.vat_rate }}%</td>
+                                                    <td class="px-3 py-2 text-foreground text-right font-mono">{{ fmt(item.total_net) }}</td>
+                                                    <td class="px-3 py-2 text-foreground text-right font-mono font-semibold">{{ fmt(item.total_gross) }}</td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot class="bg-surface-2 border-t border-border">
+                                                <tr class="text-xs">
+                                                    <td colspan="5" class="px-3 py-2 text-right text-foreground-muted">Razem:</td>
+                                                    <td class="px-3 py-2 text-right font-mono text-foreground font-semibold">{{ fmt(o.total_net) }}</td>
+                                                    <td class="px-3 py-2 text-right font-mono text-brand-primary font-bold">{{ fmt(o.total_gross) }}</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    <div v-if="o.notes" class="mt-3 surface-elevated rounded-lg p-3 border-l-2 border-brand-primary">
+                                        <p class="text-[10px] uppercase tracking-wider text-foreground-muted mb-1">Uwagi</p>
+                                        <p class="text-sm text-foreground whitespace-pre-wrap">{{ o.notes }}</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
                         <tr v-if="!orders.data?.length">
-                            <td colspan="8" class="px-4 py-12 text-center text-foreground-subtle">
+                            <td colspan="9" class="px-4 py-12 text-center text-foreground-subtle">
                                 <Icons name="document-text" class="w-12 h-12 mx-auto mb-3 opacity-40" />
                                 <p>Brak zamówień. Utwórz pierwsze z modala klienta (zakładka "Zamówienia").</p>
                             </td>
