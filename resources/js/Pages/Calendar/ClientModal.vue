@@ -4262,32 +4262,52 @@ const invoiceStatusLabels = {
                                 <label class="text-sm font-medium text-foreground">Pozycje</label>
                                 <button type="button" @click="addCoreItem" class="text-xs text-brand-primary hover:underline">+ Dodaj pozycję</button>
                             </div>
-                            <div class="space-y-2">
+                            <div class="space-y-3">
                                 <div v-for="(item, i) in coreOrderForm.items" :key="i"
-                                     class="grid grid-cols-12 gap-2 surface-elevated rounded-md p-3">
-                                    <select :value="item.product_id" @change="pickCoreProduct(i, $event.target.value)"
-                                            class="col-span-12 md:col-span-3 h-8 rounded border border-border-bright px-2 text-xs bg-surface text-foreground">
-                                        <option value="">— Wybierz z magazynu lub wpisz —</option>
-                                        <option v-for="p in coreProductOptions" :key="p.id" :value="p.id">{{ p.name }}{{ p.sku ? ' (' + p.sku + ')' : '' }}</option>
-                                    </select>
+                                     class="surface-elevated rounded-md p-3 space-y-2">
+                                    <!-- Wiersz 1: picker z magazynu + delete -->
+                                    <div class="flex items-center gap-2">
+                                        <select :value="item.product_id" @change="pickCoreProduct(i, $event.target.value)"
+                                                class="flex-1 min-w-0 h-9 rounded border border-border-bright px-2 text-sm bg-surface text-foreground">
+                                            <option value="">— Wybierz z magazynu lub wpisz nazwę poniżej —</option>
+                                            <option v-for="p in coreProductOptions" :key="p.id" :value="p.id">{{ p.name }}{{ p.sku ? ' (' + p.sku + ')' : '' }}</option>
+                                        </select>
+                                        <button type="button" @click="removeCoreItem(i)" :disabled="coreOrderForm.items.length === 1"
+                                                class="h-9 w-9 rounded text-foreground-muted hover:text-destructive hover:bg-destructive/10 disabled:opacity-30 shrink-0">
+                                            <Icons name="trash" class="w-4 h-4 mx-auto" />
+                                        </button>
+                                    </div>
+
                                     <input v-model="item.name" placeholder="Nazwa pozycji" required
-                                           class="col-span-12 md:col-span-3 h-8 rounded border border-border-bright px-2 text-sm bg-surface text-foreground" />
-                                    <input v-model.number="item.quantity" type="number" step="0.001" min="0.001" required title="Ilość"
-                                           class="col-span-3 md:col-span-1 h-8 rounded border border-border-bright px-2 text-sm bg-surface text-foreground text-right" />
-                                    <select v-model="item.unit"
-                                            class="col-span-3 md:col-span-1 h-8 rounded border border-border-bright px-1 text-xs bg-surface text-foreground">
-                                        <option v-for="u in ['szt','kg','l','godz','m','m2','m3','opak']" :key="u" :value="u">{{ u }}</option>
-                                    </select>
-                                    <input v-model.number="item.price_net" type="number" step="0.01" min="0" required title="Cena netto"
-                                           class="col-span-3 md:col-span-2 h-8 rounded border border-border-bright px-2 text-sm bg-surface text-foreground text-right" />
-                                    <select v-model.number="item.vat_rate" title="VAT"
-                                            class="col-span-2 md:col-span-1 h-8 rounded border border-border-bright px-1 text-xs bg-surface text-foreground">
-                                        <option v-for="r in [23,8,5,0]" :key="r" :value="r">{{ r }}%</option>
-                                    </select>
-                                    <button type="button" @click="removeCoreItem(i)" :disabled="coreOrderForm.items.length === 1"
-                                            class="col-span-1 h-8 rounded text-foreground-muted hover:text-destructive hover:bg-destructive/10 disabled:opacity-30">
-                                        <Icons name="trash" class="w-4 h-4 mx-auto" />
-                                    </button>
+                                           class="w-full h-9 rounded border border-border-bright px-3 text-sm bg-surface text-foreground" />
+
+                                    <!-- Wiersz 2: ilość, jedn., cena, VAT — z labelkami -->
+                                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                        <label class="space-y-1">
+                                            <span class="text-[10px] text-foreground-muted uppercase tracking-wide block">Ilość</span>
+                                            <input v-model.number="item.quantity" type="number" step="0.001" min="0.001" required
+                                                   class="w-full h-9 rounded border border-border-bright px-2 text-sm bg-surface text-foreground text-right" />
+                                        </label>
+                                        <label class="space-y-1">
+                                            <span class="text-[10px] text-foreground-muted uppercase tracking-wide block">Jedn.</span>
+                                            <select v-model="item.unit"
+                                                    class="w-full h-9 rounded border border-border-bright px-2 text-sm bg-surface text-foreground">
+                                                <option v-for="u in ['szt','kg','l','godz','m','m2','m3','opak']" :key="u" :value="u">{{ u }}</option>
+                                            </select>
+                                        </label>
+                                        <label class="space-y-1">
+                                            <span class="text-[10px] text-foreground-muted uppercase tracking-wide block">Cena netto</span>
+                                            <input v-model.number="item.price_net" type="number" step="0.01" min="0" required
+                                                   class="w-full h-9 rounded border border-border-bright px-2 text-sm bg-surface text-foreground text-right" />
+                                        </label>
+                                        <label class="space-y-1">
+                                            <span class="text-[10px] text-foreground-muted uppercase tracking-wide block">VAT</span>
+                                            <select v-model.number="item.vat_rate"
+                                                    class="w-full h-9 rounded border border-border-bright px-2 text-sm bg-surface text-foreground">
+                                                <option v-for="r in [23,8,5,0]" :key="r" :value="r">{{ r }}%</option>
+                                            </select>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\IntegrationLogController;
 use App\Http\Controllers\Admin\IntegrationsController;
 use App\Http\Controllers\Admin\ModuleController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\CalendarController;
@@ -240,6 +241,13 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
             Route::post('/', [ProductController::class, 'store'])->name('store');
             Route::put('/{product}', [ProductController::class, 'update'])->name('update');
             Route::delete('/{product}', [ProductController::class, 'destroy'])->name('destroy');
+        });
+
+        // Zamówienia — admin lista wszystkich (różne od /orders/* per-klient z modala)
+        Route::prefix('orders')->name('orders.')->group(function () {
+            Route::get('/', [AdminOrderController::class, 'index'])->name('index');
+            Route::patch('/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('update-status');
+            Route::delete('/{order}', [AdminOrderController::class, 'destroy'])->name('destroy');
         });
 
         // Cenniki (admin)

@@ -201,42 +201,53 @@ XML;
             'address' => '',
         ];
 
-        $shortName = $this->fetchShortNameFromReport($sessionId, $regon, $type, $silosId);
-        $result['short_name'] = $shortName ?: $this->generateShortName($name);
+        $reportData = $this->fetchFromFullReport($sessionId, $regon, $type, $silosId);
+        // Dla JDG (osoba fizyczna): BIR1 zwraca tylko 'PAWEŁ ROLOFF', a pełna nazwa firmy
+        // 'OVERMEDIA Paweł Roloff' jest dopiero w fiz_nazwa pełnego raportu BIR 1.1.
+        if (!empty($reportData['full_name']) && $reportData['full_name'] !== $name) {
+            $result['name'] = $reportData['full_name'];
+        }
+        $result['short_name'] = $reportData['short_name'] ?: $this->generateShortName($result['name']);
 
         return $result;
     }
 
     /**
-     * Pobiera NazwaSkrocona z pełnego raportu BIR
+     * Pobiera fiz_nazwa (full company name) + nazwa skrócona z pełnego raportu BIR 1.1.
+     * Dla JDG nazwa firmy jest tu, nie w BIR1 endpoint który zwraca tylko imię/nazwisko.
+     *
+     * @return array{full_name: ?string, short_name: ?string}
      */
-    private function fetchShortNameFromReport(string $sessionId, string $regon, string $type, string $silosId): ?string
+    private function fetchFromFullReport(string $sessionId, string $regon, string $type, string $silosId): array
     {
+        $empty = ['full_name' => null, 'short_name' => null];
         if (empty($regon)) {
-            return null;
+            return $empty;
         }
 
         $reportName = '';
         $shortNameField = '';
+        $fullNameField = '';
 
         if ($type === 'P') {
             $reportName = 'BIR11OsPrawna';
             $shortNameField = 'praw_nazwaSkrocona';
+            // Dla osób prawnych nazwa pełna już jest w BIR1, ale zostawiamy fallback
+            $fullNameField = 'praw_nazwa';
         } elseif ($type === 'F') {
+            $shortNameField = 'fiz_nazwaSkrocona';
+            $fullNameField = 'fiz_nazwa'; // pełna nazwa firmy (np. "OVERMEDIA Paweł Roloff")
             if ($silosId === '1') {
                 $reportName = 'BIR11OsFizycznaDzialalnoscCeidg';
-                $shortNameField = 'fiz_nazwaSkrocona';
             } elseif ($silosId === '2') {
                 $reportName = 'BIR11OsFizycznaDzialalnoscRolnicza';
-                $shortNameField = 'fiz_nazwaSkrocona';
             } elseif ($silosId === '3') {
                 $reportName = 'BIR11OsFizycznaDzialalnoscPozostala';
-                $shortNameField = 'fiz_nazwaSkrocona';
             }
         }
 
         if (empty($reportName)) {
-            return null;
+            return $empty;
         }
 
         try {
@@ -263,14 +274,14 @@ XML;
               ->post($this->apiUrl);
 
             if (!$response->successful()) {
-                return null;
+                return $empty;
             }
 
             preg_match('/<DanePobierzPelnyRaportResult>(.*?)<\/DanePobierzPelnyRaportResult>/s', $response->body(), $matches);
             $encoded = $matches[1] ?? '';
 
             if (empty($encoded)) {
-                return null;
+                return $empty;
             }
 
             $decoded = html_entity_decode($encoded);
@@ -279,16 +290,21 @@ XML;
 
             if (isset($reportXml->dane)) {
                 if (isset($reportXml->dane->ErrorCode)) {
-                    return null;
+                    return $empty;
                 }
                 $shortName = trim((string)($reportXml->dane->{$shortNameField} ?? ''));
-                return !empty($shortName) ? $shortName : null;
+                $fullName  = $fullNameField ? trim((string)($reportXml->dane->{$fullNameField} ?? '')) : '';
+
+                return [
+                    'full_name'  => $fullName ?: null,
+                    'short_name' => $shortName ?: null,
+                ];
             }
         } catch (\Exception $e) {
             Log::warning("GUS BIR report ({$reportName}) failed: " . $e->getMessage());
         }
 
-        return null;
+        return $empty;
     }
 
     /**

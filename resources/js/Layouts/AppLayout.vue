@@ -114,6 +114,7 @@ const navAdmin = [
     { name: 'Logi integracji', route: 'admin.integration-logs',       icon: 'activity',      pattern: 'admin.integration-logs',   roles: ['admin'] },
     { name: 'Moduły',          route: 'admin.modules.index',          icon: 'puzzle',        pattern: 'admin.modules.*',          roles: ['admin'] },
     { name: 'Produkty',        route: 'admin.products.index',         icon: 'shopping-cart', pattern: 'admin.products.*',         roles: ['admin', 'manager'] },
+    { name: 'Zamówienia',      route: 'admin.orders.index',           icon: 'document-text', pattern: 'admin.orders.*',           roles: ['admin', 'manager'] },
     { name: 'Cenniki',         route: 'admin.price-lists.index',      icon: 'price-list',    pattern: 'admin.price-lists.*',      roles: ['admin'] },
     { name: 'Ustawienia',      route: 'admin.settings.index',         icon: 'settings',      pattern: 'admin.settings.*',         roles: ['admin'] },
 ];
