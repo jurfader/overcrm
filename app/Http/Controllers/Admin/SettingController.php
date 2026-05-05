@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use App\Support\Brand;
+use App\Support\Providers\ProviderRegistry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -23,19 +24,37 @@ class SettingController extends Controller
             ->get()
             ->groupBy('group');
 
+        $registry = app(ProviderRegistry::class);
+        $providers = [
+            'product' => [
+                'active' => $registry->activeKey('product'),
+                'options' => $registry->meta('product'),
+            ],
+            'order' => [
+                'active' => $registry->activeKey('order'),
+                'options' => $registry->meta('order'),
+            ],
+            'invoice' => [
+                'active' => $registry->activeKey('invoice'),
+                'options' => $registry->meta('invoice'),
+            ],
+        ];
+
         return Inertia::render('Admin/Settings/Index', [
             'settings' => $settings,
             'groups' => [
-                'general'    => 'Ogólne',
-                'company'    => 'Dane firmy',
-                'mail'       => 'Poczta',
-                'appearance' => 'Wygląd',
+                'general'      => 'Ogólne',
+                'company'      => 'Dane firmy',
+                'mail'         => 'Poczta',
+                'integrations' => 'Integracje',
+                'appearance'   => 'Wygląd',
             ],
             'brand' => Brand::all(),
             'brandDefaults' => [
                 'primary_color'   => '#E91E8C',
                 'secondary_color' => '#9B26D9',
             ],
+            'providers' => $providers,
         ]);
     }
 

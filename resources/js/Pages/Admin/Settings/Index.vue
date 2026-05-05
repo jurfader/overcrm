@@ -7,12 +7,14 @@ import Input from '@/Components/Input.vue';
 import Textarea from '@/Components/Textarea.vue';
 import Switch from '@/Components/UI/Switch.vue';
 import BrandingPanel from '@/Components/Admin/BrandingPanel.vue';
+import IntegrationsPanel from '@/Components/Admin/IntegrationsPanel.vue';
 
 const props = defineProps({
     settings: Object,
     groups: Object,
     brand: { type: Object, default: () => ({}) },
     brandDefaults: { type: Object, default: () => ({ primary_color: '#E91E8C', secondary_color: '#9B26D9' }) },
+    providers: { type: Object, default: () => ({ product: { active: 'local', options: [] }, order: { active: 'local', options: [] }, invoice: { active: 'none', options: [] } }) },
 });
 
 const activeGroup = ref(Object.keys(props.groups)[0] || 'general');
@@ -49,10 +51,11 @@ function handleLogoUpload(event) {
 function removeLogo() { logoPreview.value = null; form.app_logo = null; }
 
 const groupIcons = {
-    general:    'settings',
-    company:    'building-office',
-    mail:       'mail',
-    appearance: 'sparkles',
+    general:      'settings',
+    company:      'building-office',
+    mail:         'mail',
+    integrations: 'globe',
+    appearance:   'sparkles',
 };
 </script>
 
@@ -66,7 +69,7 @@ const groupIcons = {
                 <h1 class="text-2xl font-bold gradient-brand-text">Ustawienia systemowe</h1>
                 <p class="text-sm text-foreground-muted mt-0.5">Konfiguracja globalna systemu</p>
             </div>
-            <Button v-if="activeGroup !== 'appearance'" @click="saveSettings" :loading="saving">
+            <Button v-if="!['appearance','integrations'].includes(activeGroup)" @click="saveSettings" :loading="saving">
                 <Icons name="check" class="w-4 h-4" />
                 {{ saving ? 'Zapisywanie...' : 'Zapisz zmiany' }}
             </Button>
@@ -103,6 +106,12 @@ const groupIcons = {
                         v-if="activeGroup === 'appearance'"
                         :brand="brand"
                         :defaults="brandDefaults"
+                    />
+
+                    <!-- Integracje: provider switcher (Iteracja 3 — pluggable architektura) -->
+                    <IntegrationsPanel
+                        v-else-if="activeGroup === 'integrations'"
+                        :providers="providers"
                     />
 
                     <template v-else>

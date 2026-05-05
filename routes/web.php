@@ -9,6 +9,7 @@ use App\Http\Controllers\PriceListController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\IntegrationLogController;
+use App\Http\Controllers\Admin\IntegrationsController;
 use App\Http\Controllers\Admin\ModuleController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SettingController;
@@ -73,12 +74,13 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
     // Changelog
     Route::get('/changelog', [ChangelogController::class, 'index'])->name('changelog.index');
 
-    // Zamówienia (CORE) — endpointy używane głównie z ClientModal jako JSON,
-    // plus PDF dokumentu zamówienia. Lista per-klient i pojedynczy show.
+    // Zamówienia — deleguje do aktywnego OrderProvider (LocalOrderProvider domyślnie,
+    // moduły Apilo/BaseLinker zastępują przez ProviderRegistry).
+    // ID jako string żeby external providers (Apilo IDs nie są integer-only) działali.
     Route::prefix('orders')->name('orders.')->group(function () {
         Route::post('/', [OrderController::class, 'store'])->name('store');
-        Route::get('/{order}', [OrderController::class, 'show'])->name('show');
-        Route::get('/{order}/pdf', [OrderController::class, 'pdf'])->name('pdf');
+        Route::get('/{order}', [OrderController::class, 'show'])->name('show')->where('order', '[A-Za-z0-9_-]+');
+        Route::get('/{order}/pdf', [OrderController::class, 'pdf'])->name('pdf')->where('order', '[A-Za-z0-9_-]+');
     });
     Route::get('/clients/{client}/orders', [OrderController::class, 'listByClient'])->name('clients.orders.list');
 
@@ -228,6 +230,9 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
 
         // Logi integracji
         Route::get('/integration-logs', [IntegrationLogController::class, 'index'])->name('integration-logs');
+
+        // Provider switcher (Settings → Integracje)
+        Route::post('/integrations', [IntegrationsController::class, 'update'])->name('integrations.update');
 
         // Magazyn produktów (CORE)
         Route::prefix('products')->name('products.')->group(function () {
