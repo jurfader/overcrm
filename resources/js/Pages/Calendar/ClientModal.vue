@@ -2316,7 +2316,7 @@ const invoiceStatusLabels = {
                         { id: 'details', label: 'SZCZEGÓŁY' },
                         ...(visit?.client_id ? [{ id: 'client_card', label: 'KARTA KLIENTA' }] : []),
                         { id: 'offer', label: 'OFERTA' },
-                        ...(visit?.client_id ? [{ id: 'orders', label: 'ZAMÓWIENIA' }] : []),
+                        { id: 'orders', label: 'ZAMÓWIENIA' },
                         { id: 'apilo', label: 'DODAJ ZAMÓWIENIE (APILO)' },
                         { id: 'invoices', label: 'FAKTUROWNIA' },
                         ...(hasRingostat ? [{ id: 'calls', label: 'POŁĄCZENIA' }] : []),
@@ -2736,13 +2736,18 @@ const invoiceStatusLabels = {
                 <div v-if="activeTab === 'orders'" class="tab-content">
                     <div class="flex items-center justify-between mb-4">
                         <h4 class="section-title mb-0">Zamówienia klienta</h4>
-                        <button type="button" @click="openCoreOrderForm()" class="btn-primary btn-sm">
+                        <button type="button" @click="openCoreOrderForm()" class="btn-primary btn-sm" :disabled="!visit?.client_id">
                             <Icons name="plus" class="w-4 h-4" />
                             Nowe zamówienie
                         </button>
                     </div>
 
-                    <div v-if="coreOrdersLoading" class="text-center py-8 text-foreground-muted text-sm">Ładuję…</div>
+                    <div v-if="!visit?.client_id" class="text-center py-12 surface-elevated rounded-lg">
+                        <Icons name="users" class="w-12 h-12 mx-auto mb-3 text-foreground-subtle opacity-50" />
+                        <p class="text-sm text-foreground-muted">Najpierw przypisz klienta do wizyty (zakładka „Szczegóły"), aby tworzyć zamówienia.</p>
+                    </div>
+
+                    <div v-else-if="coreOrdersLoading" class="text-center py-8 text-foreground-muted text-sm">Ładuję…</div>
 
                     <div v-else-if="!coreOrders.length" class="text-center py-12 surface-elevated rounded-lg">
                         <Icons name="shopping-cart" class="w-12 h-12 mx-auto mb-3 text-foreground-subtle opacity-50" />
