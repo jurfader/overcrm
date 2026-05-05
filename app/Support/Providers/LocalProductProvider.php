@@ -31,6 +31,7 @@ class LocalProductProvider implements ProductProvider
         return Product::query()
             ->active()
             ->search($term)
+            ->orderBy('name')
             ->limit($limit)
             ->get();
     }

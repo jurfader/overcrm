@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\PriceListController as AdminPriceListController;
 use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PriceListController;
+use App\Http\Controllers\ProductPickerController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\IntegrationLogController;
@@ -84,6 +85,9 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
         Route::get('/{order}/pdf', [OrderController::class, 'pdf'])->name('pdf')->where('order', '[A-Za-z0-9_-]+');
     });
     Route::get('/clients/{client}/orders', [OrderController::class, 'listByClient'])->name('clients.orders.list');
+
+    // Picker produktów (z aktywnego ProductProvider) — używany w ClientModal/Zamówienia
+    Route::get('/products/search', [ProductPickerController::class, 'search'])->name('products.search');
 
     // Cenniki (lista dla zalogowanych)
     Route::get('/cenniki', [PriceListController::class, 'index'])->name('price-lists.index');

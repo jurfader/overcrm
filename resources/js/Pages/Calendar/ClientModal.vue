@@ -345,11 +345,13 @@ async function loadCoreOrders() {
 async function loadCoreProductOptions() {
     if (coreProductOptions.value.length) return;
     try {
-        // Reuse istniejący endpoint Calendar/products zwracający uproszczoną listę.
-        // Jeśli nie pasuje — w przyszłości osobny /api/products/active.
-        const r = await fetch(route('calendar.products'), { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+        // Pobiera z aktywnego ProductProvider (LocalProductProvider domyślnie,
+        // ApiloProductProvider gdy admin przełączy w Settings → Integracje).
+        const r = await fetch(route('products.search'), {
+            headers: { Accept: 'application/json' }, credentials: 'same-origin',
+        });
         const d = await r.json();
-        coreProductOptions.value = (d.products || d || []).filter(p => p.active !== false);
+        coreProductOptions.value = (d.products || []).filter(p => p.active !== false);
     } catch (e) {
         coreProductOptions.value = [];
     }
