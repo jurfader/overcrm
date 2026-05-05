@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -128,12 +129,13 @@ class LicenseService
             $body = $resp->json() ?? [];
 
             if ($resp->successful() && ($body['success'] ?? false)) {
-                // Activate response payload signed: { success, plan, expiresAt }
-                if (!$this->verifyResponseSignature($body, ['success', 'plan', 'expiresAt'])) {
+                // Activate response payload signed: { success, plan, expiresAt, bindingToken }
+                if (!$this->verifyResponseSignature($body, ['success', 'plan', 'expiresAt', 'bindingToken'])) {
                     $this->saveErrorStatus('INVALID_SIGNATURE', $body);
                     return ['success' => false, 'message' => 'Odpowiedź serwera licencji ma nieprawidłowy podpis (możliwy MITM)', 'data' => $body];
                 }
                 $this->saveActiveStatus($body);
+                $this->saveBindingToken($body['bindingToken'] ?? null);
                 return ['success' => true, 'message' => 'Licencja aktywowana', 'data' => $body];
             }
 
@@ -165,18 +167,20 @@ class LicenseService
                     'domain'         => $this->domain(),
                     'installationId' => $this->installationId(),
                     'metrics'        => $this->collectMetrics(),
+                    'bindingToken'   => $this->loadBindingToken(),
                 ]);
 
             $body = $resp->json() ?? [];
 
             if ($resp->successful() && ($body['valid'] ?? false)) {
-                // Validate response payload signed: { valid, plan, expiresAt }
-                if (!$this->verifyResponseSignature($body, ['valid', 'plan', 'expiresAt'])) {
+                // Validate response payload signed: { valid, plan, expiresAt, bindingToken }
+                if (!$this->verifyResponseSignature($body, ['valid', 'plan', 'expiresAt', 'bindingToken'])) {
                     $this->saveErrorStatus('INVALID_SIGNATURE', $body);
                     Log::warning('License response signature mismatch', ['domain' => $this->domain()]);
                     return ['success' => false, 'message' => 'Nieprawidłowy podpis odpowiedzi serwera licencji', 'status' => self::STATUS_INVALID];
                 }
                 $this->saveActiveStatus($body);
+                $this->saveBindingToken($body['bindingToken'] ?? null);
                 return ['success' => true, 'message' => 'Licencja aktywna', 'status' => self::STATUS_ACTIVE];
             }
 
@@ -212,7 +216,9 @@ class LicenseService
             'DOMAIN_NOT_ACTIVATED',
             'LICENSE_INACTIVE',
             'MAX_INSTALLATIONS_REACHED',
-            'INVALID_SIGNATURE'      => self::STATUS_INVALID,
+            'INVALID_SIGNATURE',
+            'BINDING_MISMATCH',
+            'BINDING_REQUIRED'       => self::STATUS_INVALID,
             default                  => self::STATUS_INVALID,
         };
         Setting::set('license_status', $status);
@@ -246,6 +252,8 @@ class LicenseService
             'DOMAIN_NOT_ACTIVATED'     => 'Klucz nie jest przypisany do tej domeny',
             'MAX_INSTALLATIONS_REACHED'=> 'Osiągnięto maksymalną liczbę instalacji dla tej licencji',
             'INVALID_SIGNATURE'        => 'Nieprawidłowy podpis odpowiedzi serwera (możliwy MITM)',
+            'BINDING_MISMATCH'         => 'Token instalacji nieaktualny — wymagana ponowna aktywacja (możliwe klonowanie)',
+            'BINDING_REQUIRED'         => 'Wymagany token instalacji — uruchom ponowną aktywację',
             default                    => "Błąd licencji ({$code})",
         };
     }
@@ -414,6 +422,39 @@ class LicenseService
                 ->toArray();
         } catch (\Throwable $e) {
             return [];
+        }
+    }
+
+    // ===================================================================
+    // ETAP 2c: binding token rotation (anti-clone)
+    // Token zapisany ENCRYPTED w Settings — nawet dump DB nie ujawni
+    // surowego tokenu (atak by wymagał APP_KEY + DB jednocześnie).
+    // ===================================================================
+
+    protected function saveBindingToken(?string $token): void
+    {
+        if (!$token) {
+            Setting::set('license_binding_token', null);
+            return;
+        }
+        try {
+            $encrypted = Crypt::encryptString($token);
+            Setting::set('license_binding_token', $encrypted);
+        } catch (\Throwable $e) {
+            Log::warning('Failed to encrypt binding token', ['error' => $e->getMessage()]);
+            Setting::set('license_binding_token', $token); // fallback plain
+        }
+    }
+
+    protected function loadBindingToken(): ?string
+    {
+        $raw = Setting::get('license_binding_token', null);
+        if (!$raw) return null;
+        try {
+            return Crypt::decryptString($raw);
+        } catch (\Throwable $e) {
+            // Ktoś podmienił wartość ręcznie albo APP_KEY się zmienił — nie ufamy
+            return $raw; // może być wciąż plain z legacy zapisu
         }
     }
 }
