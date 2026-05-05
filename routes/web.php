@@ -9,6 +9,7 @@ use App\Http\Controllers\SupportController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\IntegrationLogController;
 use App\Http\Controllers\Admin\ModuleController;
+use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\ChangelogController;
@@ -217,6 +218,14 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
 
         // Logi integracji
         Route::get('/integration-logs', [IntegrationLogController::class, 'index'])->name('integration-logs');
+
+        // Magazyn produktów (CORE)
+        Route::prefix('products')->name('products.')->group(function () {
+            Route::get('/', [ProductController::class, 'index'])->name('index');
+            Route::post('/', [ProductController::class, 'store'])->name('store');
+            Route::put('/{product}', [ProductController::class, 'update'])->name('update');
+            Route::delete('/{product}', [ProductController::class, 'destroy'])->name('destroy');
+        });
 
         // Cenniki (admin)
         Route::prefix('price-lists')->name('price-lists.')->group(function () {
