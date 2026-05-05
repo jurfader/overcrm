@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\BrandingController;
 use App\Http\Controllers\Admin\PriceListController as AdminPriceListController;
 use App\Http\Controllers\LicenseController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PriceListController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\Admin\EmailTemplateController;
@@ -71,6 +72,15 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
 
     // Changelog
     Route::get('/changelog', [ChangelogController::class, 'index'])->name('changelog.index');
+
+    // Zamówienia (CORE) — endpointy używane głównie z ClientModal jako JSON,
+    // plus PDF dokumentu zamówienia. Lista per-klient i pojedynczy show.
+    Route::prefix('orders')->name('orders.')->group(function () {
+        Route::post('/', [OrderController::class, 'store'])->name('store');
+        Route::get('/{order}', [OrderController::class, 'show'])->name('show');
+        Route::get('/{order}/pdf', [OrderController::class, 'pdf'])->name('pdf');
+    });
+    Route::get('/clients/{client}/orders', [OrderController::class, 'listByClient'])->name('clients.orders.list');
 
     // Cenniki (lista dla zalogowanych)
     Route::get('/cenniki', [PriceListController::class, 'index'])->name('price-lists.index');

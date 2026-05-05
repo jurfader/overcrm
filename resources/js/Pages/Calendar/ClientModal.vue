@@ -303,6 +303,134 @@ function cloneApiloCatalogFromApi(products) {
     return markRaw(clones);
 }
 
+// ===================================================================
+// CORE Orders (zakładka "Zamówienia") — niezależne od Apilo
+// ===================================================================
+const coreOrders = ref([]);
+const coreOrdersLoading = ref(false);
+const coreOrderModalOpen = ref(false);
+const coreOrderSubmitting = ref(false);
+const coreProductOptions = ref([]);
+const coreOrderForm = ref(emptyCoreOrderForm());
+
+function emptyCoreOrderForm() {
+    return {
+        order_date: new Date().toISOString().split('T')[0],
+        delivery_date: '',
+        status: 'new',
+        notes: '',
+        items: [emptyCoreOrderItem()],
+    };
+}
+function emptyCoreOrderItem() {
+    return { product_id: null, name: '', sku: '', unit: 'szt', quantity: 1, price_net: 0, vat_rate: 23 };
+}
+
+async function loadCoreOrders() {
+    if (!props.visit?.client_id) return;
+    coreOrdersLoading.value = true;
+    try {
+        const r = await fetch(route('clients.orders.list', props.visit.client_id), {
+            headers: { Accept: 'application/json' }, credentials: 'same-origin',
+        });
+        const d = await r.json();
+        coreOrders.value = d.orders || [];
+    } catch (e) {
+        coreOrders.value = [];
+    } finally {
+        coreOrdersLoading.value = false;
+    }
+}
+
+async function loadCoreProductOptions() {
+    if (coreProductOptions.value.length) return;
+    try {
+        // Reuse istniejący endpoint Calendar/products zwracający uproszczoną listę.
+        // Jeśli nie pasuje — w przyszłości osobny /api/products/active.
+        const r = await fetch(route('calendar.products'), { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+        const d = await r.json();
+        coreProductOptions.value = (d.products || d || []).filter(p => p.active !== false);
+    } catch (e) {
+        coreProductOptions.value = [];
+    }
+}
+
+function openCoreOrderForm() {
+    coreOrderForm.value = emptyCoreOrderForm();
+    loadCoreProductOptions();
+    coreOrderModalOpen.value = true;
+}
+
+function addCoreItem() { coreOrderForm.value.items.push(emptyCoreOrderItem()); }
+function removeCoreItem(i) { coreOrderForm.value.items.splice(i, 1); }
+
+function pickCoreProduct(i, productId) {
+    const p = coreProductOptions.value.find(x => String(x.id) === String(productId));
+    if (!p) return;
+    const item = coreOrderForm.value.items[i];
+    item.product_id = p.id;
+    item.name = p.name;
+    item.sku = p.sku || '';
+    item.unit = p.unit || 'szt';
+    item.price_net = parseFloat(p.price_net) || 0;
+    item.vat_rate = p.vat_rate ?? 23;
+}
+
+const coreOrderTotals = computed(() => {
+    let net = 0, vat = 0;
+    for (const it of coreOrderForm.value.items) {
+        const lineNet = (parseFloat(it.quantity) || 0) * (parseFloat(it.price_net) || 0);
+        const lineVat = lineNet * ((parseInt(it.vat_rate) || 0) / 100);
+        net += lineNet; vat += lineVat;
+    }
+    return { net, vat, gross: net + vat };
+});
+
+function formatPlnAmount(n) {
+    return new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(n || 0);
+}
+
+async function submitCoreOrder() {
+    if (!props.visit?.client_id) return;
+    if (!coreOrderForm.value.items.length || !coreOrderForm.value.items.some(i => i.name?.trim())) {
+        alert('Dodaj przynajmniej jedną pozycję'); return;
+    }
+    coreOrderSubmitting.value = true;
+    try {
+        const r = await fetch(route('orders.store'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json',
+                       'X-XSRF-TOKEN': decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] || '') },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+                client_id: props.visit.client_id,
+                order_date: coreOrderForm.value.order_date,
+                delivery_date: coreOrderForm.value.delivery_date || null,
+                status: coreOrderForm.value.status,
+                notes: coreOrderForm.value.notes || null,
+                items: coreOrderForm.value.items
+                    .filter(i => i.name?.trim())
+                    .map(i => ({
+                        product_id: i.product_id || null,
+                        name: i.name, sku: i.sku || null, unit: i.unit,
+                        quantity: i.quantity, price_net: i.price_net, vat_rate: i.vat_rate,
+                    })),
+            }),
+        });
+        const d = await r.json();
+        if (!r.ok || !d.success) {
+            alert(d.message || 'Nie udało się utworzyć zamówienia');
+            return;
+        }
+        coreOrderModalOpen.value = false;
+        await loadCoreOrders();
+    } catch (e) {
+        alert('Błąd: ' + e.message);
+    } finally {
+        coreOrderSubmitting.value = false;
+    }
+}
+
 const orderForm = useForm({
     products: [newOrderLine()],
     // Szczegóły zamówienia (data + godzina z wizyty, żeby Apilo nie pokazywał 00:00)
@@ -2188,12 +2316,13 @@ const invoiceStatusLabels = {
                         { id: 'details', label: 'SZCZEGÓŁY' },
                         ...(visit?.client_id ? [{ id: 'client_card', label: 'KARTA KLIENTA' }] : []),
                         { id: 'offer', label: 'OFERTA' },
+                        ...(visit?.client_id ? [{ id: 'orders', label: 'ZAMÓWIENIA' }] : []),
                         { id: 'apilo', label: 'DODAJ ZAMÓWIENIE (APILO)' },
                         { id: 'invoices', label: 'FAKTUROWNIA' },
                         ...(hasRingostat ? [{ id: 'calls', label: 'POŁĄCZENIA' }] : []),
                     ]"
                     :key="tab.id"
-                    @click="activeTab = tab.id; if (tab.id === 'apilo') { loadApiloProducts(true); prefillOrderForm(); loadApiloOptions(); } if (tab.id === 'calls') { loadClientCalls(); } if (tab.id === 'client_card') { initClientForm(); }"
+                    @click="activeTab = tab.id; if (tab.id === 'apilo') { loadApiloProducts(true); prefillOrderForm(); loadApiloOptions(); } if (tab.id === 'calls') { loadClientCalls(); } if (tab.id === 'client_card') { initClientForm(); } if (tab.id === 'orders') { loadCoreOrders(); }"
                     :class="['tab-btn', { active: activeTab === tab.id }]"
                 >
                     {{ tab.label }}
@@ -2601,6 +2730,55 @@ const invoiceStatusLabels = {
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- ZAMÓWIENIA (CORE) -->
+                <div v-if="activeTab === 'orders'" class="tab-content">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="section-title mb-0">Zamówienia klienta</h4>
+                        <button type="button" @click="openCoreOrderForm()" class="btn-primary btn-sm">
+                            <Icons name="plus" class="w-4 h-4" />
+                            Nowe zamówienie
+                        </button>
+                    </div>
+
+                    <div v-if="coreOrdersLoading" class="text-center py-8 text-foreground-muted text-sm">Ładuję…</div>
+
+                    <div v-else-if="!coreOrders.length" class="text-center py-12 surface-elevated rounded-lg">
+                        <Icons name="shopping-cart" class="w-12 h-12 mx-auto mb-3 text-foreground-subtle opacity-50" />
+                        <p class="text-sm text-foreground-muted">Brak zamówień. Kliknij „Nowe zamówienie" żeby utworzyć pierwsze.</p>
+                    </div>
+
+                    <ul v-else class="space-y-2">
+                        <li v-for="o in coreOrders" :key="o.id"
+                            class="surface-elevated rounded-md p-3 flex items-center justify-between gap-3">
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono text-sm font-semibold text-foreground">{{ o.number }}</span>
+                                    <span class="text-xs px-2 py-0.5 rounded-full"
+                                          :class="{
+                                              'bg-foreground-muted/15 text-foreground-muted': o.status === 'draft',
+                                              'bg-info/15 text-info': o.status === 'new',
+                                              'bg-warning/15 text-warning': o.status === 'in_progress',
+                                              'bg-success/15 text-success': o.status === 'completed',
+                                              'bg-destructive/15 text-destructive': o.status === 'cancelled',
+                                          }">
+                                        {{ o.status_label }}
+                                    </span>
+                                </div>
+                                <p class="text-xs text-foreground-muted mt-1">
+                                    {{ o.order_date }} · {{ o.items_count }} {{ o.items_count === 1 ? 'pozycja' : 'pozycji' }}
+                                    <span v-if="o.user_name"> · {{ o.user_name }}</span>
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-3 shrink-0">
+                                <span class="text-sm font-bold text-foreground font-mono">{{ formatPlnAmount(o.total_gross) }}</span>
+                                <a :href="route('orders.pdf', o.id)" target="_blank" class="text-xs text-brand-primary hover:underline whitespace-nowrap">
+                                    <Icons name="document-arrow-down" class="w-4 h-4 inline" /> PDF
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
 
                 <!-- OFERTA -->
@@ -4032,6 +4210,108 @@ const invoiceStatusLabels = {
         @confirm="forceDeleteVisit"
         @cancel="showForceDeleteModal = false"
     />
+
+    <!-- CORE: Modal "Nowe zamówienie" -->
+    <Teleport to="body">
+        <Transition enter-active-class="transition duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100"
+                    leave-active-class="transition duration-150" leave-from-class="opacity-100" leave-to-class="opacity-0">
+            <div v-if="coreOrderModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center p-4"
+                 style="background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);" @click.self="coreOrderModalOpen = false">
+                <div class="glass-card rounded-xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col" style="background: var(--color-surface);">
+                    <header class="px-6 py-4 border-b border-border flex items-center justify-between">
+                        <div>
+                            <h2 class="text-base font-semibold text-foreground">Nowe zamówienie</h2>
+                            <p class="text-xs text-foreground-muted">Klient: {{ visit?.client?.name }}</p>
+                        </div>
+                        <button type="button" @click="coreOrderModalOpen = false" class="p-1 rounded hover:bg-surface-elevated text-foreground-muted hover:text-foreground">
+                            <Icons name="close" class="w-5 h-5" />
+                        </button>
+                    </header>
+
+                    <form @submit.prevent="submitCoreOrder" class="p-6 space-y-4 overflow-y-auto">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-foreground">Data wystawienia</label>
+                                <input type="date" v-model="coreOrderForm.order_date" required
+                                       class="h-9 w-full rounded-md border border-border-bright px-3 text-sm bg-surface-elevated text-foreground" />
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-foreground">Termin realizacji</label>
+                                <input type="date" v-model="coreOrderForm.delivery_date"
+                                       class="h-9 w-full rounded-md border border-border-bright px-3 text-sm bg-surface-elevated text-foreground" />
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-foreground">Status</label>
+                                <select v-model="coreOrderForm.status" class="h-9 w-full rounded-md border border-border-bright px-3 text-sm bg-surface-elevated text-foreground">
+                                    <option value="draft">Szkic</option>
+                                    <option value="new">Nowe</option>
+                                    <option value="in_progress">W realizacji</option>
+                                    <option value="completed">Zrealizowane</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Pozycje -->
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="text-sm font-medium text-foreground">Pozycje</label>
+                                <button type="button" @click="addCoreItem" class="text-xs text-brand-primary hover:underline">+ Dodaj pozycję</button>
+                            </div>
+                            <div class="space-y-2">
+                                <div v-for="(item, i) in coreOrderForm.items" :key="i"
+                                     class="grid grid-cols-12 gap-2 surface-elevated rounded-md p-3">
+                                    <select :value="item.product_id" @change="pickCoreProduct(i, $event.target.value)"
+                                            class="col-span-12 md:col-span-3 h-8 rounded border border-border-bright px-2 text-xs bg-surface text-foreground">
+                                        <option value="">— Wybierz z magazynu lub wpisz —</option>
+                                        <option v-for="p in coreProductOptions" :key="p.id" :value="p.id">{{ p.name }}{{ p.sku ? ' (' + p.sku + ')' : '' }}</option>
+                                    </select>
+                                    <input v-model="item.name" placeholder="Nazwa pozycji" required
+                                           class="col-span-12 md:col-span-3 h-8 rounded border border-border-bright px-2 text-sm bg-surface text-foreground" />
+                                    <input v-model.number="item.quantity" type="number" step="0.001" min="0.001" required title="Ilość"
+                                           class="col-span-3 md:col-span-1 h-8 rounded border border-border-bright px-2 text-sm bg-surface text-foreground text-right" />
+                                    <select v-model="item.unit"
+                                            class="col-span-3 md:col-span-1 h-8 rounded border border-border-bright px-1 text-xs bg-surface text-foreground">
+                                        <option v-for="u in ['szt','kg','l','godz','m','m2','m3','opak']" :key="u" :value="u">{{ u }}</option>
+                                    </select>
+                                    <input v-model.number="item.price_net" type="number" step="0.01" min="0" required title="Cena netto"
+                                           class="col-span-3 md:col-span-2 h-8 rounded border border-border-bright px-2 text-sm bg-surface text-foreground text-right" />
+                                    <select v-model.number="item.vat_rate" title="VAT"
+                                            class="col-span-2 md:col-span-1 h-8 rounded border border-border-bright px-1 text-xs bg-surface text-foreground">
+                                        <option v-for="r in [23,8,5,0]" :key="r" :value="r">{{ r }}%</option>
+                                    </select>
+                                    <button type="button" @click="removeCoreItem(i)" :disabled="coreOrderForm.items.length === 1"
+                                            class="col-span-1 h-8 rounded text-foreground-muted hover:text-destructive hover:bg-destructive/10 disabled:opacity-30">
+                                        <Icons name="trash" class="w-4 h-4 mx-auto" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Totale live -->
+                        <div class="surface-elevated rounded-md p-3 grid grid-cols-3 gap-3 text-sm">
+                            <div><span class="text-foreground-muted">Netto:</span> <strong class="text-foreground font-mono">{{ formatPlnAmount(coreOrderTotals.net) }}</strong></div>
+                            <div><span class="text-foreground-muted">VAT:</span> <strong class="text-foreground font-mono">{{ formatPlnAmount(coreOrderTotals.vat) }}</strong></div>
+                            <div><span class="text-foreground-muted">Brutto:</span> <strong class="text-brand-primary font-mono text-base">{{ formatPlnAmount(coreOrderTotals.gross) }}</strong></div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-foreground">Uwagi</label>
+                            <textarea v-model="coreOrderForm.notes" rows="2" maxlength="5000"
+                                      class="w-full rounded-md border border-border-bright px-3 py-2 text-sm bg-surface-elevated text-foreground"></textarea>
+                        </div>
+                    </form>
+
+                    <footer class="px-6 py-4 border-t border-border flex justify-end gap-3 bg-surface-2">
+                        <button type="button" @click="coreOrderModalOpen = false" class="btn-secondary">Anuluj</button>
+                        <button type="button" @click="submitCoreOrder" :disabled="coreOrderSubmitting" class="btn-primary">
+                            <Icons name="check" class="w-4 h-4" />
+                            {{ coreOrderSubmitting ? 'Tworzę…' : 'Utwórz zamówienie' }}
+                        </button>
+                    </footer>
+                </div>
+            </div>
+        </Transition>
+    </Teleport>
 </template>
 
 <style scoped>

@@ -82,6 +82,14 @@ class Client extends Model
         return $this->hasMany(ClientVisit::class);
     }
 
+    /**
+     * Zamówienia klienta (CORE — niezależne od Apilo)
+     */
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
     // ==================== SCOPES ====================
 
     /**
