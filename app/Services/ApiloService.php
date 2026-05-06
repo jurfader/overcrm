@@ -1062,6 +1062,62 @@ class ApiloService
     }
 
     /**
+     * Tworzy dokument finansowy (faktura/paragon/proforma) w Apilo.
+     * POST /rest/api/v1/finance/document/
+     * Używane przez Modules\Apilo\Providers\ApiloInvoiceProvider.
+     */
+    public function createFinanceDocument(array $payload): ?array
+    {
+        $token = $this->getAccessToken();
+        if (!$token) return null;
+
+        try {
+            $response = Http::withToken($token)
+                ->acceptJson()
+                ->timeout(15)
+                ->post("{$this->baseUrl}/rest/api/v1/finance/document/", $payload);
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+            Log::warning('Apilo createFinanceDocument failed', [
+                'status' => $response->status(),
+                'body'   => substr($response->body(), 0, 500),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Apilo Finance Document POST Error: ' . $e->getMessage());
+        }
+
+        return null;
+    }
+
+    /**
+     * Lista dokumentów finansowych powiązanych z konkretnym zamówieniem Apilo.
+     * GET /rest/api/v1/finance/document/?orderId=...
+     */
+    public function getFinanceDocuments(array $filters = []): array
+    {
+        $token = $this->getAccessToken();
+        if (!$token) return [];
+
+        try {
+            $response = Http::withToken($token)
+                ->acceptJson()
+                ->timeout(10)
+                ->get("{$this->baseUrl}/rest/api/v1/finance/document/", $filters);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                return $data['items'] ?? $data ?? [];
+            }
+        } catch (\Exception $e) {
+            Log::warning('Apilo getFinanceDocuments error: ' . $e->getMessage());
+        }
+
+        return [];
+    }
+
+    /**
      * Pobierz produkty (opcjonalnie filtruj po prefixie nazwy)
      * Strategia: Warehouse API -> fallback do unikalnych produktów z historii zamówień
      */

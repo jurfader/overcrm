@@ -1,0 +1,37 @@
+{
+    "name": "apilo",
+    "display_name": "Apilo",
+    "description": "Integracja z Apilo (zamówienia, produkty, faktury). Po włączeniu w Ustawienia → Integracje można ustawić Apilo jako provider produktów / zamówień / faktur — wtedy CRM komunikuje się z API Apilo zamiast lokalnej bazy.",
+    "version": "1.0.0",
+    "author": "OVERMEDIA",
+    "icon": "shopping-cart",
+    "is_core": false,
+    "order": 40,
+    "dependencies": [],
+    "permissions": {
+        "apilo_view": "Podgląd zamówień Apilo",
+        "apilo_manage": "Zarządzanie konfiguracją Apilo (OAuth, tokens)"
+    },
+    "settings": {
+        "credentials": {
+            "subdomain": {
+                "type": "string",
+                "label": "Subdomena Apilo",
+                "default": "",
+                "description": "np. moja-firma — z URL https://moja-firma.apilo.com"
+            },
+            "client_id": {
+                "type": "string",
+                "label": "Client ID",
+                "default": "",
+                "description": "Z panelu Apilo → Administracja → API"
+            },
+            "client_secret": {
+                "type": "string",
+                "label": "Client Secret",
+                "default": "",
+                "description": "Z panelu Apilo → Administracja → API (sekret)"
+            }
+        }
+    }
+}
