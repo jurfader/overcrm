@@ -6,6 +6,7 @@ use App\Contracts\OrderProvider;
 use App\Models\Client;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Product;
 use App\Models\Setting;
 use App\Support\Brand;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -57,6 +58,15 @@ class LocalOrderProvider implements OrderProvider
                 ]);
                 $item->recalc();
                 $item->save();
+
+                // Decrement stock dla pozycji z magazynu (gdy product ma track_stock=true)
+                // i zamówienie nie jest anulowane (cancelled = nie zdejmujemy z magazynu).
+                if (!empty($row['product_id']) && ($order->status ?? 'new') !== 'cancelled') {
+                    $product = Product::find($row['product_id']);
+                    if ($product && $product->track_stock) {
+                        $product->decrement('stock', (float) $row['quantity']);
+                    }
+                }
             }
 
             $order->load('items');

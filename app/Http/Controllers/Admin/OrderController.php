@@ -102,13 +102,50 @@ class OrderController extends Controller
         $data = $request->validate([
             'status' => 'required|in:draft,new,in_progress,completed,cancelled',
         ]);
-        $order->update(['status' => $data['status']]);
+
+        $oldStatus = $order->status;
+        $newStatus = $data['status'];
+
+        DB::transaction(function () use ($order, $oldStatus, $newStatus) {
+            $order->update(['status' => $newStatus]);
+
+            // Stock adjustment przy zmianie statusu:
+            // - aktywne → cancelled = restore (oddaj na magazyn)
+            // - cancelled → aktywne = re-decrement (zdejmij z magazynu)
+            if ($oldStatus !== 'cancelled' && $newStatus === 'cancelled') {
+                $this->adjustStock($order, +1);
+            } elseif ($oldStatus === 'cancelled' && $newStatus !== 'cancelled') {
+                $this->adjustStock($order, -1);
+            }
+        });
+
         return back()->with('success', 'Status zamówienia zaktualizowany');
     }
 
     public function destroy(Order $order): RedirectResponse
     {
-        $order->delete();
+        DB::transaction(function () use ($order) {
+            // Soft-delete aktywnego zamówienia = oddaj stock na magazyn
+            // (cancelled już oddało stock w updateStatus, nie podwajamy).
+            if ($order->status !== 'cancelled') {
+                $this->adjustStock($order, +1);
+            }
+            $order->delete();
+        });
         return back()->with('success', 'Zamówienie usunięte (soft-delete)');
+    }
+
+    /**
+     * Modyfikuje stock produktów z pozycji zamówienia.
+     * @param int $direction +1 = restore (oddaj na magazyn), -1 = decrement (zdejmij)
+     */
+    protected function adjustStock(Order $order, int $direction): void
+    {
+        foreach ($order->items()->whereNotNull('product_id')->get() as $item) {
+            $product = Product::find($item->product_id);
+            if ($product && $product->track_stock) {
+                $product->increment('stock', $direction * (float) $item->quantity);
+            }
+        }
     }
 }
