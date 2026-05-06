@@ -1062,6 +1062,69 @@ class ApiloService
     }
 
     /**
+     * Wymuś odświeżenie access tokenu przez refresh_token.
+     * Public wrapper na refreshAccessToken() — używane z UI Konfiguracji modułu Apilo.
+     */
+    public function forceRefreshToken(): array
+    {
+        if (empty($this->refreshToken)) {
+            return [
+                'success' => false,
+                'message' => 'Brak refresh_token. Najpierw przeprowadź autoryzację (wpisz authorization code).',
+            ];
+        }
+
+        $newToken = $this->refreshAccessToken();
+        if ($newToken) {
+            return [
+                'success' => true,
+                'message' => 'Access token odświeżony',
+                'expires_at' => Setting::get('apilo_access_token_expires_at', null, 'core'),
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => 'Odświeżenie tokenu nieudane — sprawdź Logi integracji. Może być potrzebna ponowna autoryzacja.',
+        ];
+    }
+
+    /**
+     * Status tokenów (do UI Konfiguracji modułu).
+     * @return array{configured: bool, has_access_token: bool, has_refresh_token: bool, expires_at: ?string, expires_in_minutes: ?int, subdomain: ?string}
+     */
+    public function getTokenStatus(): array
+    {
+        $expiresAt = Setting::get('apilo_access_token_expires_at', null, 'core');
+        $expiresInMinutes = null;
+        if ($expiresAt) {
+            try {
+                $expiresInMinutes = (int) now()->diffInMinutes(\Carbon\Carbon::parse($expiresAt), false);
+            } catch (\Throwable $e) {}
+        }
+
+        return [
+            'configured'         => $this->isConfigured(),
+            'has_access_token'   => !empty($this->accessToken),
+            'has_refresh_token'  => !empty($this->refreshToken),
+            'access_token_mask'  => $this->maskToken($this->accessToken),
+            'refresh_token_mask' => $this->maskToken($this->refreshToken),
+            'expires_at'         => $expiresAt ?: null,
+            'expires_in_minutes' => $expiresInMinutes,
+            'subdomain'          => Setting::get('apilo_subdomain', null, 'core'),
+            'client_id_set'      => !empty(Setting::get('apilo_client_id', null, 'core')),
+            'client_secret_set'  => !empty(Setting::get('apilo_client_secret', null, 'core')),
+        ];
+    }
+
+    protected function maskToken(?string $token): ?string
+    {
+        if (!$token) return null;
+        if (strlen($token) <= 12) return '***';
+        return substr($token, 0, 6) . '…' . substr($token, -4);
+    }
+
+    /**
      * Tworzy dokument finansowy (faktura/paragon/proforma) w Apilo.
      * POST /rest/api/v1/finance/document/
      * Używane przez Modules\Apilo\Providers\ApiloInvoiceProvider.

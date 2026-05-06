@@ -33,5 +33,13 @@
                 "description": "Z panelu Apilo → Administracja → API (sekret)"
             }
         }
-    }
+    },
+    "menu": [
+        {
+            "label": "Apilo — konfiguracja",
+            "route": "apilo.config",
+            "icon": "shopping-cart",
+            "roles": ["admin"]
+        }
+    ]
 }
