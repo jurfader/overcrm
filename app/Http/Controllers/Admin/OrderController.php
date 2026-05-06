@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Order;
+use App\Models\Product;
 use App\Support\License;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -141,11 +144,25 @@ class OrderController extends Controller
      */
     protected function adjustStock(Order $order, int $direction): void
     {
-        foreach ($order->items()->whereNotNull('product_id')->get() as $item) {
-            $product = Product::find($item->product_id);
-            if ($product && $product->track_stock) {
-                $product->increment('stock', $direction * (float) $item->quantity);
+        try {
+            foreach ($order->items()->whereNotNull('product_id')->get() as $item) {
+                $product = Product::find($item->product_id);
+                if ($product && $product->track_stock) {
+                    $delta = $direction * (float) $item->quantity;
+                    if ($delta >= 0) {
+                        $product->increment('stock', $delta);
+                    } else {
+                        $product->decrement('stock', abs($delta));
+                    }
+                }
             }
+        } catch (\Throwable $e) {
+            // Stock adjustment nie powinien blokowac glownej operacji (delete/status update).
+            Log::warning('adjustStock failed', [
+                'order_id' => $order->id,
+                'direction' => $direction,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 }
