@@ -210,6 +210,11 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
             Route::delete('/{module}', [ModuleController::class, 'uninstall'])->name('uninstall');
             Route::post('/{module}/config', [ModuleController::class, 'saveConfig'])->name('config');
         });
+
+        Route::prefix('marketplace')->name('marketplace.')->group(function () {
+            Route::get('/',        [App\Http\Controllers\Admin\MarketplaceController::class, 'index'])->name('index');
+            Route::post('/install', [App\Http\Controllers\Admin\MarketplaceController::class, 'install'])->name('install');
+        });
         
         // Branding — embedded w Settings → Wygląd. Tylko endpointy zapisu/uploadu, bez GET.
         Route::prefix('branding')->name('branding.')->group(function () {

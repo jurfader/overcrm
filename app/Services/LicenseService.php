@@ -457,4 +457,76 @@ class LicenseService
             return $raw; // może być wciąż plain z legacy zapisu
         }
     }
+
+    // ===================================================================
+    // Marketplace (license server /plugins endpoint, product=overcrm)
+    // ===================================================================
+
+    /**
+     * Pobiera publiczna liste modulow z license servera. Cache 1h.
+     * Zwraca [] jezeli license server nieosiagalny — UI dziala dalej z lokalnymi.
+     */
+    public function listMarketplacePlugins(): array
+    {
+        return Cache::remember('marketplace.plugins.overcrm', 3600, function () {
+            try {
+                $response = Http::timeout(self::HTTP_TIMEOUT)
+                    ->acceptJson()
+                    ->get("{$this->serverUrl()}/plugins", ['product' => 'overcrm']);
+
+                if ($response->successful()) {
+                    return $response->json('data') ?: [];
+                }
+                Log::warning('Marketplace listMarketplacePlugins HTTP error', ['status' => $response->status()]);
+                return [];
+            } catch (\Throwable $e) {
+                Log::warning('Marketplace listMarketplacePlugins exception', ['error' => $e->getMessage()]);
+                return [];
+            }
+        });
+    }
+
+    /**
+     * Inicjuje pobieranie modulu z marketplace. Zwraca downloadUrl (signed)
+     * ktore klient (MarketplaceService) uzywa do fetch ZIP. Wymaga aktywnej licencji.
+     */
+    public function downloadPlugin(string $pluginId): array
+    {
+        $licenseKey = Setting::get('license_key', null);
+        if (!$licenseKey) {
+            return ['success' => false, 'message' => 'Brak klucza licencji'];
+        }
+
+        try {
+            $response = Http::timeout(self::HTTP_TIMEOUT)
+                ->acceptJson()
+                ->asJson()
+                ->post("{$this->serverUrl()}/plugins/{$pluginId}/download", [
+                    'licenseKey'     => $licenseKey,
+                    'domain'         => $this->domain(),
+                    'installationId' => $this->installationId(),
+                ]);
+
+            if ($response->successful()) {
+                $body = $response->json();
+                $url = $body['downloadUrl'] ?? null;
+                if (!$url) {
+                    return ['success' => false, 'message' => 'Brak downloadUrl w odpowiedzi'];
+                }
+                return [
+                    'success'      => true,
+                    'download_url' => $url,
+                    'plugin_id'    => $body['pluginId'] ?? $pluginId,
+                    'version'      => $body['version'] ?? null,
+                ];
+            }
+
+            $code = $response->json('code') ?? 'HTTP_' . $response->status();
+            $msg  = $response->json('error') ?? "HTTP {$response->status()}";
+            return ['success' => false, 'message' => $msg, 'code' => $code];
+        } catch (\Throwable $e) {
+            Log::warning('Marketplace downloadPlugin exception', ['error' => $e->getMessage()]);
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
 }
