@@ -44,7 +44,8 @@
             "Modules\\Timeline\\": ["modules/Timeline/", "modules/Timeline/src/"],
             "Modules\\Leads\\": ["modules/Leads/", "modules/Leads/src/"],
             "Modules\\DailyReport\\": ["modules/DailyReport/", "modules/DailyReport/src/"],
-            "Modules\\Apilo\\": ["modules/Apilo/", "modules/Apilo/src/"]
+            "Modules\\Apilo\\": ["modules/Apilo/", "modules/Apilo/src/"],
+            "Modules\\Fakturownia\\": ["modules/Fakturownia/", "modules/Fakturownia/src/"]
         }
     },
     "autoload-dev": {
