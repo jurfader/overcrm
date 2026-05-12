@@ -17,6 +17,8 @@ class Order extends Model
         'order_date', 'delivery_date', 'notes',
         'total_net', 'total_vat', 'total_gross',
         'snapshot_company', 'snapshot_client',
+        'invoice_provider', 'invoice_external_id', 'invoice_number',
+        'invoice_paid_at', 'invoice_ksef_status', 'invoice_ksef_number',
     ];
 
     protected function casts(): array
@@ -29,6 +31,7 @@ class Order extends Model
             'total_gross'      => 'decimal:2',
             'snapshot_company' => 'array',
             'snapshot_client'  => 'array',
+            'invoice_paid_at'  => 'datetime',
         ];
     }
 

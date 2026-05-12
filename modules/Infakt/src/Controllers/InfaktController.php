@@ -3,11 +3,13 @@
 namespace Modules\Infakt\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Models\Setting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -89,23 +91,78 @@ class InfaktController extends Controller
     }
 
     /**
-     * Webhook receiver dla zdarzen z inFakt (send_to_ksef_success, invoice_paid, draft_invoice_created, ...).
-     * Aktualnie tylko loguje — w pelnej implementacji aktualizuje status Order/Invoice w CRM.
+     * Webhook receiver dla zdarzen z inFakt. Aktualizuje Order po invoice_external_id.
+     *
+     * Obslugiwane zdarzenia:
+     *  - invoice_paid              → Order.invoice_paid_at = teraz
+     *  - send_to_ksef_success      → Order.invoice_ksef_status = 'success' + ksef_number
+     *  - send_to_ksef_error        → Order.invoice_ksef_status = 'error'
+     *  - invoice_deleted           → Order.invoice_external_id = null
+     *  - draft_invoice_created     → log only (faktura juz przypisana w createFromOrder)
+     *  - async_invoice_creation_*  → log only
      */
     public function webhook(Request $request): JsonResponse
     {
         $payload = $request->all();
         $eventName = $payload['event']['name'] ?? 'unknown';
-        $resourceUuid = $payload['resource']['uuid'] ?? null;
+        $resource = $payload['resource'] ?? [];
+        $resourceUuid = $resource['uuid'] ?? null;
 
         Log::info('inFakt webhook received', [
-            'event'    => $eventName,
-            'uuid'     => $resourceUuid,
+            'event'      => $eventName,
+            'uuid'       => $resourceUuid,
             'event_uuid' => $payload['event']['uuid'] ?? null,
         ]);
 
-        // TODO: dispatch event do aktualizacji powiazanego Order::invoice_status
-        return response()->json(['ok' => true]);
+        if (!$resourceUuid) {
+            return response()->json(['ok' => true, 'skipped' => 'no resource uuid']);
+        }
+
+        $order = Order::where('invoice_provider', 'infakt')
+            ->where('invoice_external_id', $resourceUuid)
+            ->first();
+
+        if (!$order) {
+            return response()->json(['ok' => true, 'skipped' => 'no matching order']);
+        }
+
+        $updates = $this->resolveOrderUpdatesFromEvent($eventName, $resource);
+        if (!empty($updates)) {
+            $order->update($updates);
+        }
+
+        return response()->json(['ok' => true, 'order_id' => $order->id, 'applied' => array_keys($updates)]);
+    }
+
+    /**
+     * Mapuje webhook event → kolumny Order do zaktualizowania.
+     */
+    protected function resolveOrderUpdatesFromEvent(string $event, array $resource): array
+    {
+        return match ($event) {
+            'invoice_paid' => [
+                'invoice_paid_at' => isset($resource['paid_date'])
+                    ? Carbon::parse($resource['paid_date'])
+                    : now(),
+            ],
+            'send_to_ksef_success' => [
+                'invoice_ksef_status' => 'success',
+                'invoice_ksef_number' => $resource['ksef_data']['ksef_number']
+                    ?? $resource['ksef_number']
+                    ?? null,
+            ],
+            'send_to_ksef_error' => [
+                'invoice_ksef_status' => 'error',
+            ],
+            'invoice_deleted' => [
+                'invoice_external_id' => null,
+                'invoice_number'      => null,
+                'invoice_paid_at'     => null,
+                'invoice_ksef_status' => null,
+                'invoice_ksef_number' => null,
+            ],
+            default => [],
+        };
     }
 
     protected function maskSecret(?string $value): string

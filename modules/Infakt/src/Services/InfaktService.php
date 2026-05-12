@@ -541,6 +541,314 @@ class InfaktService
     }
 
     // ===================================================================
+    // Corrective invoices (faktury korygujace)
+    // ===================================================================
+
+    public function listCorrectiveInvoices(array $filters = [], int $limit = 100, int $offset = 0): array
+    {
+        return $this->listGeneric('corrective_invoices', $filters, $limit, $offset);
+    }
+
+    public function getCorrectiveInvoice(string $uuid): ?array
+    {
+        return $this->getGeneric('corrective_invoices', $uuid);
+    }
+
+    public function createCorrectiveInvoice(array $payload, bool $poll = true): array
+    {
+        return $this->createGeneric('corrective_invoices', 'corrective_invoice', $payload, $poll);
+    }
+
+    public function getCorrectiveInvoicePdf(string $uuid, string $documentType = 'original', string $locale = 'pl'): ?string
+    {
+        return $this->getPdfGeneric('corrective_invoices', $uuid, $documentType, $locale);
+    }
+
+    public function markCorrectiveInvoicePaid(string $uuid, ?string $paidDate = null): array
+    {
+        return $this->markPaidGeneric('corrective_invoices', $uuid, $paidDate);
+    }
+
+    // ===================================================================
+    // Advance invoices (zaliczkowe)
+    // ===================================================================
+
+    public function listAdvanceInvoices(array $filters = [], int $limit = 100, int $offset = 0): array
+    {
+        return $this->listGeneric('advance_invoices', $filters, $limit, $offset);
+    }
+
+    public function getAdvanceInvoice(string $uuid): ?array
+    {
+        return $this->getGeneric('advance_invoices', $uuid);
+    }
+
+    /**
+     * Tworzy fakture zaliczkowa. Pierwsza w grupie — z services[]; kolejne (do tej samej
+     * transakcji) — z previous_advance_id (bez services jezeli identyczne).
+     */
+    public function createAdvanceInvoice(array $payload, bool $poll = true): array
+    {
+        return $this->createGeneric('advance_invoices', 'advance_invoice', $payload, $poll);
+    }
+
+    public function getAdvanceInvoicePdf(string $uuid, string $documentType = 'original', string $locale = 'pl'): ?string
+    {
+        return $this->getPdfGeneric('advance_invoices', $uuid, $documentType, $locale);
+    }
+
+    public function markAdvanceInvoicePaid(string $uuid, ?string $paidDate = null): array
+    {
+        return $this->markPaidGeneric('advance_invoices', $uuid, $paidDate);
+    }
+
+    // ===================================================================
+    // Final invoices (koncowe / rozliczeniowe — domyka serie zaliczek)
+    // ===================================================================
+
+    public function listFinalInvoices(array $filters = [], int $limit = 100, int $offset = 0): array
+    {
+        return $this->listGeneric('final_invoices', $filters, $limit, $offset);
+    }
+
+    public function getFinalInvoice(string $uuid): ?array
+    {
+        return $this->getGeneric('final_invoices', $uuid);
+    }
+
+    /**
+     * Tworzy fakture koncowa. Payload wymaga previous_advance_id (uuid zaliczki).
+     */
+    public function createFinalInvoice(array $payload, bool $poll = true): array
+    {
+        return $this->createGeneric('final_invoices', 'final_invoice', $payload, $poll);
+    }
+
+    public function getFinalInvoicePdf(string $uuid, string $documentType = 'original', string $locale = 'pl'): ?string
+    {
+        return $this->getPdfGeneric('final_invoices', $uuid, $documentType, $locale);
+    }
+
+    public function markFinalInvoicePaid(string $uuid, ?string $paidDate = null): array
+    {
+        return $this->markPaidGeneric('final_invoices', $uuid, $paidDate);
+    }
+
+    // ===================================================================
+    // Accounting (read-only) — JPK V7, podatek dochodowy, VAT-UE, ZUS, KPiR
+    // ===================================================================
+
+    /** JPK V7 — pliki podatkowe per okres */
+    public function listSafV7Files(int $limit = 12, int $offset = 0): array
+    {
+        if (!$this->isConfigured()) return [];
+        try {
+            $response = $this->client()->get("{$this->apiBase}/saf_v7_files.json", [
+                'limit' => $limit, 'offset' => $offset, 'order' => 'period desc',
+            ]);
+            return $response->successful() ? ($response->json()['entities'] ?? []) : [];
+        } catch (\Throwable $e) { return []; }
+    }
+
+    /** Podatek dochodowy — zaliczki per okres */
+    public function listIncomeTaxes(int $limit = 12, int $offset = 0): array
+    {
+        if (!$this->isConfigured()) return [];
+        try {
+            $response = $this->client()->get("{$this->apiBase}/income_taxes.json", [
+                'limit' => $limit, 'offset' => $offset, 'order' => 'period desc',
+            ]);
+            return $response->successful() ? ($response->json()['entities'] ?? []) : [];
+        } catch (\Throwable $e) { return []; }
+    }
+
+    /** Podatek VAT-UE — informacje podsumowujace */
+    public function listVatEuTaxes(int $limit = 12, int $offset = 0): array
+    {
+        if (!$this->isConfigured()) return [];
+        try {
+            $response = $this->client()->get("{$this->apiBase}/vat_eu_taxes.json", [
+                'limit' => $limit, 'offset' => $offset, 'order' => 'period desc',
+            ]);
+            return $response->successful() ? ($response->json()['entities'] ?? []) : [];
+        } catch (\Throwable $e) { return []; }
+    }
+
+    /** Skladki ZUS — per okres */
+    public function listInsuranceFees(int $limit = 12, int $offset = 0): array
+    {
+        if (!$this->isConfigured()) return [];
+        try {
+            $response = $this->client()->get("{$this->apiBase}/insurance_fees.json", [
+                'limit' => $limit, 'offset' => $offset, 'order' => 'payment_date desc',
+            ]);
+            return $response->successful() ? ($response->json()['entities'] ?? []) : [];
+        } catch (\Throwable $e) { return []; }
+    }
+
+    /** Ksiega Przychodow i Rozchodow (KPiR) — sumy per okres */
+    public function listBooks(int $limit = 12, int $offset = 0): array
+    {
+        if (!$this->isConfigured()) return [];
+        try {
+            $response = $this->client()->get("{$this->apiBase}/books.json", [
+                'limit' => $limit, 'offset' => $offset, 'order' => 'period desc',
+            ]);
+            return $response->successful() ? ($response->json()['entities'] ?? []) : [];
+        } catch (\Throwable $e) { return []; }
+    }
+
+    /**
+     * Zwraca nadchodzace terminy platnosci podatkowych (cache 1h).
+     * Used by Dashboard widget. Filtruje status='draft' (nieoplacone).
+     */
+    public function getUpcomingTaxDeadlines(): array
+    {
+        if (!$this->isConfigured()) return [];
+
+        return Cache::remember('infakt.tax_deadlines.' . md5($this->apiKey), 3600, function () {
+            $today = now()->toDateString();
+            $deadlines = [];
+
+            foreach ($this->listSafV7Files(6) as $item) {
+                if (($item['status'] ?? null) !== 'paid' && !empty($item['payment_date']) && $item['payment_date'] >= $today) {
+                    $deadlines[] = [
+                        'kind'         => 'JPK V7',
+                        'period'       => $item['period_name'] ?? null,
+                        'payment_date' => $item['payment_date'],
+                        'amount'       => (int) ($item['tax_to_pay_price'] ?? 0),
+                    ];
+                }
+            }
+            foreach ($this->listIncomeTaxes(6) as $item) {
+                if (($item['status'] ?? null) !== 'paid' && !empty($item['payment_date']) && $item['payment_date'] >= $today) {
+                    $deadlines[] = [
+                        'kind'         => 'PIT (zaliczka)',
+                        'period'       => $item['period_name'] ?? null,
+                        'payment_date' => $item['payment_date'],
+                        'amount'       => (int) ($item['period_proceeds_price'] ?? 0),
+                    ];
+                }
+            }
+            foreach ($this->listInsuranceFees(6) as $item) {
+                if (!empty($item['payment_date']) && $item['payment_date'] >= $today) {
+                    $unpaid = (int) ($item['sum_amount_price'] ?? 0)
+                        - (int) ($item['social_amount_paid'] ?? 0)
+                        - (int) ($item['health_amount_paid'] ?? 0)
+                        - (int) ($item['work_amount_paid'] ?? 0);
+                    if ($unpaid <= 0) continue;
+                    $deadlines[] = [
+                        'kind'         => 'ZUS',
+                        'period'       => $item['period_name'] ?? null,
+                        'payment_date' => $item['payment_date'],
+                        'amount'       => $unpaid,
+                    ];
+                }
+            }
+
+            usort($deadlines, fn ($a, $b) => strcmp($a['payment_date'], $b['payment_date']));
+            return $deadlines;
+        });
+    }
+
+    // ===================================================================
+    // Generic helpers (DRY dla typow faktur)
+    // ===================================================================
+
+    protected function listGeneric(string $resource, array $filters, int $limit, int $offset): array
+    {
+        if (!$this->isConfigured()) return [];
+        try {
+            $query = ['limit' => $limit, 'offset' => $offset];
+            foreach ($filters as $key => $value) $query["q[{$key}]"] = $value;
+            $response = $this->client()->get("{$this->apiBase}/{$resource}.json", $query);
+            return $response->successful() ? ($response->json()['entities'] ?? []) : [];
+        } catch (\Throwable $e) {
+            Log::warning("InFakt list {$resource} exception", ['error' => $e->getMessage()]);
+            return [];
+        }
+    }
+
+    protected function getGeneric(string $resource, string $uuid): ?array
+    {
+        if (!$this->isConfigured()) return null;
+        try {
+            $response = $this->client()->get("{$this->apiBase}/{$resource}/{$uuid}.json");
+            return $response->successful() ? $response->json() : null;
+        } catch (\Throwable $e) { return null; }
+    }
+
+    /**
+     * Async create + poll status — wspolne dla VAT/corrective/advance/final.
+     * $bodyKey to klucz w body (np. 'corrective_invoice', 'advance_invoice').
+     */
+    protected function createGeneric(string $resource, string $bodyKey, array $payload, bool $poll): array
+    {
+        if (!$this->isConfigured()) {
+            return ['success' => false, 'message' => 'inFakt nie skonfigurowany'];
+        }
+        try {
+            $response = $this->client()->post("{$this->apiBase}/async/{$resource}.json", [$bodyKey => $payload]);
+            if (!$response->successful()) {
+                Log::warning("InFakt create {$resource} failed", ['status' => $response->status(), 'body' => substr($response->body(), 0, 300)]);
+                return ['success' => false, 'message' => 'HTTP ' . $response->status() . ': ' . substr($response->body(), 0, 300)];
+            }
+            $taskRef = $response->json()['invoice_task_reference_number'] ?? null;
+            if (!$taskRef) return ['success' => false, 'message' => 'Brak invoice_task_reference_number'];
+
+            if (!$poll) {
+                return ['success' => true, 'task_ref' => $taskRef, 'invoice' => null];
+            }
+
+            for ($i = 0; $i < 10; $i++) {
+                sleep(1);
+                try {
+                    $status = $this->client()->get("{$this->apiBase}/async/{$resource}/status/{$taskRef}.json")->json() ?: [];
+                } catch (\Throwable $e) { $status = []; }
+                $code = $status['processing_code'] ?? null;
+                if ($code === 201) {
+                    return ['success' => true, 'task_ref' => $taskRef, 'invoice' => $status['invoice'] ?? null];
+                }
+                if ($code === 422) {
+                    return ['success' => false, 'task_ref' => $taskRef, 'message' => $status['processing_description'] ?? 'Nie udalo sie stworzyc'];
+                }
+            }
+            return ['success' => true, 'task_ref' => $taskRef, 'invoice' => null, 'pending' => true];
+        } catch (\Throwable $e) {
+            Log::warning("InFakt create {$resource} exception", ['error' => $e->getMessage()]);
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    protected function getPdfGeneric(string $resource, string $uuid, string $documentType, string $locale): ?string
+    {
+        if (!$this->isConfigured()) return null;
+        try {
+            $response = $this->client()->get("{$this->apiBase}/{$resource}/{$uuid}/pdf.json", [
+                'document_type' => $documentType,
+                'locale'        => $locale,
+            ]);
+            return $response->successful() ? $response->body() : null;
+        } catch (\Throwable $e) { return null; }
+    }
+
+    protected function markPaidGeneric(string $resource, string $uuid, ?string $paidDate): array
+    {
+        if (!$this->isConfigured()) {
+            return ['success' => false, 'message' => 'inFakt nie skonfigurowany'];
+        }
+        try {
+            $body = $paidDate ? ['paid_date' => $paidDate] : [];
+            $response = $this->client()->post("{$this->apiBase}/{$resource}/{$uuid}/paid.json", $body);
+            return $response->successful()
+                ? ['success' => true]
+                : ['success' => false, 'message' => 'HTTP ' . $response->status()];
+        } catch (\Throwable $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    // ===================================================================
     // HTTP client (DRY)
     // ===================================================================
 
