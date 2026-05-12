@@ -509,15 +509,17 @@ class LicenseService
 
             if ($response->successful()) {
                 $body = $response->json();
-                $url = $body['downloadUrl'] ?? null;
+                // License server zwraca { data: { pluginId, version, downloadUrl }, signature }
+                $data = $body['data'] ?? $body;
+                $url = $data['downloadUrl'] ?? null;
                 if (!$url) {
                     return ['success' => false, 'message' => 'Brak downloadUrl w odpowiedzi'];
                 }
                 return [
                     'success'      => true,
                     'download_url' => $url,
-                    'plugin_id'    => $body['pluginId'] ?? $pluginId,
-                    'version'      => $body['version'] ?? null,
+                    'plugin_id'    => $data['pluginId'] ?? $pluginId,
+                    'version'      => $data['version'] ?? null,
                 ];
             }
 
