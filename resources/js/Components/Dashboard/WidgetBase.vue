@@ -22,9 +22,12 @@ const widthOptions = [
 <template>
     <div :class="[
         'glass-card rounded-lg overflow-hidden flex flex-col',
+        // Spojny minimalny wzrost zeby siatka byla wyrownana, max zeby
+        // dlugie listy scrollowaly wewnatrz zamiast rozjezdzac dashboard.
+        'min-h-[280px] max-h-[420px]',
         editMode && 'ring-2 ring-brand-primary/40 ring-offset-2 ring-offset-background',
     ]">
-        <header class="px-4 py-3 border-b border-border flex items-center gap-3">
+        <header class="px-4 py-3 border-b border-border flex items-center gap-3 shrink-0">
             <Icons :name="icon" class="w-4 h-4 text-brand-primary shrink-0" />
             <h3 class="text-sm font-semibold text-foreground flex-1 min-w-0 truncate">{{ title }}</h3>
 
