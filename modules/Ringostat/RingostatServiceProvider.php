@@ -2,29 +2,25 @@
 
 namespace Modules\Ringostat;
 
-use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
 
+/**
+ * Skeleton modułu Ringostat. Implementacja API+webhooks w kolejnej iteracji.
+ *
+ * Po włączeniu: admin widzi 'Ringostat — konfiguracja' w sidebarze, wpisuje
+ * Auth-key (z panelu Ringostat → Integracja → API/Webhooks) i URL endpoints.
+ * Webhooks Ringostat.net trafiają do /ringostat/webhook/{event} i zapisują
+ * call data do tabeli ringostat_calls_v2 (osobnej od play_centrala calls).
+ */
 class RingostatServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->singleton(Services\RingostatService::class);
+        $this->app->singleton(Services\RingostatNetService::class);
     }
 
     public function boot(): void
     {
-        if ($this->app->runningInConsole()) {
-            $this->commands([
-                Commands\SyncRingostatCalls::class,
-                Commands\MatchVisits::class,
-            ]);
-        }
-
-        $this->app->booted(function () {
-            $schedule = $this->app->make(Schedule::class);
-            // Synchronizacja połączeń co godzinę (fallback jeśli webhook nie działa)
-            $schedule->command('ringostat:sync-calls --hours=2')->hourly();
-        });
+        // Migracje w database/migrations/ — auto-loadowane przez ModuleServiceProvider
     }
 }

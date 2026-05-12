@@ -15,7 +15,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
-use Modules\Ringostat\Services\RingostatService;
+use Modules\PlayCentrala\Services\RingostatService;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ClientController extends Controller

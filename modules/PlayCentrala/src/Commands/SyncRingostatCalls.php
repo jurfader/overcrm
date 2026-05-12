@@ -1,10 +1,10 @@
 <?php
 
-namespace Modules\Ringostat\Commands;
+namespace Modules\PlayCentrala\Commands;
 
 use Illuminate\Console\Command;
-use Modules\Ringostat\Models\RingostatCall;
-use Modules\Ringostat\Services\RingostatService;
+use Modules\PlayCentrala\Models\RingostatCall;
+use Modules\PlayCentrala\Services\RingostatService;
 use Illuminate\Support\Facades\Log;
 
 class SyncRingostatCalls extends Command

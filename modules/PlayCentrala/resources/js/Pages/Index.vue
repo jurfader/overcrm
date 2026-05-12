@@ -21,7 +21,7 @@ const audioEl = ref(null);
 const selectedCall = ref(null);
 
 function applyFilters() {
-    router.get(route('ringostat.index'), {
+    router.get(route('playcentrala.index'), {
         search: search.value || undefined,
         call_type: callType.value || undefined,
         date_from: dateFrom.value || undefined,
@@ -65,7 +65,7 @@ const isAdmin = computed(() => true); // permissions handled server-side
 
 function syncCalls() {
     if (!confirm('Pobrać nowe połączenia z Play Centrali?')) return;
-    router.post(route('ringostat.sync-calls'), {}, {
+    router.post(route('playcentrala.sync-calls'), {}, {
         onSuccess: () => router.reload({ only: ['calls', 'pagination'] }),
     });
 }

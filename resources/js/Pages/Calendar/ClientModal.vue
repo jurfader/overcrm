@@ -47,7 +47,7 @@ const activeTab = ref('details');
 // Sprawdź czy moduł Ringostat jest aktywny
 const hasRingostat = computed(() => {
     const modules = page.props.activeModules || [];
-    return modules.some(m => m.name === 'ringostat');
+    return modules.some(m => m.name === 'playcentrala' || m.name === 'ringostat');
 });
 const isLoading = ref(false);
 const invoices = ref([]);
@@ -242,7 +242,7 @@ function loadClientCalls() {
     loadingCalls.value = true;
 
     // Priorytet — nowy endpoint oparty o wizytę: matchuje po visit_id, client_id wizyty I po numerach z phones
-    fetch(route('ringostat.visit-calls', visitId), {
+    fetch(route('playcentrala.visit-calls', visitId), {
         headers: { 'Accept': 'application/json' },
         credentials: 'same-origin',
     })

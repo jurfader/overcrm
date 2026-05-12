@@ -3,18 +3,14 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Ringostat\Controllers\RingostatController;
 
-Route::middleware(['2fa'])->group(function () {
-    Route::get('/', [RingostatController::class, 'index'])->name('index');
-    Route::get('/stats', [RingostatController::class, 'stats'])->name('stats');
-    Route::post('/callback', [RingostatController::class, 'callback'])->name('callback');
-    Route::get('/client-calls/{clientId}', [RingostatController::class, 'clientCalls'])->name('client-calls');
-    Route::get('/visit-calls/{visitId}', [RingostatController::class, 'visitCalls'])->name('visit-calls');
-    Route::get('/daily-report-calls', [RingostatController::class, 'dailyReportCalls'])->name('daily-report-calls');
-    Route::get('/recording/{callId}', [RingostatController::class, 'streamRecording'])->name('stream-recording');
+// Webhook BEZ auth (Ringostat POSTuje z zewnątrz) — w produkcji dorobić signature verify
+Route::post('/webhook', [RingostatController::class, 'webhook'])
+    ->withoutMiddleware(['auth', 'verified', 'web'])
+    ->name('webhook');
 
-    Route::middleware('role:admin')->group(function () {
-        Route::post('/sync-calls', [RingostatController::class, 'syncCalls'])->name('sync-calls');
-        Route::post('/rematch-calls', [RingostatController::class, 'rematchCalls'])->name('rematch-calls');
-        Route::post('/test-connection', [RingostatController::class, 'testConnection'])->name('test-connection');
-    });
+// Konfiguracja — admin
+Route::middleware(['role:admin'])->group(function () {
+    Route::get('/config',       [RingostatController::class, 'config'])->name('config');
+    Route::post('/credentials', [RingostatController::class, 'saveCredentials'])->name('credentials');
+    Route::post('/test',        [RingostatController::class, 'test'])->name('test');
 });

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Ringostat\Models;
+namespace Modules\PlayCentrala\Models;
 
 use App\Models\Client;
 use App\Models\User;

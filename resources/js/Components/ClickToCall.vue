@@ -16,7 +16,7 @@ function initiateCall() {
     calling.value = true;
     message.value = '';
 
-    fetch(route('ringostat.callback'), {
+    fetch(route('playcentrala.callback'), {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

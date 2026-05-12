@@ -1,56 +1,24 @@
 {
     "name": "ringostat",
-    "display_name": "Play Centrala",
-    "description": "Integracja z Play Wirtualną Centralką — połączenia telefoniczne, click-to-call, analiza AI nagrań",
-    "version": "2.0.0",
+    "display_name": "Ringostat",
+    "description": "Integracja z Ringostat.net — call tracking, webhooks dla incoming/outbound calls, analiza AI nagrań, callback API. Alternatywa dla Play Centrali (możesz mieć tylko jeden VoIP gateway aktywny).",
+    "version": "1.0.0",
     "author": "OVERMEDIA",
     "icon": "phone",
     "is_core": false,
-    "order": 10,
+    "order": 11,
     "dependencies": [],
     "permissions": {
-        "ringostat_view": "Podgląd połączeń",
-        "ringostat_manage": "Zarządzanie modułem (synchronizacja, konfiguracja)"
+        "ringostat_view": "Podgląd połączeń Ringostat",
+        "ringostat_manage": "Konfiguracja integracji Ringostat"
     },
-    "settings": {
-        "integrations": {
-            "play_client_id": {
-                "type": "string",
-                "label": "Play Client ID",
-                "default": "",
-                "description": "16-znakowy identyfikator API z Panelu Usług dla Firm (uslugidlafirm.play.pl → API → Konfiguracja)"
-            },
-            "play_client_secret": {
-                "type": "password",
-                "label": "Play Client Secret",
-                "default": "",
-                "description": "64-znakowe hasło API"
-            },
-            "play_private_key": {
-                "type": "textarea",
-                "label": "Klucz prywatny (PEM)",
-                "default": "",
-                "description": "Klucz prywatny RSA do odszyfrowania nagrań — format PEM (-----BEGIN PRIVATE KEY-----...)"
-            },
-            "play_webhook_login": {
-                "type": "string",
-                "label": "Webhook — Login (Basic Auth)",
-                "default": "",
-                "description": "Login do autoryzacji webhooka z Play (ustaw taki sam w panelu Play → API → Notyfikacje)"
-            },
-            "play_webhook_password": {
-                "type": "password",
-                "label": "Webhook — Hasło (Basic Auth)",
-                "default": "",
-                "description": "Hasło do autoryzacji webhooka"
-            }
-        }
-    },
+    "settings": {},
     "menu": [
         {
-            "label": "Play Centrala",
-            "route": "ringostat.index",
-            "icon": "phone"
+            "label": "Ringostat — konfiguracja",
+            "route": "ringostat.config",
+            "icon": "phone",
+            "roles": ["admin"]
         }
     ]
 }

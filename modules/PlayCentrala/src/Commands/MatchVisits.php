@@ -1,9 +1,9 @@
 <?php
 
-namespace Modules\Ringostat\Commands;
+namespace Modules\PlayCentrala\Commands;
 
 use Illuminate\Console\Command;
-use Modules\Ringostat\Models\RingostatCall;
+use Modules\PlayCentrala\Models\RingostatCall;
 
 /**
  * Retroaktywnie matchuje istniejące ringostat_calls z wizytami (client_visits.phones_normalized).

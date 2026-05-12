@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Ringostat\Services;
+namespace Modules\PlayCentrala\Services;
 
 use App\Models\Setting;
 use Illuminate\Support\Facades\Cache;

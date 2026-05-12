@@ -1,10 +1,10 @@
 <?php
 
-namespace Modules\Ringostat\Commands;
+namespace Modules\PlayCentrala\Commands;
 
 use App\Models\Client;
 use Illuminate\Console\Command;
-use Modules\Ringostat\Services\RingostatService;
+use Modules\PlayCentrala\Services\RingostatService;
 
 class SyncRingostatContacts extends Command
 {

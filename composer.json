@@ -45,7 +45,9 @@
             "Modules\\Leads\\": ["modules/Leads/", "modules/Leads/src/"],
             "Modules\\DailyReport\\": ["modules/DailyReport/", "modules/DailyReport/src/"],
             "Modules\\Apilo\\": ["modules/Apilo/", "modules/Apilo/src/"],
-            "Modules\\Fakturownia\\": ["modules/Fakturownia/", "modules/Fakturownia/src/"]
+            "Modules\\Fakturownia\\": ["modules/Fakturownia/", "modules/Fakturownia/src/"],
+            "Modules\\PlayCentrala\\": ["modules/PlayCentrala/", "modules/PlayCentrala/src/"],
+            "Modules\\Ringostat\\": ["modules/Ringostat/", "modules/Ringostat/src/"]
         }
     },
     "autoload-dev": {
