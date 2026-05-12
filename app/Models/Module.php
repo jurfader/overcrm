@@ -60,11 +60,25 @@ class Module extends Model
     // ==================== METODY ====================
 
     /**
-     * Pobierz ścieżkę do modułu
+     * Pobierz ścieżkę do modułu. Lookup case-insensitive — slug 'dailyreport'
+     * pasuje do folderu 'DailyReport' (PSR-4 wymaga CamelCase na Linux).
      */
     public function getPath(): string
     {
-        return base_path('modules/' . ucfirst($this->name));
+        $modulesPath = base_path('modules');
+        $target = strtolower($this->name);
+
+        if (File::exists($modulesPath)) {
+            foreach (File::directories($modulesPath) as $dir) {
+                if (strtolower(basename($dir)) === $target) {
+                    return $dir;
+                }
+            }
+        }
+        // Fallback do ucfirst gdy folder nie istnieje (np. modul w DB, ale
+        // jeszcze nie zainstalowany na disku) — getPath caller dostanie path
+        // ktorego existsOnDisk() i tak zwroci false.
+        return $modulesPath . '/' . ucfirst($this->name);
     }
 
     /**
@@ -81,12 +95,23 @@ class Module extends Model
     public function getManifest(): ?array
     {
         $path = $this->getPath() . '/module.json';
-        
+
         if (!File::exists($path)) {
             return null;
         }
 
         return json_decode(File::get($path), true);
+    }
+
+    /**
+     * Zwraca nazwe route'u dla custom config page modulu (np. 'infakt.config').
+     * Czytane z manifest['config_route']. null gdy modul nie ma wlasnej strony
+     * konfiguracji — wtedy caller powinien uzyc generic admin.modules.show.
+     */
+    public function getConfigRoute(): ?string
+    {
+        $manifest = $this->getManifest();
+        return $manifest['config_route'] ?? null;
     }
 
     /**

@@ -36,6 +36,17 @@ function fmtPrice(price, currency) {
     if (!price || price === 0) return 'Darmowy';
     return ((price ?? 0) / 100).toLocaleString('pl-PL', { style: 'currency', currency: currency || 'PLN' });
 }
+
+// Modul moze miec wlasna strone konfiguracji (np. 'infakt.config' z multi-step
+// OAuth flow). Inaczej generic admin.modules.show renderuje pola z manifestu.
+// Try-catch bo Ziggy rzuca jak route'u nie ma w bundle (modul zainstalowany,
+// ale strona JS jeszcze nie zbudowana — fallback graceful do generic).
+function configLink(m) {
+    if (m.config_route) {
+        try { return route(m.config_route); } catch (e) { /* fallthrough */ }
+    }
+    return route('admin.modules.show', m.id);
+}
 </script>
 
 <template>
@@ -104,7 +115,7 @@ function fmtPrice(price, currency) {
                           class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-warning/15 text-warning">
                         Brak na dysku
                     </span>
-                    <Link :href="route('admin.modules.show', m.id)"
+                    <Link :href="configLink(m)"
                           class="ml-auto text-xs text-brand-primary hover:underline">
                         Konfiguracja →
                     </Link>

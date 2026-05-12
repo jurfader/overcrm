@@ -56,6 +56,9 @@ class MarketplaceService
                     'is_core'      => $m->is_core,
                     'dependencies' => $m->dependencies,
                     'exists_on_disk' => $m->existsOnDisk(),
+                    // Custom config route z manifestu (np. 'infakt.config'),
+                    // inaczej null → frontend uzywa generic admin.modules.show.
+                    'config_route' => $m->getConfigRoute(),
                 ];
             })->all();
 
