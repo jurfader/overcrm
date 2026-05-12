@@ -53,12 +53,14 @@ class MarketplaceService
         })->all();
 
         $remote = collect($this->license->listMarketplacePlugins())->map(function ($plugin) use ($installed) {
-            $name = strtolower($plugin['name'] ?? '');
-            $isInstalled = !empty(array_filter($installed, fn ($m) => $m['name'] === $name));
+            // ID na license serverze to slug techniczny ('playcentrala'); name to display ('Play Centrala').
+            // Matchujemy installed po slugu (Module::$name == plugin.id).
+            $slug = strtolower($plugin['id'] ?? '');
+            $isInstalled = !empty(array_filter($installed, fn ($m) => $m['name'] === $slug));
             return [
                 'id'           => $plugin['id'] ?? null,
-                'name'         => $name,
-                'display_name' => $plugin['name'] ?? $name,
+                'name'         => $slug,
+                'display_name' => $plugin['name'] ?? $slug,
                 'description'  => $plugin['description'] ?? null,
                 'version'      => $plugin['version'] ?? null,
                 'author'       => $plugin['author'] ?? 'OVERMEDIA',
