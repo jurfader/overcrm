@@ -131,6 +131,7 @@ class MarketplaceService
                     $this->moduleService->activate($module);
                 }
                 $this->license->forgetMarketplaceCache();
+                $this->clearLaravelCaches();
             }
 
             return $result;
@@ -138,6 +139,21 @@ class MarketplaceService
             @unlink($tmpPath);
             Log::warning('Marketplace install exception', ['plugin_id' => $pluginId, 'error' => $e->getMessage()]);
             return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Czysci route + view cache po install/update modulu. Bez tego nowe route'y
+     * z routes/web.php modulu nie sa widoczne (cached file ma stara liste),
+     * a Inertia czasem keszuje stare manifesty menu.
+     */
+    protected function clearLaravelCaches(): void
+    {
+        try {
+            \Artisan::call('route:clear');
+            \Artisan::call('view:clear');
+        } catch (\Throwable $e) {
+            Log::warning('Cache clear after marketplace op failed', ['error' => $e->getMessage()]);
         }
     }
 
@@ -195,6 +211,7 @@ class MarketplaceService
                 }
                 $result['message'] = "Zaktualizowano {$oldVersion} → " . ($fresh->version ?? '?');
                 $this->license->forgetMarketplaceCache();
+                $this->clearLaravelCaches();
             }
 
             return $result;
