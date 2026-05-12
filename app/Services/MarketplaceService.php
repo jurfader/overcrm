@@ -130,6 +130,7 @@ class MarketplaceService
                 if ($module && !$module->is_core) {
                     $this->moduleService->activate($module);
                 }
+                $this->license->forgetMarketplaceCache();
             }
 
             return $result;
@@ -188,13 +189,12 @@ class MarketplaceService
                         'from_version' => $oldVersion,
                         'to_version'   => $fresh->version,
                     ]);
-                    // Po update'cie modul moze byc nieaktywny (installFromZip
-                    // ustawia is_active=false default). Przywrocenie stanu.
                     if ($wasActive && !$fresh->is_active) {
                         $fresh->update(['is_active' => true]);
                     }
                 }
                 $result['message'] = "Zaktualizowano {$oldVersion} → " . ($fresh->version ?? '?');
+                $this->license->forgetMarketplaceCache();
             }
 
             return $result;

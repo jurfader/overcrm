@@ -10,6 +10,15 @@ const props = defineProps({
 const tab = ref('installed');
 const installing = ref(null); // plugin_id w trakcie pobierania
 const updating = ref(null);   // module slug w trakcie aktualizacji
+const refreshing = ref(false);
+
+function refreshList() {
+    refreshing.value = true;
+    router.post(route('admin.marketplace.refresh'), {}, {
+        preserveScroll: true,
+        onFinish: () => { refreshing.value = false; },
+    });
+}
 
 const installed = computed(() => props.marketplace.installed || []);
 const remote = computed(() => props.marketplace.remote || []);
@@ -63,11 +72,18 @@ function configLink(m) {
     <Head title="Marketplace modułów" />
 
     <div class="space-y-6">
-        <div>
-            <h1 class="text-2xl font-bold gradient-brand-text">Moduły</h1>
-            <p class="text-foreground-muted text-sm mt-1">
-                Przeglądaj, instaluj i konfiguruj moduły rozszerzające funkcjonalność CRM.
-            </p>
+        <div class="flex items-start justify-between gap-3">
+            <div>
+                <h1 class="text-2xl font-bold gradient-brand-text">Moduły</h1>
+                <p class="text-foreground-muted text-sm mt-1">
+                    Przeglądaj, instaluj i konfiguruj moduły rozszerzające funkcjonalność CRM.
+                </p>
+            </div>
+            <button @click="refreshList" :disabled="refreshing"
+                    class="shrink-0 px-3 py-1.5 text-sm rounded-lg surface-elevated hover:bg-surface-2 disabled:opacity-50 flex items-center gap-2">
+                <Icons name="refresh" :class="['w-4 h-4', refreshing && 'animate-spin']" />
+                <span>{{ refreshing ? 'Odświeżam...' : 'Odśwież listę' }}</span>
+            </button>
         </div>
 
         <!-- Tabs -->

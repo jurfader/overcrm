@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\LicenseService;
 use App\Services\MarketplaceService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,7 +21,16 @@ use Inertia\Response;
  */
 class MarketplaceController extends Controller
 {
-    public function __construct(protected MarketplaceService $marketplace) {}
+    public function __construct(
+        protected MarketplaceService $marketplace,
+        protected LicenseService $license,
+    ) {}
+
+    public function refresh()
+    {
+        $this->license->forgetMarketplaceCache();
+        return back()->with('success', 'Lista modulow odswiezona z serwera');
+    }
 
     public function index(): Response
     {

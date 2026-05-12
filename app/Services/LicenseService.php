@@ -468,7 +468,10 @@ class LicenseService
      */
     public function listMarketplacePlugins(): array
     {
-        return Cache::remember('marketplace.plugins.overcrm', 3600, function () {
+        // 5 minut — kompromis: redukuje obciazenie license servera ale szybko
+        // wykrywa nowe wersje. Cache invalidowany przez forgetMarketplaceCache()
+        // po install/update.
+        return Cache::remember('marketplace.plugins.overcrm', 300, function () {
             try {
                 $response = Http::timeout(self::HTTP_TIMEOUT)
                     ->acceptJson()
@@ -484,6 +487,15 @@ class LicenseService
                 return [];
             }
         });
+    }
+
+    /**
+     * Invaliduje cache listy marketplace — wywolywane po install/update modulu
+     * oraz przez "Odswiez" button w UI.
+     */
+    public function forgetMarketplaceCache(): void
+    {
+        Cache::forget('marketplace.plugins.overcrm');
     }
 
     /**
