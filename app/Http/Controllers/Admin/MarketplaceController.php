@@ -45,4 +45,21 @@ class MarketplaceController extends Controller
         if (!empty($result['code'])) $msg .= ' (' . $result['code'] . ')';
         return back()->with('error', $msg);
     }
+
+    public function update(Request $request)
+    {
+        $data = $request->validate([
+            'plugin_id' => 'required|string|max:80',
+        ]);
+
+        $result = $this->marketplace->updateFromMarketplace($data['plugin_id']);
+
+        if ($result['success'] ?? false) {
+            return back()->with('success', $result['message'] ?? 'Moduł zaktualizowany');
+        }
+
+        $msg = $result['message'] ?? 'Aktualizacja nieudana';
+        if (!empty($result['code'])) $msg .= ' (' . $result['code'] . ')';
+        return back()->with('error', $msg);
+    }
 }

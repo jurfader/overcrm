@@ -9,11 +9,12 @@ const props = defineProps({
 
 const tab = ref('installed');
 const installing = ref(null); // plugin_id w trakcie pobierania
+const updating = ref(null);   // module slug w trakcie aktualizacji
 
 const installed = computed(() => props.marketplace.installed || []);
 const remote = computed(() => props.marketplace.remote || []);
+const updatesAvailable = computed(() => installed.value.filter(m => m.update_available).length);
 
-// Remote z odznaczeniem zainstalowanych
 const remoteAvailable = computed(() => remote.value.filter(r => !r.installed));
 const remoteInstalled = computed(() => remote.value.filter(r => r.installed));
 
@@ -29,6 +30,15 @@ function installRemote(plugin) {
     router.post(route('admin.marketplace.install'), { plugin_id: plugin.id }, {
         preserveScroll: true,
         onFinish: () => { installing.value = null; },
+    });
+}
+
+function updateModule(m) {
+    if (!confirm(`Zaktualizować "${m.display_name}" z v${m.version} do v${m.remote_version}?`)) return;
+    updating.value = m.name;
+    router.post(route('admin.marketplace.update'), { plugin_id: m.name }, {
+        preserveScroll: true,
+        onFinish: () => { updating.value = null; },
     });
 }
 
@@ -64,9 +74,13 @@ function configLink(m) {
         <div class="flex gap-1 border-b border-border">
             <button
                 @click="tab = 'installed'"
-                :class="['px-4 py-2 text-sm font-medium border-b-2 -mb-px transition',
+                :class="['px-4 py-2 text-sm font-medium border-b-2 -mb-px transition flex items-center gap-2',
                          tab === 'installed' ? 'border-brand-primary text-foreground' : 'border-transparent text-foreground-muted hover:text-foreground']">
                 Zainstalowane ({{ installed.length }})
+                <span v-if="updatesAvailable > 0"
+                      class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold bg-info text-white">
+                    {{ updatesAvailable }}
+                </span>
             </button>
             <button
                 @click="tab = 'shop'"
@@ -115,11 +129,24 @@ function configLink(m) {
                           class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-warning/15 text-warning">
                         Brak na dysku
                     </span>
+                    <span v-if="m.update_available"
+                          class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-info/15 text-info"
+                          :title="`Dostępna nowsza wersja: v${m.remote_version}`">
+                        Aktualizacja v{{ m.remote_version }}
+                    </span>
                     <Link :href="configLink(m)"
                           class="ml-auto text-xs text-brand-primary hover:underline">
                         Konfiguracja →
                     </Link>
                 </div>
+                <button v-if="m.update_available"
+                        @click="updateModule(m)"
+                        :disabled="updating === m.name"
+                        class="w-full mt-1 px-3 py-1.5 text-sm gradient-brand text-white rounded-md hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-1.5">
+                    <Icons name="refresh" class="w-3.5 h-3.5" />
+                    <span v-if="updating === m.name">Aktualizuję...</span>
+                    <span v-else>Aktualizuj do v{{ m.remote_version }}</span>
+                </button>
             </div>
             <div v-if="installed.length === 0"
                  class="col-span-full text-center py-12 text-foreground-muted">

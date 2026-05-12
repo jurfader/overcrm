@@ -213,8 +213,9 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
         });
 
         Route::prefix('marketplace')->name('marketplace.')->group(function () {
-            Route::get('/',        [App\Http\Controllers\Admin\MarketplaceController::class, 'index'])->name('index');
+            Route::get('/',         [App\Http\Controllers\Admin\MarketplaceController::class, 'index'])->name('index');
             Route::post('/install', [App\Http\Controllers\Admin\MarketplaceController::class, 'install'])->name('install');
+            Route::post('/update',  [App\Http\Controllers\Admin\MarketplaceController::class, 'update'])->name('update');
         });
         
         // Branding — embedded w Settings → Wygląd. Tylko endpointy zapisu/uploadu, bez GET.
