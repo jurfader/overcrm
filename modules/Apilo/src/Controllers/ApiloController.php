@@ -4,7 +4,7 @@ namespace Modules\Apilo\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
-use App\Services\ApiloService;
+use Modules\Apilo\Services\ApiloService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;

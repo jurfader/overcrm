@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace Modules\Apilo\Services;
 
 use App\Models\Client;
 use App\Models\Setting;

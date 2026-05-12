@@ -4,7 +4,7 @@ namespace Modules\Apilo\Providers;
 
 use App\Contracts\OrderProvider;
 use App\Models\Client;
-use App\Services\ApiloService;
+use Modules\Apilo\Services\ApiloService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;

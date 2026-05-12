@@ -3,7 +3,7 @@
 namespace Modules\Apilo\Providers;
 
 use App\Contracts\ProductProvider;
-use App\Services\ApiloService;
+use Modules\Apilo\Services\ApiloService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Pagination\LengthAwarePaginator;

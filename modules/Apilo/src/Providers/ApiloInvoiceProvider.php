@@ -4,7 +4,7 @@ namespace Modules\Apilo\Providers;
 
 use App\Contracts\InvoiceProvider;
 use App\Models\Order;
-use App\Services\ApiloService;
+use Modules\Apilo\Services\ApiloService;
 use Illuminate\Support\Facades\Log;
 
 /**
