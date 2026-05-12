@@ -199,11 +199,53 @@ class ModuleService
             $module->logAction('installed');
         }
 
+        // Uruchom migracje modułu (jesli sa) — po extract, zeby tabele
+        // istnialy zanim admin aktywuje modul. Failure nie blokuje instalacji
+        // (migracje mozna powtorzyc recznie 'php artisan migrate').
+        $migrationsRan = $this->runModuleMigrations($modulePath);
+
         return [
             'success' => true,
-            'message' => 'Moduł został zainstalowany',
+            'message' => $migrationsRan
+                ? 'Moduł został zainstalowany (migracje uruchomione)'
+                : 'Moduł został zainstalowany',
             'module' => $module,
         ];
+    }
+
+    /**
+     * Uruchom migracje modulu z {modulePath}/database/migrations.
+     * Zwraca true jesli cokolwiek bylo do uruchomienia, false jesli brak migracji
+     * albo blad. Bledy sa logowane jako log_action na module.
+     */
+    protected function runModuleMigrations(string $modulePath): bool
+    {
+        $migrationsPath = $modulePath . '/database/migrations';
+
+        if (!File::exists($migrationsPath)) {
+            return false;
+        }
+
+        $files = File::files($migrationsPath);
+        if (empty($files)) {
+            return false;
+        }
+
+        try {
+            // Path wzgledny od base_path, bo Artisan tego wymaga
+            $relativePath = 'modules/' . basename($modulePath) . '/database/migrations';
+            Artisan::call('migrate', [
+                '--path' => $relativePath,
+                '--force' => true,
+            ]);
+            return true;
+        } catch (\Throwable $e) {
+            \Log::error('Module migration failed', [
+                'module' => basename($modulePath),
+                'error' => $e->getMessage(),
+            ]);
+            return false;
+        }
     }
 
     /**

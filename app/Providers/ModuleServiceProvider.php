@@ -72,13 +72,53 @@ class ModuleServiceProvider extends ServiceProvider
             return;
         }
 
-        // Załaduj plik ServiceProvider
+        // Zarejestruj PSR-4 autoload modulu dynamicznie (zeby nie trzeba bylo
+        // composer dump-autoload po marketplace install). Mapuje Modules\Foo\
+        // -> modules/Foo/ + modules/Foo/src/.
+        $this->registerModulePsr4($folderName, $modulePath);
+
+        // Załaduj plik ServiceProvider (wymagane oddzielnie — jest w root modulu,
+        // nie w src/, a ServiceProvider class musi byc dostepny przed register()).
         require_once $providerFile;
 
         // Zarejestruj provider jeśli klasa istnieje
         if (class_exists($providerClass)) {
             $this->app->register($providerClass);
         }
+    }
+
+    /**
+     * Rejestruje PSR-4 prefix dla modulu w runtime'owym Composer ClassLoaderze.
+     * Daje to modulom mozliwosc autoladowania klas (Controllers, Models, Services)
+     * bez modyfikacji composer.json.
+     */
+    protected function registerModulePsr4(string $folderName, string $modulePath): void
+    {
+        $loader = $this->getComposerLoader();
+        if (!$loader) return;
+
+        $loader->addPsr4("Modules\\{$folderName}\\", [
+            $modulePath . '/',
+            $modulePath . '/src/',
+        ]);
+    }
+
+    /**
+     * Znajduje Composer ClassLoader z istniejacych spl_autoload_functions
+     * (cached). require vendor/autoload.php drugi raz zwraca true, nie loader,
+     * wiec musimy fishingowac po istniejacych callbackach.
+     */
+    protected ?\Composer\Autoload\ClassLoader $cachedLoader = null;
+    protected function getComposerLoader(): ?\Composer\Autoload\ClassLoader
+    {
+        if ($this->cachedLoader) return $this->cachedLoader;
+
+        foreach (spl_autoload_functions() as $fn) {
+            if (is_array($fn) && isset($fn[0]) && $fn[0] instanceof \Composer\Autoload\ClassLoader) {
+                return $this->cachedLoader = $fn[0];
+            }
+        }
+        return null;
     }
 
     /**

@@ -28,3 +28,9 @@ Homestead.yaml
 Thumbs.db
 test.html
 .claude/
+
+# Moduly marketplace — instalowane przez /admin/marketplace, nie tracked w repo.
+# Lokalna kopia (rozwoj) zostaje na filesystem ale git je ignoruje. Production
+# pobiera ZIPy z license servera przez MarketplaceService.
+/modules/*
+!/modules/.gitkeep

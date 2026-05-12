@@ -35,20 +35,7 @@
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/",
-            "Modules\\Email\\": ["modules/Email/", "modules/Email/src/"],
-            "Modules\\Ringostat\\": ["modules/Ringostat/", "modules/Ringostat/src/"],
-            "Modules\\Reports\\": ["modules/Reports/", "modules/Reports/src/"],
-            "Modules\\Inpost\\": ["modules/Inpost/", "modules/Inpost/src/"],
-            "Modules\\Kanban\\": ["modules/Kanban/", "modules/Kanban/src/"],
-            "Modules\\Timeline\\": ["modules/Timeline/", "modules/Timeline/src/"],
-            "Modules\\Leads\\": ["modules/Leads/", "modules/Leads/src/"],
-            "Modules\\DailyReport\\": ["modules/DailyReport/", "modules/DailyReport/src/"],
-            "Modules\\Apilo\\": ["modules/Apilo/", "modules/Apilo/src/"],
-            "Modules\\Fakturownia\\": ["modules/Fakturownia/", "modules/Fakturownia/src/"],
-            "Modules\\Infakt\\": ["modules/Infakt/", "modules/Infakt/src/"],
-            "Modules\\PlayCentrala\\": ["modules/PlayCentrala/", "modules/PlayCentrala/src/"],
-            "Modules\\Ringostat\\": ["modules/Ringostat/", "modules/Ringostat/src/"]
+            "Database\\Seeders\\": "database/seeders/"
         }
     },
     "autoload-dev": {
