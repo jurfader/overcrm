@@ -7,8 +7,8 @@ use App\Models\Client;
 use App\Models\ClientVisit;
 use App\Models\EmailTemplate;
 use App\Models\Status;
-use App\Services\ApiloService;
-use App\Services\FakturowniaService;
+use Modules\Apilo\Services\ApiloService;
+use Modules\Fakturownia\Services\FakturowniaService;
 use App\Services\GusService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -574,7 +574,7 @@ class CalendarController extends Controller
 
     public function invoicesByNip(Request $request)
     {
-        $nip = \App\Services\FakturowniaService::normalizeNip($request->get('nip', ''));
+        $nip = \Modules\Fakturownia\Services\FakturowniaService::normalizeNip($request->get('nip', ''));
         if (strlen($nip) < 10) {
             return response()->json(['invoices' => []]);
         }

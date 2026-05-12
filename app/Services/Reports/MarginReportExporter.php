@@ -3,7 +3,7 @@
 namespace App\Services\Reports;
 
 use App\Models\Setting;
-use App\Services\FakturowniaService;
+use Modules\Fakturownia\Services\FakturowniaService;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Chart\Chart;
 use PhpOffice\PhpSpreadsheet\Chart\DataSeries;

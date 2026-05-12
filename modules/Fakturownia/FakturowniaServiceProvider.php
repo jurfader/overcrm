@@ -9,15 +9,7 @@ use Modules\Fakturownia\Providers\FakturowniaProductProvider;
 
 class FakturowniaServiceProvider extends ServiceProvider
 {
-    public function register(): void
-    {
-        if (!class_exists(\App\Services\FakturowniaService::class, false)) {
-            class_alias(
-                \Modules\Fakturownia\Services\FakturowniaService::class,
-                \App\Services\FakturowniaService::class
-            );
-        }
-    }
+    public function register(): void {}
 
     public function boot(ProviderRegistry $registry): void
     {

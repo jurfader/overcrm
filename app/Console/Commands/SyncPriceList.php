@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\PriceList;
-use App\Services\FakturowniaService;
+use Modules\Fakturownia\Services\FakturowniaService;
 use Illuminate\Console\Command;
 
 class SyncPriceList extends Command

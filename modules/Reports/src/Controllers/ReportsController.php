@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\ClientVisit;
 use App\Models\Task;
-use App\Services\FakturowniaService;
+use Modules\Fakturownia\Services\FakturowniaService;
 use App\Services\Reports\MarginReportExporter;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
