@@ -3684,11 +3684,17 @@ const invoiceStatusLabels = {
                                         <div class="grid grid-cols-2 gap-3">
                                             <div>
                                                 <label class="form-label">Telefon</label>
-                                                <input v-model="clientForm.phone" class="form-input" />
+                                                <div class="flex items-center gap-2">
+                                                    <input v-model="clientForm.phone" class="form-input flex-1" />
+                                                    <ClickToCall v-if="clientForm.phone" :phone="clientForm.phone" size="md" />
+                                                </div>
                                             </div>
                                             <div>
                                                 <label class="form-label">Telefon 2</label>
-                                                <input v-model="clientForm.phone2" class="form-input" />
+                                                <div class="flex items-center gap-2">
+                                                    <input v-model="clientForm.phone2" class="form-input flex-1" />
+                                                    <ClickToCall v-if="clientForm.phone2" :phone="clientForm.phone2" size="md" />
+                                                </div>
                                             </div>
                                         </div>
                                         <div>
@@ -3742,7 +3748,10 @@ const invoiceStatusLabels = {
                                             </div>
                                             <div>
                                                 <label class="form-label">Telefon kontaktowy</label>
-                                                <input v-model="clientForm.contact_phone" class="form-input" />
+                                                <div class="flex items-center gap-2">
+                                                    <input v-model="clientForm.contact_phone" class="form-input flex-1" />
+                                                    <ClickToCall v-if="clientForm.contact_phone" :phone="clientForm.contact_phone" size="md" />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

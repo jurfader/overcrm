@@ -60,16 +60,25 @@ class RingostatController extends Controller
 
     /**
      * Click-to-call: wywoluje POST /callback/outward_call.
-     * Body: { from: "SIP/wewn. numer pracownika", to: "+48..." }
+     * Body: { destination: "+48..." } — `from` bierzemy z auth.user.sip_account
+     * (fallback play_phone). Jezeli oba puste, zwracamy 422.
      */
     public function callback(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'from' => 'required|string|max:30',
-            'to'   => 'required|string|max:30',
+            'destination' => 'required|string|max:30',
         ]);
 
-        $result = $this->service->callback($data['from'], $data['to']);
+        $user = $request->user();
+        $from = trim((string) ($user->sip_account ?? $user->play_phone ?? ''));
+        if ($from === '') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Uzupelnij swoj numer SIP w profilu uzytkownika (pole sip_account lub play_phone).',
+            ], 422);
+        }
+
+        $result = $this->service->callback($from, $data['destination']);
         return response()->json($result, $result['success'] ? 200 : 422);
     }
 

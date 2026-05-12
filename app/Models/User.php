@@ -32,6 +32,7 @@ class User extends Authenticatable
         'fakturownia_department_name',
         'apilo_default_platform_id',
         'play_phone',
+        'sip_account',
         'dashboard_layout',
     ];
 
