@@ -67,6 +67,25 @@ class ModuleService
     }
 
     /**
+     * Usun z DB rekordy modulow bez folderu na disku (zombie po marketplace
+     * uninstall lub manual rm). is_core chronione. Zachowuje Settings —
+     * admin moze chciec zainstalowac modul ponownie i odzyskac klucze API.
+     * Wywolywane recznie z /admin/modules (przycisk "Wyczysc stale") lub
+     * przez 'php artisan modules:prune'.
+     */
+    public function pruneStaleModules(): int
+    {
+        $stale = Module::where('is_core', false)->get()
+            ->filter(fn($m) => !$m->existsOnDisk());
+
+        foreach ($stale as $m) {
+            $m->logs()->delete();
+            $m->delete();
+        }
+        return $stale->count();
+    }
+
+    /**
      * Zarejestruj ustawienia modułu.
      *
      * KRYTYCZNE: gdy setting już istnieje w bazie, NIE nadpisujemy 'value'

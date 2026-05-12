@@ -38,6 +38,11 @@ class ModuleController extends Controller
         $modules = Module::orderBy('order')
             ->orderBy('display_name')
             ->get()
+            // Filtruj zombie — moduly w DB ale bez folderu (po marketplace
+            // uninstall albo manual rm -rf). is_core zostawia (core/clients/
+            // users itp. moga nie miec wlasnego folderu w modules/).
+            ->filter(fn($m) => $m->is_core || $m->existsOnDisk())
+            ->values()
             ->map(function ($module) {
                 return [
                     'id' => $module->id,
