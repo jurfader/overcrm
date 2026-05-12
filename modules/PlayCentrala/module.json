@@ -52,5 +52,6 @@
             "route": "ringostat.index",
             "icon": "phone"
         }
-    ]
+    ],
+    "folder": "PlayCentrala"
 }

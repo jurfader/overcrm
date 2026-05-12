@@ -23,7 +23,10 @@
             "label": "Ringostat — konfiguracja",
             "route": "ringostat.config",
             "icon": "settings",
-            "roles": ["admin"]
+            "roles": [
+                "admin"
+            ]
         }
-    ]
+    ],
+    "folder": "Ringostat"
 }

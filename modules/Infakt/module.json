@@ -9,7 +9,7 @@
     "order": 46,
     "dependencies": [],
     "permissions": {
-        "infakt_view":   "Podgląd faktur inFakt",
+        "infakt_view": "Podgląd faktur inFakt",
         "infakt_manage": "Zarządzanie konfiguracją inFakt"
     },
     "settings": {},
@@ -18,7 +18,10 @@
             "label": "inFakt — konfiguracja",
             "route": "infakt.config",
             "icon": "document-text",
-            "roles": ["admin"]
+            "roles": [
+                "admin"
+            ]
         }
-    ]
+    ],
+    "folder": "Infakt"
 }

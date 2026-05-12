@@ -18,7 +18,11 @@
             "label": "Raport dzienny",
             "route": "dailyreport.index",
             "icon": "document-text",
-            "roles": ["admin", "manager"]
+            "roles": [
+                "admin",
+                "manager"
+            ]
         }
-    ]
+    ],
+    "folder": "DailyReport"
 }

@@ -105,6 +105,24 @@ class ModuleService
     /**
      * Zainstaluj nowy moduł z pliku ZIP
      */
+    /**
+     * Znajduje istniejacy folder modulu case-insensitive (na potrzeby
+     * walidacji conflict — na case-sensitive Linux 'DailyReport' i 'Dailyreport'
+     * to rozne foldery, ale namespace ich nie odrozni).
+     */
+    protected function findExistingModuleFolder(string $folderName): ?string
+    {
+        $modulesPath = base_path('modules');
+        if (!File::exists($modulesPath)) return null;
+        $target = strtolower($folderName);
+        foreach (File::directories($modulesPath) as $dir) {
+            if (strtolower(basename($dir)) === $target) {
+                return basename($dir);
+            }
+        }
+        return null;
+    }
+
     public function installFromZip(string $zipPath): array
     {
         $zip = new \ZipArchive();
@@ -130,18 +148,47 @@ class ModuleService
         }
 
         $moduleName = strtolower($manifest['name']);
-        $modulePath = base_path('modules/' . ucfirst($moduleName));
 
-        // Sprawdź czy moduł już istnieje
-        if (File::exists($modulePath)) {
+        // Nazwa folderu z opcjonalnego pola manifest 'folder' (CamelCase np. 'DailyReport'),
+        // inaczej ucfirst — na systemach case-sensitive (Linux) bedzie polegac
+        // na PSR-4 mappingu w composer.json, ktory wymaga CamelCase.
+        $folderName = $manifest['folder'] ?? ucfirst($moduleName);
+        $modulePath = base_path('modules/' . $folderName);
+
+        // Case-insensitive check (Linux folder 'DailyReport' i case-only-different
+        // sa wzajemnie wykluczajace na case-insensitive macOS APFS).
+        $existing = $this->findExistingModuleFolder($folderName);
+        if ($existing) {
             $zip->close();
-            return ['success' => false, 'message' => 'Moduł już istnieje'];
+            return ['success' => false, 'message' => "Moduł już istnieje ({$existing})"];
         }
 
-        // Wypakuj moduł
-        File::makeDirectory($modulePath, 0755, true);
-        $zip->extractTo($modulePath);
-        $zip->close();
+        // Wykrycie czy ZIP ma single root folder w srodku (e.g. 'Infakt/...')
+        // czy jest flat (module.json bezposrednio w root). Wplywa na destination
+        // dla extract zeby uniknac modules/Infakt/Infakt/...
+        $manifestNameInZip = $zip->getNameIndex($manifestIndex);
+        $zipHasRootFolder = str_contains($manifestNameInZip, '/');
+
+        if ($zipHasRootFolder) {
+            // ZIP zawiera np. Infakt/module.json — extract do modules/ (parent)
+            $zip->extractTo(base_path('modules'));
+            $zip->close();
+
+            // Zip mogl miec rootFolder o innym case niz oczekiwany folderName.
+            // Wyrownaj — przenies do oczekiwanej nazwy.
+            $rootInZip = substr($manifestNameInZip, 0, strpos($manifestNameInZip, '/'));
+            if ($rootInZip !== $folderName) {
+                $extractedPath = base_path('modules/' . $rootInZip);
+                if (File::exists($extractedPath) && !File::exists($modulePath)) {
+                    File::move($extractedPath, $modulePath);
+                }
+            }
+        } else {
+            // Flat ZIP — extract do modules/{folderName}/
+            File::makeDirectory($modulePath, 0755, true);
+            $zip->extractTo($modulePath);
+            $zip->close();
+        }
 
         // Zarejestruj moduł
         $this->discoverModules();

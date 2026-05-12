@@ -9,7 +9,7 @@
     "order": 45,
     "dependencies": [],
     "permissions": {
-        "fakturownia_view":   "Podgląd faktur Fakturownia",
+        "fakturownia_view": "Podgląd faktur Fakturownia",
         "fakturownia_manage": "Zarządzanie konfiguracją Fakturownia"
     },
     "settings": {},
@@ -18,7 +18,10 @@
             "label": "Fakturownia — konfiguracja",
             "route": "fakturownia.config",
             "icon": "document-text",
-            "roles": ["admin"]
+            "roles": [
+                "admin"
+            ]
         }
-    ]
+    ],
+    "folder": "Fakturownia"
 }

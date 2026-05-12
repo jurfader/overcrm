@@ -39,7 +39,10 @@
             "label": "Apilo — konfiguracja",
             "route": "apilo.config",
             "icon": "shopping-cart",
-            "roles": ["admin"]
+            "roles": [
+                "admin"
+            ]
         }
-    ]
+    ],
+    "folder": "Apilo"
 }

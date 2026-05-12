@@ -50,18 +50,23 @@ class ModuleServiceProvider extends ServiceProvider
     protected function registerActiveModules(): void
     {
         foreach ($this->activeModuleNames as $moduleName) {
-            $this->registerModule(ucfirst($moduleName));
+            $this->registerModule($moduleName);
         }
     }
 
     /**
-     * Zarejestruj pojedynczy moduł
+     * Zarejestruj pojedynczy moduł. Folder szukany case-insensitive (Linux
+     * filesystem rozni 'DailyReport' od 'Dailyreport') żeby zachować CamelCase
+     * z composer psr-4 niezależnie od slugu w DB.
      */
     protected function registerModule(string $moduleName): void
     {
-        $modulePath = base_path("modules/{$moduleName}");
-        $providerClass = "Modules\\{$moduleName}\\{$moduleName}ServiceProvider";
-        $providerFile = "{$modulePath}/{$moduleName}ServiceProvider.php";
+        $folderName = $this->resolveModuleFolderName($moduleName);
+        if (!$folderName) return;
+
+        $modulePath = base_path("modules/{$folderName}");
+        $providerClass = "Modules\\{$folderName}\\{$folderName}ServiceProvider";
+        $providerFile = "{$modulePath}/{$folderName}ServiceProvider.php";
 
         if (!File::exists($providerFile)) {
             return;
@@ -77,6 +82,26 @@ class ModuleServiceProvider extends ServiceProvider
     }
 
     /**
+     * Znajduje rzeczywisty folder dla slug'u modułu (case-insensitive match).
+     * Cache per-request żeby nie scandirować przy każdym module.
+     */
+    protected ?array $folderMap = null;
+    protected function resolveModuleFolderName(string $slug): ?string
+    {
+        if ($this->folderMap === null) {
+            $this->folderMap = [];
+            $modulesPath = base_path('modules');
+            if (File::exists($modulesPath)) {
+                foreach (File::directories($modulesPath) as $dir) {
+                    $base = basename($dir);
+                    $this->folderMap[strtolower($base)] = $base;
+                }
+            }
+        }
+        return $this->folderMap[strtolower($slug)] ?? null;
+    }
+
+    /**
      * Załaduj routy wszystkich aktywnych modułów
      */
     protected function loadModuleRoutes(): void
@@ -88,7 +113,8 @@ class ModuleServiceProvider extends ServiceProvider
         }
 
         foreach ($this->activeModuleNames as $activeModule) {
-            $moduleName = ucfirst($activeModule);
+            $moduleName = $this->resolveModuleFolderName($activeModule);
+            if (!$moduleName) continue;
             $modulePath = $modulesPath . '/' . $moduleName;
 
             if (!File::exists($modulePath . '/module.json')) {

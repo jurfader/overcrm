@@ -97,14 +97,24 @@ const navMain = [
     { name: 'Changelog',  route: 'changelog.index',    icon: 'document-text', pattern: 'changelog.*' },
 ];
 
+// Graceful: route() rzuca gdy route nie zarejestrowane w Ziggy (moduł aktywny w DB
+// ale ServiceProvider/routes nie zaladowane — np. mismatch case folderu na Linux).
+// Filtrujemy menu items ktorych Ziggy nie zna, zeby nie crashowac calego sidebara.
+function routeExists(name) {
+    try { route(name); return true; } catch { return false; }
+}
+
 const navModules = computed(() =>
     activeModules.value
         .filter(mod => mod.menu && mod.menu.length > 0)
-        .flatMap(mod => mod.menu.map(m => ({
-            name: m.label, route: m.route,
-            icon: m.icon || mod.icon || 'puzzle',
-            pattern: mod.name + '.*',
-        })))
+        .flatMap(mod => mod.menu
+            .filter(m => routeExists(m.route))
+            .map(m => ({
+                name: m.label, route: m.route,
+                icon: m.icon || mod.icon || 'puzzle',
+                pattern: mod.name + '.*',
+            }))
+        )
 );
 
 const navAdmin = [
