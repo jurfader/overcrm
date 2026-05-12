@@ -42,16 +42,11 @@ function fmtPrice(price, currency) {
     <Head title="Marketplace modułów" />
 
     <div class="space-y-6">
-        <div class="flex items-center justify-between gap-3">
-            <div>
-                <h1 class="text-2xl font-bold gradient-brand-text">Marketplace modułów</h1>
-                <p class="text-foreground-muted text-sm mt-1">
-                    Przeglądaj i instaluj moduły rozszerzające funkcjonalność CRM.
-                </p>
-            </div>
-            <Link :href="route('admin.modules.index')" class="text-sm text-brand-primary hover:underline">
-                Stary widok zarządzania →
-            </Link>
+        <div>
+            <h1 class="text-2xl font-bold gradient-brand-text">Moduły</h1>
+            <p class="text-foreground-muted text-sm mt-1">
+                Przeglądaj, instaluj i konfiguruj moduły rozszerzające funkcjonalność CRM.
+            </p>
         </div>
 
         <!-- Tabs -->
@@ -111,7 +106,7 @@ function fmtPrice(price, currency) {
                     </span>
                     <Link :href="route('admin.modules.show', m.id)"
                           class="ml-auto text-xs text-brand-primary hover:underline">
-                        Szczegóły →
+                        Konfiguracja →
                     </Link>
                 </div>
             </div>
@@ -182,14 +177,5 @@ function fmtPrice(price, currency) {
             </div>
         </div>
 
-        <!-- Hint o starym zarządzaniu -->
-        <div class="rounded-lg p-3 bg-info/10 border border-info/30 flex gap-2 text-xs text-foreground">
-            <Icons name="info" class="w-4 h-4 text-info shrink-0 mt-0.5" />
-            <p>
-                Marketplace pokazuje moduły zainstalowane lokalnie + dostępne do pobrania z serwera OVERMEDIA.
-                Aby ręcznie zainstalować moduł z pliku ZIP lub wygenerować szkielet nowego modułu, użyj
-                <Link :href="route('admin.modules.index')" class="text-brand-primary hover:underline">starego widoku zarządzania</Link>.
-            </p>
-        </div>
     </div>
 </template>

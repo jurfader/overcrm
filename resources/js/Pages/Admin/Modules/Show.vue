@@ -63,7 +63,7 @@ const actionColors = {
         <!-- Header -->
         <div class="flex items-start justify-between">
             <div class="flex items-center gap-4">
-                <Link :href="route('admin.modules.index')" class="p-2 rounded-lg hover:bg-surface-elevated">
+                <Link :href="route('admin.marketplace.index')" class="p-2 rounded-lg hover:bg-surface-elevated">
                     <Icons name="chevron-left" class="w-5 h-5 text-foreground-muted" />
                 </Link>
                 <div class="flex items-center gap-4">

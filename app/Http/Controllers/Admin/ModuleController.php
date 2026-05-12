@@ -22,51 +22,9 @@ class ModuleController extends Controller
     /**
      * Lista wszystkich modułów
      */
-    public function index()
-    {
-        // Sprawdź czy tabela istnieje
-        if (!\Illuminate\Support\Facades\Schema::hasTable('modules')) {
-            return Inertia::render('Admin/Modules/Index', [
-                'modules' => [],
-                'needsMigration' => true,
-            ]);
-        }
-
-        // Odkryj nowe moduły
-        $this->moduleService->discoverModules();
-
-        $modules = Module::orderBy('order')
-            ->orderBy('display_name')
-            ->get()
-            // Filtruj zombie — moduly w DB ale bez folderu (po marketplace
-            // uninstall albo manual rm -rf). is_core zostawia (core/clients/
-            // users itp. moga nie miec wlasnego folderu w modules/).
-            ->filter(fn($m) => $m->is_core || $m->existsOnDisk())
-            ->values()
-            ->map(function ($module) {
-                return [
-                    'id' => $module->id,
-                    'name' => $module->name,
-                    'display_name' => $module->display_name,
-                    'description' => $module->description,
-                    'version' => $module->version,
-                    'author' => $module->author,
-                    'icon' => $module->icon,
-                    'is_active' => $module->is_active,
-                    'is_core' => $module->is_core,
-                    'has_settings' => Setting::where('module', $module->name)->exists(),
-                    'dependencies' => $module->dependencies,
-                    'exists_on_disk' => $module->existsOnDisk(),
-                ];
-            });
-
-        return Inertia::render('Admin/Modules/Index', [
-            'modules' => $modules,
-        ]);
-    }
-
     /**
-     * Szczegóły modułu
+     * Szczegóły modułu — strona konfiguracji per-modul. Listing modulow
+     * przeniesiony do MarketplaceController (/admin/marketplace).
      */
     public function show(Module $module)
     {
@@ -119,50 +77,7 @@ class ModuleController extends Controller
         $result = $this->moduleService->uninstall($module);
 
         if ($result['success']) {
-            return redirect()->route('admin.modules.index')->with('success', $result['message']);
-        }
-
-        return back()->with('error', $result['message']);
-    }
-
-    /**
-     * Zainstaluj moduł z pliku ZIP
-     */
-    public function install(Request $request)
-    {
-        $request->validate([
-            'module_file' => 'required|file|mimes:zip|max:50000',
-        ]);
-
-        $file = $request->file('module_file');
-        $result = $this->moduleService->installFromZip($file->getPathname());
-
-        if ($result['success']) {
-            return back()->with('success', $result['message']);
-        }
-
-        return back()->with('error', $result['message']);
-    }
-
-    /**
-     * Generuj nowy moduł
-     */
-    public function generate(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|alpha|min:3|max:50',
-            'display_name' => 'required|string|max:100',
-            'description' => 'nullable|string|max:500',
-            'icon' => 'nullable|string|max:50',
-        ]);
-
-        $result = $this->moduleService->generateModule(
-            $request->name,
-            $request->only(['display_name', 'description', 'icon'])
-        );
-
-        if ($result['success']) {
-            return back()->with('success', $result['message']);
+            return redirect()->route('admin.marketplace.index')->with('success', $result['message']);
         }
 
         return back()->with('error', $result['message']);

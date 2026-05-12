@@ -199,11 +199,12 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
         // Dashboard admina
         Route::get('/', [AdminController::class, 'index'])->name('dashboard');
         
-        // Zarządzanie modułami
+        // Zarządzanie modułami — listing/install/sklep w Marketplace,
+        // tu zostaje tylko strona konfiguracji per-modul (show/saveConfig)
+        // + activate/deactivate/uninstall (wywolywane z marketplace UI).
+        // /admin/modules redirect do marketplace dla starych bookmarkow.
+        Route::get('/modules', fn () => redirect()->route('admin.marketplace.index'))->name('modules.index');
         Route::prefix('modules')->name('modules.')->group(function () {
-            Route::get('/', [ModuleController::class, 'index'])->name('index');
-            Route::post('/install', [ModuleController::class, 'install'])->name('install');
-            Route::post('/generate', [ModuleController::class, 'generate'])->name('generate');
             Route::get('/{module}', [ModuleController::class, 'show'])->name('show');
             Route::post('/{module}/activate', [ModuleController::class, 'activate'])->name('activate');
             Route::post('/{module}/deactivate', [ModuleController::class, 'deactivate'])->name('deactivate');
