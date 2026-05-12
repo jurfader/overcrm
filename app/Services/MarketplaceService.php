@@ -36,21 +36,28 @@ class MarketplaceService
         // Auto-discover — wypelnia DB z katalogu modules/ jezeli czegos brakuje
         $this->moduleService->discoverModules();
 
-        $installed = Module::orderBy('order')->orderBy('display_name')->get()->map(function (Module $m) {
-            return [
-                'id'           => $m->id,
-                'name'         => $m->name,
-                'display_name' => $m->display_name,
-                'description'  => $m->description,
-                'version'      => $m->version,
-                'author'       => $m->author,
-                'icon'         => $m->icon,
-                'is_active'    => $m->is_active,
-                'is_core'      => $m->is_core,
-                'dependencies' => $m->dependencies,
-                'exists_on_disk' => $m->existsOnDisk(),
-            ];
-        })->all();
+        // Filtruj zombie — Module rekordy bez folderu (po rm -rf modules/X
+        // albo uninstall). is_core zwolnione (core/clients/users nie maja
+        // folderu w modules/). Settings tych zombie zostaja — admin moze
+        // reinstall przez marketplace i odzyskac konfiguracje.
+        $installed = Module::orderBy('order')->orderBy('display_name')->get()
+            ->filter(fn (Module $m) => $m->is_core || $m->existsOnDisk())
+            ->values()
+            ->map(function (Module $m) {
+                return [
+                    'id'           => $m->id,
+                    'name'         => $m->name,
+                    'display_name' => $m->display_name,
+                    'description'  => $m->description,
+                    'version'      => $m->version,
+                    'author'       => $m->author,
+                    'icon'         => $m->icon,
+                    'is_active'    => $m->is_active,
+                    'is_core'      => $m->is_core,
+                    'dependencies' => $m->dependencies,
+                    'exists_on_disk' => $m->existsOnDisk(),
+                ];
+            })->all();
 
         $remote = collect($this->license->listMarketplacePlugins())->map(function ($plugin) use ($installed) {
             // ID na license serverze to slug techniczny ('playcentrala'); name to display ('Play Centrala').
