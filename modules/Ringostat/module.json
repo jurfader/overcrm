@@ -15,9 +15,14 @@
     "settings": {},
     "menu": [
         {
+            "label": "Dziennik połączeń",
+            "route": "ringostat.calls-log",
+            "icon": "phone"
+        },
+        {
             "label": "Ringostat — konfiguracja",
             "route": "ringostat.config",
-            "icon": "phone",
+            "icon": "settings",
             "roles": ["admin"]
         }
     ]

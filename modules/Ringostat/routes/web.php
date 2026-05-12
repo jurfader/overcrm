@@ -19,4 +19,5 @@ Route::middleware(['role:admin'])->group(function () {
 // Operacyjne endpointy — kazdy zalogowany user
 Route::post('/callback',  [RingostatController::class, 'callback'])->name('callback');
 Route::get('/sip-status', [RingostatController::class, 'sipStatus'])->name('sip-status');
-Route::get('/calls',      [RingostatController::class, 'listCalls'])->name('calls');
+Route::get('/calls',      [RingostatController::class, 'listCalls'])->name('calls');         // JSON z Ringostat API
+Route::get('/calls-log',  [RingostatController::class, 'callsLog'])->name('calls-log');      // Inertia page (DB)

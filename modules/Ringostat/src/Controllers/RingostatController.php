@@ -9,8 +9,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
+use Modules\Ringostat\Models\Call;
 use Modules\Ringostat\Services\RingostatNetService;
 
 class RingostatController extends Controller
@@ -153,13 +155,78 @@ class RingostatController extends Controller
 
     /**
      * Webhook receiver — Ringostat POSTuje dane polaczenia po zakonczeniu.
-     * Skeleton — w pelnej implementacji zapisuje do ringostat_calls_v2.
+     * Walidacja podpisu: porownanie auth-key header z zapisanym (Ringostat zwraca
+     * ten sam klucz w naglowku webhook'a). Brak match'a → 401.
      */
     public function webhook(Request $request): JsonResponse
     {
-        Log::info('Ringostat webhook received', $request->all());
-        // TODO: walidacja podpisu + zapis do DB + match z client przez phone
-        return response()->json(['ok' => true]);
+        $expectedKey = Setting::get('ringostat_auth_key', null, 'core');
+        $incomingKey = $request->header('auth-key') ?: $request->input('auth_key');
+        if ($expectedKey && $incomingKey && !hash_equals((string) $expectedKey, (string) $incomingKey)) {
+            Log::warning('Ringostat webhook: invalid auth-key', ['ip' => $request->ip()]);
+            return response()->json(['error' => 'unauthorized'], 401);
+        }
+
+        $payload = $request->all();
+        $callId = (string) ($payload['call_id'] ?? $payload['id'] ?? '');
+        if ($callId === '') {
+            Log::info('Ringostat webhook bez call_id', $payload);
+            return response()->json(['ok' => true, 'skipped' => true]);
+        }
+
+        $direction = ($payload['direction'] ?? null) === 'out' ? 'out' : 'in';
+        $caller = (string) ($payload['caller'] ?? $payload['callerNumber'] ?? $payload['from'] ?? '');
+        $callee = (string) ($payload['callee'] ?? $payload['calleeNumber'] ?? $payload['to'] ?? '');
+        $startedAt = $payload['date'] ?? $payload['call_date'] ?? $payload['callDate'] ?? null;
+
+        $call = Call::updateOrCreate(
+            ['ringostat_call_id' => $callId],
+            [
+                'direction'       => $direction,
+                'caller'          => $caller ?: null,
+                'callee'          => $callee ?: null,
+                'sip'             => $payload['sip'] ?? $payload['sipAccount'] ?? null,
+                'started_at'      => $startedAt ? Carbon::parse($startedAt) : now(),
+                'duration'        => (int) ($payload['duration'] ?? 0),
+                'billsec'         => (int) ($payload['billsec'] ?? $payload['talkTime'] ?? 0),
+                'status'          => $payload['status'] ?? $payload['disposition'] ?? null,
+                'recording_url'   => $payload['recording_url'] ?? $payload['recordingUrl'] ?? null,
+                'webhook_payload' => $payload,
+            ]
+        );
+
+        try {
+            $call->matchClient();
+            $call->matchUser();
+        } catch (\Throwable $e) {
+            Log::warning('Ringostat webhook match failed', ['call_id' => $callId, 'error' => $e->getMessage()]);
+        }
+
+        return response()->json(['ok' => true, 'id' => $call->id]);
+    }
+
+    /**
+     * Strona z lista polaczen (Inertia). Pagination + filtry.
+     */
+    public function callsLog(Request $request): Response
+    {
+        $direction = $request->get('direction');
+        $status = $request->get('status');
+        $clientId = $request->get('client_id');
+
+        $calls = Call::query()
+            ->with(['client:id,name', 'user:id,name'])
+            ->when($direction, fn ($q) => $q->where('direction', $direction))
+            ->when($status, fn ($q) => $q->where('status', $status))
+            ->when($clientId, fn ($q) => $q->where('client_id', $clientId))
+            ->orderByDesc('started_at')
+            ->paginate(50)
+            ->withQueryString();
+
+        return Inertia::render('Ringostat/Calls', [
+            'calls'  => $calls,
+            'filters' => compact('direction', 'status', 'clientId'),
+        ]);
     }
 
     /**
