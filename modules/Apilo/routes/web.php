@@ -11,3 +11,8 @@ Route::middleware(['role:admin'])->group(function () {
     Route::post('/refresh',              [ApiloController::class, 'refresh'])->name('refresh');
     Route::post('/test',                 [ApiloController::class, 'test'])->name('test');
 });
+
+// Integracja z UI kalendarza (legacy CK endpoints — kazdy zalogowany user)
+Route::get('/order-options',                       [ApiloController::class, 'orderOptions'])->name('order-options');
+Route::get('/orders/{orderId}/tracking',           [ApiloController::class, 'orderTracking'])->name('order-tracking');
+Route::post('/visits/{visit}/create-order',        [ApiloController::class, 'createOrder'])->name('create-order');

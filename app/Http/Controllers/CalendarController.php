@@ -7,9 +7,8 @@ use App\Models\Client;
 use App\Models\ClientVisit;
 use App\Models\EmailTemplate;
 use App\Models\Status;
-use Modules\Apilo\Services\ApiloService;
-use Modules\Fakturownia\Services\FakturowniaService;
 use App\Services\GusService;
+use App\Support\Providers\ProviderRegistry;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -539,7 +538,7 @@ class CalendarController extends Controller
         ]);
     }
 
-    public function show(ClientVisit $visit)
+    public function show(ClientVisit $visit, ProviderRegistry $registry)
     {
         $visit->load(['client', 'user']);
 
@@ -547,19 +546,14 @@ class CalendarController extends Controller
         $orders = [];
 
         try {
-            // Pobierz faktury z Fakturowni dla klienta
             if ($visit->client?->nip) {
-                $fakturownia = app(FakturowniaService::class);
-                $invoices = $fakturownia->getInvoicesForClient($visit->client->nip);
+                $invoices = $registry->active('invoice')->listForClientByNip($visit->client->nip);
             }
-
-            // Pobierz zamówienia z Apilo dla klienta
             if ($visit->client_id) {
-                $apilo = app(ApiloService::class);
-                $orders = $apilo->getOrdersForClient((int) $visit->client_id);
+                $orders = $registry->active('order')->listForClient((int) $visit->client_id)->all();
             }
         } catch (\Throwable $e) {
-            \Log::warning('Calendar show: external API error', [
+            \Log::warning('Calendar show: provider error', [
                 'visit_id' => $visit->id,
                 'message' => $e->getMessage(),
             ]);
@@ -570,78 +564,6 @@ class CalendarController extends Controller
             'invoices' => $invoices,
             'orders' => $orders,
         ]);
-    }
-
-    public function invoicesByNip(Request $request)
-    {
-        $nip = \Modules\Fakturownia\Services\FakturowniaService::normalizeNip($request->get('nip', ''));
-        if (strlen($nip) < 10) {
-            return response()->json(['invoices' => []]);
-        }
-
-        try {
-            $fakturownia = app(FakturowniaService::class);
-            $invoices = $fakturownia->getInvoicesForClient($nip);
-
-            return response()->json(['invoices' => $invoices]);
-        } catch (\Throwable $e) {
-            \Log::warning('invoicesByNip error', ['message' => $e->getMessage()]);
-
-            return response()->json(['invoices' => []]);
-        }
-    }
-
-    public function invoiceDetail(int $id)
-    {
-        try {
-            $fakturownia = app(FakturowniaService::class);
-            $invoice = $fakturownia->getInvoice($id);
-
-            return response()->json($invoice ?: ['error' => 'Nie znaleziono faktury']);
-        } catch (\Throwable $e) {
-            \Log::warning('invoiceDetail error', ['id' => $id, 'message' => $e->getMessage()]);
-
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-
-    public function invoicePdf(int $id)
-    {
-        try {
-            $fakturownia = app(FakturowniaService::class);
-            $base64 = $fakturownia->getInvoicePdf($id);
-
-            if (!$base64) {
-                return response()->json(['error' => 'Nie udało się pobrać PDF faktury'], 404);
-            }
-
-            $pdf = base64_decode($base64);
-
-            return response($pdf)
-                ->header('Content-Type', 'application/pdf')
-                ->header('Content-Disposition', 'inline; filename="faktura-' . $id . '.pdf"');
-        } catch (\Throwable $e) {
-            \Log::warning('invoicePdf error', ['id' => $id, 'message' => $e->getMessage()]);
-
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-
-    /**
-     * Pobierz linki do śledzenia przesyłek zamówienia Apilo
-     */
-    public function orderTracking(string $orderId)
-    {
-        try {
-            $apilo = app(ApiloService::class);
-            $links = $apilo->getOrderTrackingLinks($orderId);
-
-            return response()->json(['links' => $links]);
-        } catch (\Throwable $e) {
-            \Log::warning('orderTracking error', ['orderId' => $orderId, 'message' => $e->getMessage()]);
-
-            return response()->json(['links' => []], 500);
-        }
     }
 
     public function lookupNip(Request $request)
@@ -698,67 +620,17 @@ class CalendarController extends Controller
     }
 
     /**
-     * Pobierz produkty TH_* — Fakturownia (priorytet, aktualne ceny) lub Apilo (fallback)
+     * Pobierz produkty z aktywnego ProductProvider (Local/Apilo/Fakturownia/inne).
+     * Frontend ClientModal w zakladce zamowien Apilo uzywa tego do picker'a produktow.
      */
-    public function getProducts(Request $request)
+    public function getProducts(Request $request, ProviderRegistry $registry)
     {
-        $forceRefresh = $request->boolean('refresh');
-
-        $fakturownia = app(FakturowniaService::class);
-        if ($fakturownia->isConfigured()) {
-            $products = $fakturownia->getProducts('TH_', $forceRefresh);
-        } else {
-            $apilo    = app(ApiloService::class);
-            $products = $apilo->getProducts([], 'TH_', $forceRefresh);
-        }
-
-        return response()->json([
-            'success'  => true,
-            'products' => $products,
-        ]);
-    }
-
-    /**
-     * Pobierz opcje Apilo (platformy, płatności, dostawy) oraz domyślne wartości dla zalogowanego użytkownika
-     */
-    public function getApiloOptions(Request $request)
-    {
-        $apilo = app(ApiloService::class);
-
         try {
-            $options = $apilo->getOrderOptions();
-            $defaults = [
-                'platform_id' => null,
-                'payment_type_id' => null,
-            ];
-            $user = $request->user();
-            if ($user && $user->apilo_default_platform_id !== null) {
-                $want = $user->apilo_default_platform_id;
-                foreach ($options['platforms'] ?? [] as $p) {
-                    if ((string) ($p['id'] ?? '') === (string) $want) {
-                        $defaults['platform_id'] = $p['id'];
-                        break;
-                    }
-                }
-            }
-            $codId = $apilo->findFirstCodPaymentTypeId($options['payment_types'] ?? []);
-            if ($codId !== null && $codId !== '') {
-                $defaults['payment_type_id'] = $codId;
-            }
-            $options['defaults'] = $defaults;
-
-            return response()->json($options);
-        } catch (\Exception $e) {
-            return response()->json([
-                'platforms' => [],
-                'payment_types' => [],
-                'carriers' => [],
-                'defaults' => [
-                    'platform_id' => null,
-                    'payment_type_id' => null,
-                ],
-                'error' => $e->getMessage(),
-            ]);
+            $products = $registry->active('product')->search('', 200);
+            return response()->json(['success' => true, 'products' => $products->values()]);
+        } catch (\Throwable $e) {
+            \Log::warning('calendar.products error', ['message' => $e->getMessage()]);
+            return response()->json(['success' => false, 'products' => []]);
         }
     }
 
@@ -853,105 +725,6 @@ class CalendarController extends Controller
         }
     }
 
-    public function createApiloOrder(Request $request, ClientVisit $visit)
-    {
-        $request->validate([
-            'products' => 'required|array|min:1',
-            'products.*.name' => 'required|string|max:255',
-            'products.*.quantity' => 'required|numeric|min:1',
-            'products.*.price' => 'required|numeric|min:0',
-            'products.*.product_id' => 'nullable',
-            'products.*.tax_rate' => 'nullable|numeric|min:0|max:100',
-            'customer' => 'nullable|array',
-            'customer.name' => 'nullable|string|max:255',
-            'customer.nip' => 'nullable|string|max:50',
-            'customer.street' => 'nullable|string|max:255',
-            'customer.street_number' => 'nullable|string|max:50',
-            'customer.zip' => 'nullable|string|max:20',
-            'customer.city' => 'nullable|string|max:255',
-            'customer.phone' => 'nullable|string|max:50',
-            'customer.email' => 'nullable|string|max:255',
-            'delivery' => 'nullable|array',
-            'delivery.name' => 'nullable|string|max:255',
-            'delivery.street' => 'nullable|string|max:255',
-            'delivery.street_number' => 'nullable|string|max:50',
-            'delivery.zip' => 'nullable|string|max:20',
-            'delivery.city' => 'nullable|string|max:255',
-            'delivery.phone' => 'nullable|string|max:50',
-            'delivery.email' => 'nullable|string|max:255',
-            'delivery.inpost_parcel_point' => 'nullable|string|max:20',
-            'delivery.inpost_parcel_address' => 'nullable|string|max:255',
-            'order_date' => 'nullable|date',
-            'order_time' => 'nullable|date_format:H:i',
-            'platform_id' => 'nullable',
-            'payment_type' => 'nullable',
-            'carrier_account' => 'nullable',
-        ]);
-
-        $apilo = app(ApiloService::class);
-
-        // Blokada Fakturownia: zaległe przelewy (z karencją po terminie) albo nieopłacone pobranie przy zamówieniu za pobraniem
-        $visit->loadMissing('client');
-        $nip = $visit->client?->nip ? trim((string) $visit->client->nip) : null;
-        $paymentIsCod = $apilo->isPaymentTypeLikelyCod($request->input('payment_type'));
-        if ($nip && strlen(preg_replace('/\D/', '', $nip)) >= 10) {
-            try {
-                $fakturownia = app(FakturowniaService::class);
-                $stats = $fakturownia->getClientPaymentStats($nip);
-                if (! $paymentIsCod && ($stats['overdue'] ?? 0) > 0) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Nie można dodać zamówienia – klient ma nieopłacone faktury z przekroczonym terminem płatności (powyżej dopuszczalnej karencji). Proszę uregulować zaległości przed dodaniem nowego zamówienia.',
-                    ], 422);
-                }
-            } catch (\Throwable $e) {
-                \Log::warning('createApiloOrder: Fakturownia check failed', ['visit_id' => $visit->id, 'message' => $e->getMessage()]);
-                // W razie błędu API nie blokujemy – pozwalamy na zamówienie
-            }
-        }
-
-        try {
-            $delivery = $request->delivery ?? [];
-            $parcelPoint = $delivery['inpost_parcel_point'] ?? null;
-            if (! empty($parcelPoint)) {
-                $delivery['inpost_parcel_point'] = strtoupper(trim($parcelPoint));
-            }
-            $order = $apilo->createOrder([
-                'client' => $visit->client,
-                'products' => $request->products,
-                'customer' => $request->customer,
-                'delivery' => $delivery,
-                'order_date' => $request->order_date,
-                'order_time' => $request->order_time,
-                'visit_time' => $visit->visit_time,
-                'platform_id' => $request->platform_id,
-                'payment_type' => $request->payment_type,
-                'carrier_account' => $request->carrier_account,
-            ]);
-
-            if ($order) {
-                $visit->update([
-                    'apilo_order_id' => $order['id'] ?? null,
-                    'order_value' => $order['total'] ?? 0,
-                ]);
-
-                return response()->json([
-                    'success' => true,
-                    'order' => $order,
-                ]);
-            }
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Nie udało się utworzyć zamówienia w Apilo',
-            ], 500);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 422);
-        }
-    }
 
     /**
      * Składa listę telefonów wizyty z ręcznych wpisów. Dedupliakcja po znormalizowanym numerze.

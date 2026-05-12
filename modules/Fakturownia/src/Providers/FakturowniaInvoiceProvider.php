@@ -88,4 +88,19 @@ class FakturowniaInvoiceProvider implements InvoiceProvider
             'external_url' => $subdomain ? "https://{$subdomain}.fakturownia.pl/invoices/{$invoice['id']}" : null,
         ];
     }
+
+    public function listForClientByNip(string $nip): array
+    {
+        $nip = FakturowniaService::normalizeNip($nip);
+        if (strlen($nip) < 10 || !$this->isAvailable()) {
+            return [];
+        }
+
+        try {
+            return $this->fakturownia->getInvoicesForClient($nip);
+        } catch (\Throwable $e) {
+            Log::warning('FakturowniaInvoiceProvider listForClientByNip failed', ['error' => $e->getMessage()]);
+            return [];
+        }
+    }
 }

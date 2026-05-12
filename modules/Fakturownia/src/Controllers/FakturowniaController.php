@@ -5,8 +5,11 @@ namespace Modules\Fakturownia\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Modules\Fakturownia\Services\FakturowniaService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -54,6 +57,49 @@ class FakturowniaController extends Controller
         }
 
         return back()->with('error', 'Błąd: ' . ($result['message'] ?? 'unknown'));
+    }
+
+    public function invoicesByNip(Request $request): JsonResponse
+    {
+        $nip = FakturowniaService::normalizeNip($request->get('nip', ''));
+        if (strlen($nip) < 10) {
+            return response()->json(['invoices' => []]);
+        }
+
+        try {
+            return response()->json(['invoices' => $this->fakturownia->getInvoicesForClient($nip)]);
+        } catch (\Throwable $e) {
+            Log::warning('fakturownia.invoicesByNip error', ['message' => $e->getMessage()]);
+            return response()->json(['invoices' => []]);
+        }
+    }
+
+    public function invoiceDetail(int $id): JsonResponse
+    {
+        try {
+            $invoice = $this->fakturownia->getInvoice($id);
+            return response()->json($invoice ?: ['error' => 'Nie znaleziono faktury']);
+        } catch (\Throwable $e) {
+            Log::warning('fakturownia.invoiceDetail error', ['id' => $id, 'message' => $e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function invoicePdf(int $id): HttpResponse|JsonResponse
+    {
+        try {
+            $base64 = $this->fakturownia->getInvoicePdf($id);
+            if (!$base64) {
+                return response()->json(['error' => 'Nie udało się pobrać PDF faktury'], 404);
+            }
+
+            return response(base64_decode($base64))
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'inline; filename="faktura-' . $id . '.pdf"');
+        } catch (\Throwable $e) {
+            Log::warning('fakturownia.invoicePdf error', ['id' => $id, 'message' => $e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     protected function maskSecret(?string $value): string

@@ -8,3 +8,8 @@ Route::middleware(['role:admin'])->group(function () {
     Route::post('/credentials', [FakturowniaController::class, 'saveCredentials'])->name('credentials');
     Route::post('/test',        [FakturowniaController::class, 'test'])->name('test');
 });
+
+// Integracja z UI kalendarza (legacy CK endpoints — kazdy zalogowany user)
+Route::get('/invoices-by-nip',  [FakturowniaController::class, 'invoicesByNip'])->name('invoices-by-nip');
+Route::get('/invoice/{id}',     [FakturowniaController::class, 'invoiceDetail'])->name('invoice-detail');
+Route::get('/invoice/{id}/pdf', [FakturowniaController::class, 'invoicePdf'])->name('invoice-pdf');

@@ -32,4 +32,10 @@ interface InvoiceProvider
      * Może rzucić wyjątkiem jeśli nie skonfigurowany — caller powinien obsłużyć.
      */
     public function createFromOrder(Order $order): array;
+
+    /**
+     * Faktury klienta po NIP. Zwraca pusty array gdy provider nie wspiera
+     * listingu po NIP (np. NullInvoiceProvider, ApiloInvoiceProvider).
+     */
+    public function listForClientByNip(string $nip): array;
 }

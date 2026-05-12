@@ -613,9 +613,7 @@ async function loadApiloOptions() {
     if (apiloOptionsLoaded.value || apiloOptionsLoading.value) return;
     apiloOptionsLoading.value = true;
     try {
-        // Buduj URL z bazowego route products (obie route są w tej samej grupie calendar)
-        const productsUrl = route('calendar.products');
-        const optionsUrl = productsUrl.replace('/products', '/apilo-options');
+        const optionsUrl = route('apilo.order-options');
         const response = await fetch(optionsUrl, {
             headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
             credentials: 'same-origin',
@@ -1203,7 +1201,7 @@ async function openOrderTracking(orderId) {
     if (!orderId || trackingLoadingOrderId.value) return;
     trackingLoadingOrderId.value = orderId;
     try {
-        const url = route('calendar.order-tracking', { orderId });
+        const url = route('apilo.order-tracking', { orderId });
         const response = await fetch(url, {
             headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
             credentials: 'same-origin',
@@ -1228,7 +1226,7 @@ async function fetchInvoicesByNip() {
     if (nip.length < 10) return;
     isLoading.value = true;
     try {
-        const response = await fetch(route('calendar.invoices-by-nip') + '?nip=' + encodeURIComponent(nip), {
+        const response = await fetch(route('fakturownia.invoices-by-nip') + '?nip=' + encodeURIComponent(nip), {
             headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
             credentials: 'same-origin',
         });
@@ -1256,7 +1254,7 @@ async function toggleInvoicePositions(invoiceId) {
     }
     loadingInvoiceId.value = invoiceId;
     try {
-        const response = await fetch(route('calendar.invoice-detail', invoiceId), {
+        const response = await fetch(route('fakturownia.invoice-detail', invoiceId), {
             headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
             credentials: 'same-origin',
         });
@@ -1927,7 +1925,7 @@ async function createOrder() {
             .find(row => row.startsWith('XSRF-TOKEN='))
             ?.split('=')[1];
 
-        const response = await fetch(route('calendar.create-order', props.visit.id), {
+        const response = await fetch(route('apilo.create-order', props.visit.id), {
             method: 'POST',
             credentials: 'same-origin',
             headers: {
@@ -3521,7 +3519,7 @@ const invoiceStatusLabels = {
                                         {{ invoiceStatusLabels[invoice.status] || invoice.status }}
                                     </span>
                                     <a
-                                        :href="route('calendar.invoice-pdf', invoice.id)"
+                                        :href="route('fakturownia.invoice-pdf', invoice.id)"
                                         target="_blank"
                                         rel="noopener"
                                         class="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 transition-colors"

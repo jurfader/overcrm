@@ -24,4 +24,9 @@ class NullInvoiceProvider implements InvoiceProvider
             'i wybierz go w Ustawienia → Integracje → Faktury.'
         );
     }
+
+    public function listForClientByNip(string $nip): array
+    {
+        return [];
+    }
 }

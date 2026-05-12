@@ -86,4 +86,12 @@ class ApiloInvoiceProvider implements InvoiceProvider
     {
         return $this->apilo->getFinanceDocuments(['orderId' => $apiloOrderId]);
     }
+
+    public function listForClientByNip(string $nip): array
+    {
+        // Apilo nie ma endpointu listowania faktur po NIP — to po stronie Apilo
+        // jest powiazane przez orderId, nie przez NIP. Caller (ProviderRegistry consumer)
+        // dostaje pusty array, jesli potrzebuje faktur po NIP musi uzyc Fakturownia.
+        return [];
+    }
 }
