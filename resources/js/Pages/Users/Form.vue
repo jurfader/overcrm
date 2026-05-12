@@ -1,6 +1,6 @@
 <script setup>
-import { Head, Link, useForm, router } from '@inertiajs/vue3';
-import { ref, computed, watch } from 'vue';
+import { Head, Link, useForm, router, usePage } from '@inertiajs/vue3';
+import { ref, computed, watch, onMounted } from 'vue';
 import Card from '@/Components/Card.vue';
 import Button from '@/Components/Button.vue';
 import Input from '@/Components/Input.vue';
@@ -77,7 +77,50 @@ const form = useForm({
             ? props.user.apilo_default_platform_id
             : '',
     play_phone: props.user?.play_phone || '',
+    sip_account: props.user?.sip_account || '',
 });
+
+const page = usePage();
+const hasRingostat = computed(() => {
+    const m = page.props.activeModules || [];
+    return m.some(x => (typeof x === 'string' ? x === 'ringostat' : x.name === 'ringostat'));
+});
+const hasPlayCentrala = computed(() => {
+    const m = page.props.activeModules || [];
+    return m.some(x => (typeof x === 'string' ? x === 'playcentrala' : x.name === 'playcentrala'));
+});
+
+// Lista SIP-ow aktualnie online (z Ringostat API) — pomaga przy wyborze
+const ringostatSips = ref([]);
+const ringostatSipsLoading = ref(false);
+async function loadRingostatSips() {
+    if (!hasRingostat.value) return;
+    ringostatSipsLoading.value = true;
+    try {
+        const res = await fetch(route('ringostat.sip-status'), {
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin',
+        });
+        if (res.ok) {
+            const data = await res.json();
+            const all = [...(data.online || []), ...(data.speaking || [])];
+            const seen = new Set();
+            ringostatSips.value = all
+                .map(s => (typeof s === 'string' ? { sip: s } : s))
+                .filter(s => {
+                    const key = s.sip || s.sipAccount || s.id;
+                    if (!key || seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+        }
+    } catch (e) {
+        // cisza — pole nadal mozna wypelnic recznie
+    } finally {
+        ringostatSipsLoading.value = false;
+    }
+}
+onMounted(() => loadRingostatSips());
 
 // Aktualizuj nazwę działu gdy zmienia się ID
 watch(() => form.fakturownia_department_id, (newId) => {
@@ -361,7 +404,7 @@ function submit() {
                 </div>
             </Card>
 
-            <Card title="Play Wirtualna Centralka">
+            <Card v-if="hasPlayCentrala" title="Play Wirtualna Centralka">
                 <div class="space-y-3">
                     <div>
                         <label class="block text-sm font-medium text-foreground mb-1">
@@ -376,6 +419,37 @@ function submit() {
                             Format: 48XXXXXXXXX (z prefiksem kraju). Używany do dopasowania połączeń i click-to-call.
                         </p>
                         <p v-if="form.errors.play_phone" class="text-xs text-red-500 mt-1">{{ form.errors.play_phone }}</p>
+                    </div>
+                </div>
+            </Card>
+
+            <Card v-if="hasRingostat" title="Ringostat">
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-foreground mb-1">
+                            Konto SIP w Ringostat
+                        </label>
+                        <Input
+                            v-model="form.sip_account"
+                            placeholder="np. 101 lub user@sip.ringostat.net"
+                            class="w-full"
+                            list="ringostat-sips"
+                        />
+                        <datalist id="ringostat-sips">
+                            <option v-for="s in ringostatSips" :key="s.sip || s.id" :value="s.sip || s.sipAccount || s.id">
+                                {{ s.name || s.employee_name || '' }}
+                            </option>
+                        </datalist>
+                        <p class="text-xs text-foreground-muted mt-1">
+                            <template v-if="ringostatSipsLoading">Ładuję listę kont SIP z Ringostat…</template>
+                            <template v-else-if="ringostatSips.length">
+                                {{ ringostatSips.length }} kont aktualnie online — dostępne w autouzupełnianiu.
+                            </template>
+                            <template v-else>
+                                Wpisz numer wewnętrzny SIP lub adres SIP z panelu Ringostat. Używany do dopasowania połączeń (webhook) i click-to-call.
+                            </template>
+                        </p>
+                        <p v-if="form.errors.sip_account" class="text-xs text-red-500 mt-1">{{ form.errors.sip_account }}</p>
                     </div>
                 </div>
             </Card>

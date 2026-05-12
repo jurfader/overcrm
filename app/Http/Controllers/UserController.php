@@ -118,6 +118,7 @@ class UserController extends Controller
             'fakturownia_department_name' => 'nullable|string|max:255',
             'apilo_default_platform_id' => 'nullable|numeric',
             'play_phone' => 'nullable|string|max:30',
+            'sip_account' => 'nullable|string|max:64',
         ]);
 
         $permissions = $validated['permissions'] ?? [];
@@ -201,6 +202,7 @@ class UserController extends Controller
             'fakturownia_department_name' => 'nullable|string|max:255',
             'apilo_default_platform_id' => 'nullable|numeric',
             'play_phone' => 'nullable|string|max:30',
+            'sip_account' => 'nullable|string|max:64',
         ]);
 
         $permissions = $validated['permissions'] ?? [];
