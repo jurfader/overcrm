@@ -4,7 +4,7 @@ namespace Modules\Fakturownia\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
-use App\Services\FakturowniaService;
+use Modules\Fakturownia\Services\FakturowniaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;

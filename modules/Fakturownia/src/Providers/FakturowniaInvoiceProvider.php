@@ -5,7 +5,7 @@ namespace Modules\Fakturownia\Providers;
 use App\Contracts\InvoiceProvider;
 use App\Models\Order;
 use App\Models\Setting;
-use App\Services\FakturowniaService;
+use Modules\Fakturownia\Services\FakturowniaService;
 use Illuminate\Support\Facades\Log;
 
 /**

@@ -3,7 +3,7 @@
 namespace Modules\Fakturownia\Providers;
 
 use App\Contracts\ProductProvider;
-use App\Services\FakturowniaService;
+use Modules\Fakturownia\Services\FakturowniaService;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;

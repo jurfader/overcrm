@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace Modules\Fakturownia\Services;
 
 use App\Services\Traits\LogsApiCalls;
 use Illuminate\Http\Client\Pool;
