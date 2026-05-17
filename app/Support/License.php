@@ -19,6 +19,10 @@ class License
 
     public static function ok(): bool
     {
+        // Demo deployment: licencja "nalezy" do deploymentu, per-session sqlite
+        // nigdy nie bedzie miala klucza. EnforceLicense middleware tez bypassuje.
+        if (config('demo.enabled')) return true;
+
         if (self::$cached !== null) return self::$cached;
         return self::$cached = app(LicenseService::class)->isValid();
     }
