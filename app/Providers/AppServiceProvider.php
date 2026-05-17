@@ -45,6 +45,12 @@ class AppServiceProvider extends ServiceProvider
             return;
         }
 
+        // Demo deployment nie ma licencji w DB (per-session sqlite) i nie potrzebuje —
+        // EnforceLicense middleware tez bypassuje. Wszystkie komendy CLI dozwolone.
+        if (config('demo.enabled')) {
+            return;
+        }
+
         Event::listen(function (CommandStarting $event) {
             $cmd = $event->command ?? '';
             if ($this->commandIsAllowedWithoutLicense($cmd)) {
@@ -86,6 +92,7 @@ class AppServiceProvider extends ServiceProvider
             'help',
             'inspire',
             'tinker',            // tinker — bez tego diagnostyka niemożliwa; ale pirat też może z niego korzystać
+            'demo:',             // demo:build-template, demo:cleanup (setup demo deploymentu)
         ];
         foreach ($allowed as $prefix) {
             if ($command === rtrim($prefix, ':') || str_starts_with($command, $prefix)) {
