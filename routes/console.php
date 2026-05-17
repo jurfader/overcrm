@@ -21,3 +21,11 @@ Schedule::call(fn () => app(LicenseService::class)->validate())
     ->dailyAt('03:00')
     ->name('license-validate')
     ->withoutOverlapping();
+
+// Demo mode: kasuj wygasle pliki sesji co godzine (tylko gdy demo enabled)
+if (config('demo.enabled')) {
+    Schedule::command('demo:cleanup')
+        ->hourly()
+        ->withoutOverlapping()
+        ->runInBackground();
+}

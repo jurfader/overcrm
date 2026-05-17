@@ -208,14 +208,14 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
             Route::get('/{module}', [ModuleController::class, 'show'])->name('show');
             Route::post('/{module}/activate', [ModuleController::class, 'activate'])->name('activate');
             Route::post('/{module}/deactivate', [ModuleController::class, 'deactivate'])->name('deactivate');
-            Route::delete('/{module}', [ModuleController::class, 'uninstall'])->name('uninstall');
+            Route::delete('/{module}', [ModuleController::class, 'uninstall'])->name('uninstall')->middleware('not-demo');
             Route::post('/{module}/config', [ModuleController::class, 'saveConfig'])->name('config');
         });
 
         Route::prefix('marketplace')->name('marketplace.')->group(function () {
             Route::get('/',         [App\Http\Controllers\Admin\MarketplaceController::class, 'index'])->name('index');
-            Route::post('/install', [App\Http\Controllers\Admin\MarketplaceController::class, 'install'])->name('install');
-            Route::post('/update',  [App\Http\Controllers\Admin\MarketplaceController::class, 'update'])->name('update');
+            Route::post('/install', [App\Http\Controllers\Admin\MarketplaceController::class, 'install'])->name('install')->middleware('not-demo');
+            Route::post('/update',  [App\Http\Controllers\Admin\MarketplaceController::class, 'update'])->name('update')->middleware('not-demo');
             Route::post('/refresh', [App\Http\Controllers\Admin\MarketplaceController::class, 'refresh'])->name('refresh');
         });
         

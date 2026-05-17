@@ -9,6 +9,7 @@ import SupportTicketModal from '@/Components/SupportTicketModal.vue';
 import ThemeToggle from '@/Components/UI/ThemeToggle.vue';
 import Tooltip from '@/Components/UI/Tooltip.vue';
 import BrandLogo from '@/Components/UI/BrandLogo.vue';
+import DemoBanner from '@/Components/DemoBanner.vue';
 import { useKeyboardShortcuts } from '@/Composables/useKeyboardShortcuts';
 
 const page = usePage();
@@ -154,6 +155,7 @@ const visibleAdmin = computed(() => navAdmin.filter(canAccess));
 </script>
 
 <template>
+    <DemoBanner />
     <div class="min-h-screen flex">
         <!-- ====================== SIDEBAR ====================== -->
         <aside

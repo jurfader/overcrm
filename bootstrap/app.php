@@ -18,6 +18,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->trustProxies(at: '*');
         $middleware->web(append: [
+            // EnableDemoMode MUSI byc po StartSession/EncryptCookies (zeby
+            // czytac juz odszyfrowany cookie i nie kierowac session storage do
+            // per-session DB), a przed HandleInertiaRequests/EnforceLicense
+            // (zeby auto-login i sprawdzenia leciały juz na per-session DB).
+            \App\Http\Middleware\EnableDemoMode::class,
             \App\Http\Middleware\HandleInertiaRequests::class,
             \App\Http\Middleware\ShareModulesData::class,
             \App\Http\Middleware\EnforceLicense::class,
@@ -28,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'role' => \App\Http\Middleware\CheckRole::class,
             '2fa' => \App\Http\Middleware\EnsureTwoFactorVerified::class,
+            'not-demo' => \App\Http\Middleware\BlockInDemo::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

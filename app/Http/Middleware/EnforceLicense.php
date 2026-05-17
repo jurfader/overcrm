@@ -34,6 +34,13 @@ class EnforceLicense
 
     public function handle(Request $request, Closure $next): Response
     {
+        // Demo mode: licencja "naleza" do deploymentu, nie do per-session sqlite.
+        // Per-session DB nie ma settings z kluczem → bez bypassu kazdy demo
+        // user lapie redirect na /license i utyka.
+        if (config('demo.enabled')) {
+            return $next($request);
+        }
+
         // Whitelisted routes — zawsze pozwól
         if ($this->isAllowed($request)) {
             return $next($request);

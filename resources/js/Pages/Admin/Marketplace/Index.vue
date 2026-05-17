@@ -1,11 +1,14 @@
 <script setup>
 import { ref, computed } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import Icons from '@/Components/Icons.vue';
 
 const props = defineProps({
     marketplace: { type: Object, required: true },
 });
+
+const page = usePage();
+const isDemo = computed(() => !!page.props.demo?.enabled);
 
 const tab = ref('installed');
 const installing = ref(null); // plugin_id w trakcie pobierania
@@ -86,6 +89,13 @@ function configLink(m) {
             </button>
         </div>
 
+        <div v-if="isDemo" class="glass-card border border-amber-500/40 bg-amber-500/10 p-3 flex items-start gap-3 text-sm">
+            <Icons name="info" class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+            <div>
+                <strong>Tryb demo:</strong> instalacja i aktualizacja modułów jest wyłączona — pliki modułów są wspólne dla wszystkich sesji, więc tylko admin produkcji może je zmieniać. Możesz przeglądać liste i konfigurować już zainstalowane moduły.
+            </div>
+        </div>
+
         <!-- Tabs -->
         <div class="flex gap-1 border-b border-border">
             <button
@@ -157,7 +167,8 @@ function configLink(m) {
                 </div>
                 <button v-if="m.update_available"
                         @click="updateModule(m)"
-                        :disabled="updating === m.name"
+                        :disabled="updating === m.name || isDemo"
+                        :title="isDemo ? 'Niedostepne w trybie demo' : ''"
                         class="w-full mt-1 px-3 py-1.5 text-sm gradient-brand text-white rounded-md hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-1.5">
                     <Icons name="refresh" class="w-3.5 h-3.5" />
                     <span v-if="updating === m.name">Aktualizuję...</span>
@@ -203,9 +214,11 @@ function configLink(m) {
                             </div>
                         </div>
                         <button @click="installRemote(r)"
-                                :disabled="installing === r.id"
+                                :disabled="installing === r.id || isDemo"
+                                :title="isDemo ? 'Niedostepne w trybie demo' : ''"
                                 class="px-3 py-1.5 text-sm gradient-brand text-white rounded-md hover:opacity-90 disabled:opacity-50">
                             <span v-if="installing === r.id">Instaluję...</span>
+                            <span v-else-if="isDemo">Demo</span>
                             <span v-else>Zainstaluj</span>
                         </button>
                     </div>

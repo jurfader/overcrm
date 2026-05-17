@@ -57,6 +57,7 @@ class HandleInertiaRequests extends Middleware
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],
+            'demo' => fn () => $this->getDemoState($request),
         ];
     }
 
@@ -158,6 +159,35 @@ class HandleInertiaRequests extends Middleware
         } catch (\Throwable $e) {
             return 'dev';
         }
+    }
+
+    /**
+     * Stan demo mode dla frontendu — banner uzywa expires_at do countdownu.
+     * Pusty array gdy demo wylaczony, zeby frontend mogl szybko sprawdzic.
+     */
+    protected function getDemoState(Request $request): array
+    {
+        if (!config('demo.enabled')) {
+            return ['enabled' => false];
+        }
+
+        $cookie = $request->cookie(config('demo.cookie'));
+        $dir = config('demo.path');
+        $expiresAt = null;
+
+        if ($cookie && preg_match('/^[a-f0-9-]{8,64}$/', $cookie)) {
+            $path = $dir . '/' . $cookie . '.sqlite';
+            if (is_file($path)) {
+                $expiresAt = filemtime($path) + (config('demo.ttl_hours', 24) * 3600);
+            }
+        }
+
+        return [
+            'enabled' => true,
+            'session_id' => $cookie,
+            'expires_at' => $expiresAt,
+            'ttl_hours' => (int) config('demo.ttl_hours', 24),
+        ];
     }
 
     /**
