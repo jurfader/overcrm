@@ -166,13 +166,14 @@ class MarketplaceService
      * w podpisanej odpowiedzi) — tutaj trzymamy tylko nazwy do pokazania.
      */
     public const BUNDLE_LABELS = [
-        'overcrm-core'      => 'W licencji podstawowej',
-        'overcrm-ai'        => 'Pakiet AI',
-        'overcrm-telefonia' => 'Pakiet Telefonia',
-        'overcrm-analityka' => 'Pakiet Analityka',
-        'overcrm-sprzedaz'  => 'Pakiet Sprzedaż',
-        'overcrm-pliki'     => 'Pakiet Pliki',
-        'overcrm-wdrozenie' => 'Pakiet Wdrożenie',
+        'overcrm-core'        => 'W licencji podstawowej',
+        'overcrm-ai'          => 'Pakiet AI',
+        'overcrm-komunikacja' => 'Pakiet Komunikacja',
+        'overcrm-telefonia'   => 'Pakiet Telefonia',
+        'overcrm-analityka'   => 'Pakiet Analityka',
+        'overcrm-sprzedaz'    => 'Pakiet Sprzedaż',
+        'overcrm-pliki'       => 'Pakiet Pliki',
+        'overcrm-wdrozenie'   => 'Pakiet Wdrożenie',
     ];
 
     public const CATEGORY_LABELS = [

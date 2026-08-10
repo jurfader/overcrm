@@ -231,6 +231,41 @@ class ModuleHygieneTest extends TestCase
     }
 
     /**
+     * `bundle` z manifestu musi być pakietem, który rdzeń zna.
+     *
+     * Nazwa spoza `MarketplaceService::BUNDLE_LABELS` nie wywala się — moduł
+     * pokazuje się w marketplace bez etykiety pakietu, a `hasBundle()` odpyta
+     * licencję o ciąg, którego serwer licencji nigdy nie nada. Klient płaci
+     * za pakiet i nie dostaje modułu, a nic o tym nie krzyczy.
+     *
+     * Złapane na module Smsapi: manifest deklarował 'overcrm-komunikacja',
+     * a rdzeń znał tylko pozostałe sześć pakietów.
+     */
+    public function test_bundle_z_manifestu_jest_znanym_pakietem(): void
+    {
+        $znane = array_keys(\App\Services\MarketplaceService::BUNDLE_LABELS);
+        $bledy = [];
+
+        foreach ($this->moduleDirs() as $dir) {
+            $manifest = $this->manifest($dir);
+            $bundle = $manifest['bundle'] ?? null;
+
+            if ($bundle === null || $bundle === '') {
+                continue;
+            }
+
+            if (!in_array($bundle, $znane, true)) {
+                $bledy[] = sprintf('modules/%s: nieznany pakiet "%s"', basename($dir), $bundle);
+            }
+        }
+
+        $this->assertSame([], $bledy,
+            "Manifest deklaruje pakiet, ktorego rdzen nie zna. Modul nie dostanie etykiety, "
+            ."a licencja nigdy nie nada takiego uprawnienia. Znane pakiety: "
+            .implode(', ', $znane)."\n".implode("\n", $bledy));
+    }
+
+    /**
      * Nazwa folderu wyliczona z manifestu musi zgadzać się z faktycznym katalogiem.
      *
      * `ModuleService::installFromZip()` wybiera katalog docelowy jako
