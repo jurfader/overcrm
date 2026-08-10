@@ -229,4 +229,45 @@ class ModuleHygieneTest extends TestCase
             "Moduł czyta lub zapisuje ustawienia pod nazwą innego modułu. Panel zapisuje "
             ."pod nazwę modułu, więc taki odczyt zawsze zwróci pustą wartość:\n".implode("\n", $obcy));
     }
+
+    /**
+     * Nazwa folderu wyliczona z manifestu musi zgadzać się z faktycznym katalogiem.
+     *
+     * `ModuleService::installFromZip()` wybiera katalog docelowy jako
+     * `folder` z manifestu, a gdy go brak — jako `ucfirst(name)`. Dla modułu
+     * o nazwie „wfirma" daje to „Wfirma", więc instalator PRZEMIANOWUJE
+     * rozpakowany katalog WFirma na Wfirma. Na Linuksie PSR-4 rozróżnia
+     * wielkość liter i klasa Modules\WFirma\... przestaje się rozwiązywać.
+     *
+     * Lokalnie tego nie widać, bo katalogi tworzy się ręcznie w poprawnym
+     * zapisie — moduł psuje się dopiero po instalacji z marketplace'u u klienta.
+     * Tak było z BaseLinkerem i wFirmą.
+     */
+    public function test_folder_z_manifestu_zgadza_sie_z_katalogiem(): void
+    {
+        $bledy = [];
+
+        foreach ($this->moduleDirs() as $dir) {
+            $manifest = $this->manifest($dir);
+
+            if (!$manifest || !isset($manifest['name'])) {
+                continue;
+            }
+
+            $katalog = basename($dir);
+            // Dokładnie ta sama reguła, co w ModuleService::installFromZip().
+            $wyliczony = $manifest['folder'] ?? ucfirst(strtolower($manifest['name']));
+
+            if ($wyliczony !== $katalog) {
+                $bledy[] = sprintf(
+                    'modules/%s: instalator utworzy katalog "%s" (dopisz "folder": "%s" do module.json)',
+                    $katalog, $wyliczony, $katalog
+                );
+            }
+        }
+
+        $this->assertSame([], $bledy,
+            "Instalacja z ZIP-a rozjedzie sie z nazwa katalogu, przez co PSR-4 na Linuksie "
+            ."nie znajdzie klas modulu:\n".implode("\n", $bledy));
+    }
 }
