@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\ClientVisit;
 use App\Models\EmailTemplate;
-use App\Models\PriceList;
+use App\Jobs\SendVisitEmailJob;
 use App\Services\UserMailService;
 use Illuminate\Http\Request;
-use Spatie\Browsershot\Browsershot;
+use Illuminate\Support\Str;
 
 class VisitEmailController extends Controller
 {
@@ -46,6 +46,7 @@ class VisitEmailController extends Controller
         }
 
         $toEmail = $manualTo !== '' ? $manualTo : ($visit->client?->email ?? '');
+
         if (!$toEmail) {
             return response()->json([
                 'success' => false,
@@ -53,117 +54,84 @@ class VisitEmailController extends Controller
             ], 422);
         }
 
-        $user = auth()->user();
-        $mailConfig = null;
+        $maTresc = !empty($validated['template_id'])
+            || (trim((string) ($validated['subject'] ?? '')) !== '' && trim((string) ($validated['html_content'] ?? '')) !== '');
 
-        if (!empty($validated['mail_config_id'])) {
-            $mailConfig = $user->mailConfigs()->find($validated['mail_config_id']);
-        }
-
-        $attachments = $request->file('attachments', []);
-        if (!is_array($attachments)) {
-            $attachments = $attachments ? [$attachments] : [];
-        }
-        $attachments = array_filter($attachments, fn ($f) => $f && $f->isValid());
-
-        // Generuj PDF z cennika i dodaj jako załącznik
-        $pdfTempPath = null;
-        if (!empty($validated['price_list_id'])) {
-            $priceList = PriceList::find($validated['price_list_id']);
-            if ($priceList && $priceList->html_content) {
-                $pdfTempPath = storage_path('app/temp/cennik-' . $priceList->slug . '-' . time() . '.pdf');
-                if (!is_dir(dirname($pdfTempPath))) {
-                    mkdir(dirname($pdfTempPath), 0755, true);
-                }
-                $printCss = '<style>article.card { break-inside: avoid !important; page-break-inside: avoid !important; margin-bottom: 6px !important; } .btn-buy { print-color-adjust: exact !important; -webkit-print-color-adjust: exact !important; } #ck-topmenu { display: none !important; }</style>';
-                $pdfHtml = str_replace('</head>', $printCss . '</head>', $priceList->html_content);
-                $pdfRawPath = $pdfTempPath . '.raw.pdf';
-                Browsershot::html($pdfHtml)
-                    ->noSandbox()
-                    ->format('A4')
-                    ->margins(8, 8, 8, 8)
-                    ->showBackground()
-                    ->windowSize(1200, 800)
-                    ->waitUntilNetworkIdle()
-                    ->save($pdfRawPath);
-                // Kompresja Ghostscriptem (~92MB → ~3-5MB)
-                $gsCmd = sprintf(
-                    'gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dNOPAUSE -dBATCH -dQUIET -sOutputFile=%s %s 2>&1',
-                    escapeshellarg($pdfTempPath),
-                    escapeshellarg($pdfRawPath)
-                );
-                exec($gsCmd, $gsOutput, $gsExitCode);
-                @unlink($pdfRawPath);
-                if ($gsExitCode !== 0 || !file_exists($pdfTempPath)) {
-                    // Fallback: użyj nieskompresowanego
-                    if (file_exists($pdfRawPath)) {
-                        rename($pdfRawPath, $pdfTempPath);
-                    }
-                }
-                $attachments[] = $pdfTempPath;
-            }
-        }
-
-        try {
-            if (!empty($validated['template_id'])) {
-                // Wysyłka z szablonu
-                $template = EmailTemplate::findOrFail($validated['template_id']);
-                $subjectOverride = !empty(trim($validated['subject'] ?? '')) ? trim($validated['subject']) : null;
-                $sentEmail = $this->mailService->sendFromTemplate(
-                    user: $user,
-                    template: $template,
-                    client: $visit->client,
-                    visit: $visit,
-                    mailConfig: $mailConfig,
-                    subjectOverride: $subjectOverride,
-                    attachments: $attachments,
-                    toEmailOverride: $toEmail
-                );
-            } elseif (!empty(trim($validated['subject'] ?? '')) && !empty(trim($validated['html_content'] ?? ''))) {
-                // Wysyłka własnej wiadomości
-                $toName = $visit->client?->name ?? $this->mailService->guessRecipientNameFromEmail($toEmail);
-                $sentEmail = $this->mailService->send(
-                    user: $user,
-                    toEmail: $toEmail,
-                    subject: trim($validated['subject']),
-                    htmlContent: trim($validated['html_content']),
-                    toName: $toName,
-                    mailConfig: $mailConfig,
-                    client: $visit->client,
-                    visit: $visit,
-                    attachments: $attachments
-                );
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Wybierz szablon lub wpisz temat i treść wiadomości.',
-                ], 422);
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Email został wysłany pomyślnie.',
-                'sent_email_id' => $sentEmail->id,
-            ]);
-
-        } catch (\Throwable $e) {
-            report($e);
-            // SMTP błędy często zawierają dane logowania/host — zwróć użytkownikowi generyczny komunikat
-            $userMsg = 'Nie udało się wysłać wiadomości. Sprawdź konfigurację skrzynki (SMTP) w ustawieniach lub spróbuj ponownie za chwilę.';
-            $class = (new \ReflectionClass($e))->getShortName();
-            if (str_contains($class, 'Transport') || str_contains($class, 'Smtp') || str_contains($class, 'Mailer')) {
-                $userMsg = 'Błąd wysyłki SMTP: serwer poczty odmówił połączenia lub odrzucił wiadomość. Sprawdź konfigurację skrzynki.';
-            }
+        if (!$maTresc) {
             return response()->json([
                 'success' => false,
-                'message' => $userMsg,
-            ], 500);
-        } finally {
-            // Usuń tymczasowy PDF cennika
-            if ($pdfTempPath && file_exists($pdfTempPath)) {
-                @unlink($pdfTempPath);
-            }
+                'message' => 'Wybierz szablon lub wpisz temat i treść wiadomości.',
+            ], 422);
         }
+
+        $validated['to_email'] = $toEmail;
+
+        // Przesłane pliki żyją w katalogu tymczasowym PHP tylko do końca żądania,
+        // a zadanie z kolejki wystartuje później — trzeba je przenieść w miejsce,
+        // które przetrwa. Zadanie sprząta po sobie w bloku finally.
+        $token = (string) Str::uuid();
+        $zalaczniki = $this->przeniesZalaczniki($request, $token);
+
+        SendVisitEmailJob::zapiszStatus($token, 'pending', 'Wiadomość czeka w kolejce…');
+
+        SendVisitEmailJob::dispatch($token, $visit->id, auth()->id(), $validated, $zalaczniki);
+
+        // 202: przyjęte do realizacji, wynik pod osobnym adresem. Front odpytuje
+        // sendStatus() zamiast czekać na zakończenie generowania PDF-a i wysyłki.
+        return response()->json([
+            'success' => true,
+            'queued' => true,
+            'token' => $token,
+            'status_url' => route('calendar.send-email-status', $token),
+            'message' => 'Wiadomość została przyjęta do wysyłki.',
+        ], 202);
+    }
+
+    /**
+     * Stan wysyłki zleconej przez send(). Front odpytuje co kilka sekund.
+     */
+    public function sendStatus(string $token)
+    {
+        $stan = SendVisitEmailJob::status($token);
+
+        if (!$stan) {
+            return response()->json([
+                'success' => false,
+                'status' => 'unknown',
+                'message' => 'Nie znam takiego zlecenia — mogło wygasnąć.',
+            ], 404);
+        }
+
+        return response()->json(['success' => true] + $stan);
+    }
+
+    /**
+     * Przenosi przesłane pliki z katalogu tymczasowego PHP w miejsce trwałe.
+     *
+     * @return array<int, string>
+     */
+    protected function przeniesZalaczniki(Request $request, string $token): array
+    {
+        $pliki = $request->file('attachments', []);
+
+        if (!is_array($pliki)) {
+            $pliki = $pliki ? [$pliki] : [];
+        }
+
+        $katalog = storage_path('app/temp/mail-'.$token);
+        $sciezki = [];
+
+        foreach (array_filter($pliki, fn ($f) => $f && $f->isValid()) as $plik) {
+            if (!is_dir($katalog)) {
+                mkdir($katalog, 0755, true);
+            }
+
+            $nazwa = $plik->getClientOriginalName();
+            $plik->move($katalog, $nazwa);
+            $sciezki[] = $katalog.'/'.$nazwa;
+        }
+
+        return $sciezki;
     }
 
     /**
