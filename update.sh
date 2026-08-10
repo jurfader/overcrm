@@ -164,6 +164,30 @@ run "php artisan down --render='errors::503' --retry=60"
 log_step "Pobieranie kodu"
 run "git fetch --all --prune"
 run "git checkout '$BRANCH'"
+
+# Plik, który dotąd leżał na serwerze luzem, a w nowej wersji wchodzi do repo,
+# zatrzymuje `git pull` komunikatem „untracked working tree files would be
+# overwritten”. Aktualizacja przerywa się w połowie, a przyczyna jest z opisu
+# nieoczywista. Zdarzyło się dokładnie z tym skryptem: skopiowany ręcznie przy
+# pierwszym wdrożeniu, później dodany do repo.
+#
+# Takie pliki odsuwamy do kopii zapasowych, zamiast kazać komuś robić to ręcznie
+# w trybie konserwacji. Nic nie ginie — kopia zostaje obok zrzutu bazy.
+KOLIZJE=$(git diff --name-only "HEAD..origin/$BRANCH" 2>/dev/null | while read -r plik; do
+    [[ -e "$plik" ]] && ! git ls-files --error-unmatch "$plik" >/dev/null 2>&1 && echo "$plik"
+done)
+
+if [[ -n "$KOLIZJE" ]]; then
+    KATALOG_KOLIZJI="storage/app/backups/przed-aktualizacja-$(date +%Y%m%d_%H%M%S)"
+    run "mkdir -p '$KATALOG_KOLIZJI'"
+    while read -r plik; do
+        [[ -z "$plik" ]] && continue
+        log_warn "Plik '$plik' jest nieśledzony, a wchodzi do repo — odsuwam do $KATALOG_KOLIZJI"
+        run "mkdir -p '$KATALOG_KOLIZJI/$(dirname "$plik")'"
+        run "mv '$plik' '$KATALOG_KOLIZJI/$plik'"
+    done <<< "$KOLIZJE"
+fi
+
 run "git pull --ff-only origin '$BRANCH'"
 
 log_step "Zależności PHP"
