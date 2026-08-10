@@ -65,6 +65,7 @@ class LicenseService
             'grace_until'   => Setting::get('license_grace_until', null),
             'last_error'    => Setting::get('license_last_error', null),
             'is_valid'      => $this->isValid(),
+            'bundles'       => $this->bundles(),
         ];
     }
 
@@ -98,6 +99,89 @@ class LicenseService
     {
         return !empty(Setting::get('license_key', null));
     }
+
+    /**
+     * Pakiety modułów wykupione przez klienta, np. ['overcrm-ai', 'overcrm-telefonia'].
+     *
+     * Zwraca pustą listę przy nieważnej licencji — inaczej wygasła licencja
+     * dawałaby dalej dostęp do płatnych pakietów.
+     *
+     * @return array<int, string>
+     */
+    public function bundles(): array
+    {
+        if (!$this->isValid()) {
+            return [];
+        }
+
+        // Osobny zamek, niezależny od license_state_hmac. Bez tego dopisanie sobie
+        // 'overcrm-ai' wprost w tabeli settings odblokowywałoby płatne pakiety.
+        if (!$this->verifyBundlesLock()) {
+            return [];
+        }
+
+        $raw = Setting::get('license_bundles', null);
+        $decoded = is_string($raw) ? json_decode($raw, true) : $raw;
+
+        return is_array($decoded)
+            ? array_values(array_filter($decoded, 'is_string'))
+            : [];
+    }
+
+    /**
+     * HMAC listy pakietów, związany z kluczem licencji i tą instalacją —
+     * skopiowanie wpisów do innej instancji nie zadziała.
+     */
+    protected function computeBundlesHmac(): string
+    {
+        $material = json_encode([
+            'bundles'         => (string) Setting::get('license_bundles', ''),
+            'license_key'     => (string) Setting::get('license_key', ''),
+            'installation_id' => (string) Setting::get('license_installation_id', ''),
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+        return hash_hmac('sha256', $material, config('app.key') ?: 'no-app-key');
+    }
+
+    protected function writeBundlesLock(): void
+    {
+        Setting::set('license_bundles_hmac', $this->computeBundlesHmac());
+    }
+
+    /**
+     * Brak zapisanych pakietów = brak czego chronić (starszy serwer licencji
+     * albo świeża instalacja) — to poprawny stan, nie próba oszustwa.
+     */
+    protected function verifyBundlesLock(): bool
+    {
+        $raw = Setting::get('license_bundles', null);
+
+        if ($raw === null || $raw === '' || $raw === '[]') {
+            return true;
+        }
+
+        $stored = Setting::get('license_bundles_hmac', null);
+
+        return $stored && hash_equals($stored, $this->computeBundlesHmac());
+    }
+
+    /**
+     * Czy klient ma prawo do danego pakietu.
+     *
+     * Pakiet 'overcrm-core' jest wliczony w licencję CRM-a i nie wymaga
+     * osobnego uprawnienia — moduły podstawowe muszą działać u każdego.
+     */
+    public function hasBundle(?string $bundle): bool
+    {
+        if ($bundle === null || $bundle === '' || $bundle === self::BUNDLE_CORE) {
+            return $this->isValid();
+        }
+
+        return in_array($bundle, $this->bundles(), true);
+    }
+
+    /** Pakiet wliczony w licencję podstawową. */
+    public const BUNDLE_CORE = 'overcrm-core';
 
     protected function maskedKey(): ?string
     {
@@ -203,7 +287,18 @@ class LicenseService
         Setting::set('license_last_check_at', now()->toIso8601String());
         Setting::set('license_grace_until', null);
         Setting::set('license_last_error', null);
-        Setting::set('setup_completed', '1');
+
+        // Pakiety wykupione przez klienta (overcrm-ai, overcrm-telefonia…).
+        // Zapisujemy tylko gdy serwer je przysłał — starszy serwer licencji
+        // nie zna tego pola i nie wolno mu wtedy wyzerować już nadanych uprawnień.
+        if (array_key_exists('bundles', $body)) {
+            $bundles = is_array($body['bundles']) ? array_values(array_filter($body['bundles'], 'is_string')) : [];
+            Setting::set('license_bundles', json_encode($bundles));
+            $this->writeBundlesLock();
+        }
+        // UWAGA: setup_completed NIE jest tu ustawiane — flaga nalezy do kreatora
+        // /setup (SetupService::complete). Ustawianie jej po aktywacji licencji
+        // powodowaloby ciche pominiecie calej konfiguracji instalacji.
         $this->writeStateLock();
         Cache::flush();
     }
@@ -298,6 +393,14 @@ class LicenseService
             if (!$publicKey || strlen($publicKey) !== SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES) return false;
             if (!$signature || strlen($signature) !== SODIUM_CRYPTO_SIGN_BYTES) return false;
 
+            // Pakiety licencyjne wchodzą do podpisu TYLKO gdy serwer je przysłał.
+            // Dzięki temu starszy serwer (bez pakietów) nadal przechodzi weryfikację,
+            // ale wstrzyknięcie 'bundles' przez kogoś po drodze zepsuje podpis —
+            // a to jest dokładnie ten atak, przed którym chcemy się bronić.
+            if (array_key_exists('bundles', $body) && !in_array('bundles', $payloadKeys, true)) {
+                $payloadKeys[] = 'bundles';
+            }
+
             // Zbuduj payload w DOKŁADNIE tej kolejności co server (kolejność kluczy w JSON ma znaczenie!)
             $payload = [];
             foreach ($payloadKeys as $k) {
@@ -321,6 +424,11 @@ class LicenseService
         return [
             'license_key', 'license_status', 'license_plan',
             'license_expires_at', 'license_grace_until', 'license_installation_id',
+            // UWAGA: nie dopisywać tu nowych kluczy. Każdy dodany klucz zmienia
+            // wynik HMAC, przez co licencje zapisane starszą wersją przestają
+            // przechodzić weryfikację i instalacja klienta blokuje się po
+            // aktualizacji. Nowy chroniony stan dostaje własny zamek —
+            // patrz license_bundles i writeBundlesLock().
         ];
     }
 

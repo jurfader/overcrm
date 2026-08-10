@@ -24,6 +24,22 @@ function refreshList() {
 }
 
 const installed = computed(() => props.marketplace.installed || []);
+
+/**
+ * Moduły pogrupowane po kategorii zdolności, w kolejności podanej przez backend.
+ * Przy kilkunastu modułach i kilku dostawcach tej samej rzeczy (dwie centrale,
+ * trzy systemy fakturowania) płaska lista przestaje być czytelna.
+ */
+const installedByCategory = computed(() => {
+    const categories = props.marketplace.categories || [];
+
+    return categories
+        .map(c => ({
+            ...c,
+            modules: installed.value.filter(m => (m.category || 'other') === c.key),
+        }))
+        .filter(g => g.modules.length > 0);
+});
 const remote = computed(() => props.marketplace.remote || []);
 const updatesAvailable = computed(() => installed.value.filter(m => m.update_available).length);
 
@@ -34,6 +50,11 @@ function toggleModule(module) {
     if (module.is_core) return;
     const route_name = module.is_active ? 'admin.modules.deactivate' : 'admin.modules.activate';
     router.post(route(route_name, module.id), {}, { preserveScroll: true });
+}
+
+/** Włącza moduł razem z wyłączonymi modułami, których wymaga. */
+function activateWithDeps(module) {
+    router.post(route('admin.modules.activate', module.id), { with_deps: true }, { preserveScroll: true });
 }
 
 function installRemote(plugin) {
@@ -116,9 +137,15 @@ function configLink(m) {
             </button>
         </div>
 
-        <!-- Installed -->
-        <div v-if="tab === 'installed'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div v-for="m in installed" :key="m.id" class="glass-card p-5 flex flex-col gap-3">
+        <!-- Installed — pogrupowane po kategorii zdolności -->
+        <div v-if="tab === 'installed'" class="space-y-8">
+        <section v-for="group in installedByCategory" :key="group.key">
+            <h2 class="text-sm font-semibold text-foreground-muted uppercase tracking-wide mb-3">
+                {{ group.label }}
+                <span class="text-foreground-subtle font-normal">({{ group.modules.length }})</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div v-for="m in group.modules" :key="m.id" class="glass-card p-5 flex flex-col gap-3">
                 <div class="flex items-start gap-3">
                     <div :class="['p-2.5 rounded-lg shrink-0',
                                   m.is_active ? 'bg-success/15' : 'surface-elevated']">
@@ -160,11 +187,42 @@ function configLink(m) {
                           :title="`Dostępna nowsza wersja: v${m.remote_version}`">
                         Aktualizacja v{{ m.remote_version }}
                     </span>
+                    <span v-if="m.bundle_label && !m.bundle_owned"
+                          class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-warning/15 text-warning"
+                          title="Ten moduł należy do pakietu, którego nie obejmuje Twoja licencja">
+                        {{ m.bundle_label }} — niewykupiony
+                    </span>
                     <Link :href="configLink(m)"
                           class="ml-auto text-xs text-brand-primary hover:underline">
                         Konfiguracja →
                     </Link>
                 </div>
+
+                <!-- Niespełnione warunki. Pokazujemy je ZANIM admin kliknie „Włącz"
+                     i dostanie odmowę — inaczej wygląda to jak awaria, a nie jak
+                     brakujący element układanki. -->
+                <p v-if="m.requirements?.missing?.length"
+                   class="text-xs text-warning flex items-start gap-1.5">
+                    <Icons name="alert" class="w-3.5 h-3.5 shrink-0 mt-px" />
+                    <span>Wymaga: {{ m.requirements.missing.join(', ') }}</span>
+                </p>
+                <!-- Pokazujemy tylko wtedy, gdy KAŻDY brakujący warunek da się
+                     spełnić modułem leżącym już na dysku. Inaczej przycisk
+                     obiecywałby coś, co skończy się odmową. -->
+                <button v-if="m.resolvable?.length"
+                        @click="activateWithDeps(m)"
+                        class="w-full px-3 py-1.5 text-sm rounded-md surface-elevated hover:bg-surface-2 flex items-center justify-center gap-1.5">
+                    <Icons name="plus" class="w-3.5 h-3.5" />
+                    Włącz razem z: {{ m.resolvable.join(', ') }}
+                </button>
+                <p v-if="m.requirements?.conflicts?.length"
+                   class="text-xs text-danger flex items-start gap-1.5">
+                    <Icons name="alert" class="w-3.5 h-3.5 shrink-0 mt-px" />
+                    <span>
+                        {{ m.is_active ? 'Działa równocześnie z' : 'Nie może działać razem z' }}:
+                        {{ m.requirements.conflicts.join(', ') }}
+                    </span>
+                </p>
                 <button v-if="m.update_available"
                         @click="updateModule(m)"
                         :disabled="updating === m.name || isDemo"
@@ -175,8 +233,10 @@ function configLink(m) {
                     <span v-else>Aktualizuj do v{{ m.remote_version }}</span>
                 </button>
             </div>
+            </div>
+        </section>
             <div v-if="installed.length === 0"
-                 class="col-span-full text-center py-12 text-foreground-muted">
+                 class="text-center py-12 text-foreground-muted">
                 Brak zainstalowanych modułów. Przejdź do zakładki <button @click="tab = 'shop'" class="text-brand-primary hover:underline">Sklep modułów</button>.
             </div>
         </div>

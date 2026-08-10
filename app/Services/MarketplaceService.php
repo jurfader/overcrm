@@ -42,12 +42,20 @@ class MarketplaceService
             strtolower($p['id'] ?? '') => $p['version'] ?? null,
         ])->all();
 
-        // Filtruj zombie — Module rekordy bez folderu (po rm -rf modules/X
-        // albo uninstall). is_core zwolnione (core/clients/users nie maja
-        // folderu w modules/). Settings tych zombie zostaja — admin moze
-        // reinstall przez marketplace i odzyskac konfiguracje.
+        // Pokazujemy WYŁĄCZNIE moduły mające folder na dysku.
+        //
+        // Odpada przez to dwie grupy rekordów, których i tak nie da się obsłużyć
+        // z tego ekranu: zombie po `rm -rf modules/X` (od tego jest przycisk
+        // „Wyczyść stale") oraz pseudo-moduły rdzenia (core, users, clients,
+        // planner, calendar) — wpisy bez folderu, bez manifestu i bez menu,
+        // istniejące tylko na potrzeby uprawnień. Wcześniej te drugie przechodziły
+        // przez `is_core` i wyświetlały się jako pozycje marketplace, których
+        // administrator nie mógł ani włączyć, ani skonfigurować.
+        //
+        // Ustawienia odfiltrowanych rekordów zostają w bazie — po ponownej
+        // instalacji modułu konfiguracja wraca.
         $installed = Module::orderBy('order')->orderBy('display_name')->get()
-            ->filter(fn (Module $m) => $m->is_core || $m->existsOnDisk())
+            ->filter(fn (Module $m) => $m->existsOnDisk())
             ->values()
             ->map(function (Module $m) use ($remoteVersionBySlug) {
                 $remoteVersion = $remoteVersionBySlug[$m->name] ?? null;
@@ -67,6 +75,24 @@ class MarketplaceService
                     'dependencies'   => $m->dependencies,
                     'exists_on_disk' => $m->existsOnDisk(),
                     'config_route'   => $m->getConfigRoute(),
+                    // Opis zdolności (module.json v2) — UI grupuje po kategorii
+                    // i pokazuje, czego moduł potrzebuje, zanim admin kliknie
+                    // „Włącz" i dostanie odmowę.
+                    'category'       => $m->category,
+                    'category_label' => self::CATEGORY_LABELS[$m->category ?? ''] ?? null,
+                    'vendor'         => $m->vendor,
+                    'provides'       => $m->provides ?: [],
+                    'requires'       => $m->requires ?: [],
+                    'bundle'         => $m->bundle,
+                    'bundle_label'   => self::BUNDLE_LABELS[$m->bundle ?? ''] ?? null,
+                    'bundle_owned'   => $this->license->hasBundle($m->bundle),
+                    'requirements'   => $m->checkRequirements(),
+                    // Moduły, których włączenie odblokowałoby ten — pusta lista
+                    // znaczy „nie da się załatwić lokalnie", więc UI nie pokazuje
+                    // przycisku, który i tak skończyłby się odmową.
+                    'resolvable'     => $m->is_active
+                        ? []
+                        : $m->resolvableRequirements()->pluck('display_name')->all(),
                     // Wykryta nowsza wersja w marketplace — UI pokazuje
                     // "Aktualizuj do vX.Y.Z" button.
                     'remote_version'    => $remoteVersion,
@@ -94,10 +120,74 @@ class MarketplaceService
         })->values()->all();
 
         return [
-            'installed' => $installed,
-            'remote'    => $remote,
+            'installed'  => $installed,
+            'remote'     => $remote,
+            'categories' => $this->categoriesOf($installed),
         ];
     }
+
+    /**
+     * Kategorie występujące wśród zainstalowanych modułów, w ustalonej kolejności.
+     * UI renderuje z tego nagłówki sekcji zamiast jednej płaskiej listy —
+     * przy kilkunastu modułach i kilku dostawcach tej samej rzeczy płaska lista
+     * przestaje być czytelna.
+     *
+     * @param array<int, array<string, mixed>> $installed
+     * @return array<int, array{key: string, label: string, count: int}>
+     */
+    protected function categoriesOf(array $installed): array
+    {
+        $counts = [];
+
+        foreach ($installed as $module) {
+            $key = $module['category'] ?: 'other';
+            $counts[$key] = ($counts[$key] ?? 0) + 1;
+        }
+
+        $out = [];
+
+        // 'other' jest ostatnim wpisem w CATEGORY_LABELS, więc pętla załatwia
+        // też moduły bez kategorii — nie trzeba ich doklejać osobno.
+        foreach (array_keys(self::CATEGORY_LABELS) as $key) {
+            if (!empty($counts[$key])) {
+                $out[] = ['key' => $key, 'label' => self::CATEGORY_LABELS[$key], 'count' => $counts[$key]];
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Nazwy kategorii w kolejności wyświetlania. Kolejność jest celowa:
+     * najpierw to, czego klient szuka najczęściej.
+     */
+    /**
+     * Pakiety licencyjne. Uprawnienia nadaje serwer licencji (pole `bundles`
+     * w podpisanej odpowiedzi) — tutaj trzymamy tylko nazwy do pokazania.
+     */
+    public const BUNDLE_LABELS = [
+        'overcrm-core'      => 'W licencji podstawowej',
+        'overcrm-ai'        => 'Pakiet AI',
+        'overcrm-telefonia' => 'Pakiet Telefonia',
+        'overcrm-analityka' => 'Pakiet Analityka',
+        'overcrm-sprzedaz'  => 'Pakiet Sprzedaż',
+        'overcrm-pliki'     => 'Pakiet Pliki',
+        'overcrm-wdrozenie' => 'Pakiet Wdrożenie',
+    ];
+
+    public const CATEGORY_LABELS = [
+        'invoice'       => 'Fakturowanie',
+        'order'         => 'Zamówienia',
+        'telephony'     => 'Telefonia',
+        'shipping'      => 'Wysyłka',
+        'communication' => 'Komunikacja',
+        'sales'         => 'Sprzedaż',
+        'analytics'     => 'Analityka',
+        'tasks'         => 'Zadania',
+        'ai'            => 'Sztuczna inteligencja',
+        'storage'       => 'Pliki',
+        'other'         => 'Pozostałe',
+    ];
 
     /**
      * Pobiera moduł z license servera i instaluje przez ModuleService.

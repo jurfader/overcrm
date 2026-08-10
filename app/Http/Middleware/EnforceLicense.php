@@ -23,6 +23,8 @@ class EnforceLicense
         'login',
         'logout',
         'license',
+        // Kreator pierwszego uruchomienia — jego krok 1 to wlasnie aktywacja klucza
+        'setup',
         'support',
         'cennik',
         'build-version',
