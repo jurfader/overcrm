@@ -17,7 +17,14 @@ class ClientMergeService
         'client_visits'    => 'client_id',
         'tasks'            => 'client_id',
         'sent_emails'      => 'client_id',
-        'ringostat_calls'  => 'client_id',
+        // Tabele modułów telefonii. Każda jest sprawdzana przez Schema::hasTable(),
+        // więc wpis dla nieobecnego modułu jest po prostu pomijany. `ringostat_calls`
+        // zostaje na liście, bo na instalacjach, które nie przeszły jeszcze migracji
+        // zmieniającej nazwę na `play_calls`, połączenia wciąż tam siedzą — a scalanie
+        // klientów nie może ich osierocić.
+        'play_calls'         => 'client_id',
+        'ringostat_calls'    => 'client_id',
+        'ringostat_calls_v2' => 'client_id',
         'leads'            => 'converted_to_client_id',
     ];
 

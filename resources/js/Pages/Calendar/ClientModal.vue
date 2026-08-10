@@ -713,12 +713,18 @@ function prefillOrderForm() {
     orderForm.customer_city = c.city || '';
     orderForm.customer_phone = c.phone || '';
     orderForm.customer_email = c.email || '';
-    orderForm.same_address = true;
-    orderForm.delivery_name = c.name || '';
-    orderForm.delivery_street = c.street || c.address || '';
-    orderForm.delivery_street_number = c.street_number || '';
-    orderForm.delivery_zip = c.postal_code || '';
-    orderForm.delivery_city = c.city || '';
+    // Jeśli klient ma zapisany własny adres dostawy, podstawiamy JEGO — siedziba
+    // firmy rzadko jest miejscem, do którego jedzie towar. Bez tego handlowiec
+    // przepisywał adres z pamięci przy każdym zamówieniu, a to najczęstsze
+    // źródło wysyłek pod zły adres.
+    const maAdresDostawy = !!(c.delivery_street && c.delivery_city);
+
+    orderForm.same_address = !maAdresDostawy;
+    orderForm.delivery_name = (maAdresDostawy ? c.delivery_name : null) || c.name || '';
+    orderForm.delivery_street = (maAdresDostawy ? c.delivery_street : (c.street || c.address)) || '';
+    orderForm.delivery_street_number = (maAdresDostawy ? c.delivery_building_number : c.street_number) || '';
+    orderForm.delivery_zip = (maAdresDostawy ? c.delivery_postal_code : c.postal_code) || '';
+    orderForm.delivery_city = (maAdresDostawy ? c.delivery_city : c.city) || '';
     orderForm.delivery_phone = c.phone || '';
     orderForm.delivery_email = c.email || '';
     orderForm.inpost_parcel_point = '';
@@ -884,6 +890,8 @@ const selectedPriceListId = ref(''); // Cennik do dołączenia jako PDF
 const emailPreview = ref(null);
 const isLoadingPreview = ref(false);
 const isSendingEmail = ref(false);
+// Komunikat postępu wysyłki („Generuję PDF cennika…"), pokazywany przy przycisku.
+const emailSendingStatus = ref('');
 const showEmailPreview = ref(false);
 
 const selectedTemplate = computed(() => {
@@ -975,22 +983,46 @@ function selectClient(c) {
  * Krytyczne: po zmianie form.client_id, clientForm musi mieć dane TEGO klienta (a nie poprzedniego).
  * Bez tego: zapisywaliśmy NIP klienta A do klienta B → unique constraint violation.
  */
+// Ostatnio ZAŻĄDANY klient. Odpowiedzi dla innego id są odrzucane — patrz niżej.
+let ostatnioZadanyKlient = null;
+
 async function loadClientFormFresh(clientId) {
     if (!clientId) {
+        ostatnioZadanyKlient = null;
         clientForm.value = null;
         return;
     }
+
+    const zadany = String(clientId);
+    ostatnioZadanyKlient = zadany;
+
     try {
         const r = await fetch(route('clients.show-json', clientId), {
             credentials: 'same-origin',
             headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
         });
+
+        // WYŚCIG: gdy użytkownik zdąży przełączyć klienta, zanim wróci odpowiedź,
+        // spóźniona odpowiedź nadpisywała kartę danymi POPRZEDNIEGO klienta.
+        // Objawiało się to jako „dziwne dane" na karcie i — groźniej — jako adres
+        // dostawy innego klienta w zamówieniu. Odrzucamy wszystko, co nie dotyczy
+        // ostatnio zażądanego id.
+        if (ostatnioZadanyKlient !== zadany) {
+            return;
+        }
+
         if (!r.ok) {
             // 403/404 → fallback do props.visit.client jeśli pasuje
             if (props.visit?.client?.id == clientId) initClientForm();
             return;
         }
+
         const data = await r.json();
+
+        if (ostatnioZadanyKlient !== zadany) {
+            return;
+        }
+
         if (data?.success && data.client) {
             initClientForm(data.client);
         }
@@ -1649,19 +1681,67 @@ async function sendEmail() {
         });
         
         const data = await response.json();
-        if (data.success) {
-            alert('Email został wysłany pomyślnie!');
-            showEmailPreview.value = false;
-            emailAttachments.value = [];
-        } else {
+
+        if (!data.success) {
             alert(data.message || 'Błąd wysyłania emaila');
+            isSendingEmail.value = false;
+            return;
         }
+
+        // Wysyłka jest teraz zadaniem w kolejce: generowanie PDF-a cennika
+        // i SMTP potrafią trwać kilkadziesiąt sekund. Zamiast trzymać żądanie
+        // HTTP otwartym, odpytujemy status po tokenie.
+        showEmailPreview.value = false;
+        emailAttachments.value = [];
+        await sledzWysylke(data.token);
     } catch (error) {
         console.error('Błąd wysyłania:', error);
         alert('Wystąpił błąd podczas wysyłania emaila');
-    } finally {
         isSendingEmail.value = false;
     }
+}
+
+/** Odpytuje status wysyłki do skutku albo do rozsądnego limitu czasu. */
+async function sledzWysylke(token) {
+    const MAKS_PROB = 100;   // 100 × 3 s ≈ 5 minut
+    const ODSTEP = 3000;
+
+    for (let proba = 0; proba < MAKS_PROB; proba++) {
+        await new Promise(r => setTimeout(r, ODSTEP));
+
+        let stan;
+        try {
+            const odp = await fetch(route('calendar.send-email-status', token), {
+                headers: { 'Accept': 'application/json' },
+            });
+            stan = await odp.json();
+        } catch {
+            continue; // chwilowy problem z siecią — próbujemy dalej
+        }
+
+        emailSendingStatus.value = stan.message || '';
+
+        if (stan.status === 'done') {
+            isSendingEmail.value = false;
+            emailSendingStatus.value = '';
+            alert('Email został wysłany pomyślnie!');
+            return;
+        }
+
+        if (stan.status === 'error' || stan.status === 'unknown') {
+            isSendingEmail.value = false;
+            emailSendingStatus.value = '';
+            alert(stan.message || 'Nie udało się wysłać wiadomości.');
+            return;
+        }
+    }
+
+    // Status nie ruszył z „pending" — najczęstsza przyczyna to niedziałający
+    // worker kolejki. Mówimy to wprost, zamiast kręcić spinnerem w nieskończoność.
+    isSendingEmail.value = false;
+    emailSendingStatus.value = '';
+    alert('Wysyłka trwa dłużej niż zwykle. Sprawdź w skrzynce nadawczej za chwilę — '
+        + 'jeśli wiadomość nie dotarła, zgłoś to administratorowi (możliwy problem z kolejką zadań).');
 }
 
 async function lookupNip() {
@@ -2955,7 +3035,7 @@ const invoiceStatusLabels = {
                                     class="btn-primary"
                                 >
                                     <Icons name="paper-airplane" class="w-4 h-4 mr-2" />
-                                    {{ isSendingEmail ? 'Wysyłanie...' : 'Wyślij email' }}
+                                    {{ isSendingEmail ? (emailSendingStatus || 'Wysyłanie...') : 'Wyślij email' }}
                                 </button>
                             </div>
                         </div>
@@ -3000,7 +3080,7 @@ const invoiceStatusLabels = {
                                     class="btn-primary"
                                 >
                                     <Icons name="paper-airplane" class="w-4 h-4 mr-2" />
-                                    {{ isSendingEmail ? 'Wysyłanie...' : 'Wyślij teraz' }}
+                                    {{ isSendingEmail ? (emailSendingStatus || 'Wysyłanie...') : 'Wyślij teraz' }}
                                 </button>
                             </div>
                         </div>

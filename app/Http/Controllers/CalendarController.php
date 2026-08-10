@@ -185,7 +185,7 @@ class CalendarController extends Controller
             ->get(['id', 'name', 'slug']);
 
         // Pobierz statusy
-        $statuses = Status::visible()->ordered()->get(['id', 'name', 'color', 'type', 'is_default']);
+        $statuses = Status::context(Status::CONTEXT_CALENDAR)->visible()->ordered()->get(['id', 'name', 'color', 'type', 'is_default']);
 
         return Inertia::render('Calendar/Index', [
             'year' => (int) $year,
@@ -517,7 +517,7 @@ class CalendarController extends Controller
             ->orderBy('name')
             ->get(['id', 'name', 'slug']);
 
-        $statuses = Status::visible()->ordered()->get(['id', 'name', 'color', 'type', 'is_default']);
+        $statuses = Status::context(Status::CONTEXT_CALENDAR)->visible()->ordered()->get(['id', 'name', 'color', 'type', 'is_default']);
 
         // Fakturownia i Apilo – zwracamy puste; ClientModal pobierze je w tle (loadClientData)
         // Dzięki temu opis wizyty ładuje się od razu, bez czekania na zewnętrzne API

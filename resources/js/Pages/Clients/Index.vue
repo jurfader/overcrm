@@ -110,7 +110,8 @@ const showStatusMenu = ref(false);
                 <p class="text-sm text-foreground-muted mt-0.5">Zarządzaj bazą klientów</p>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
-                <a :href="route('clients.export')" class="inline-flex items-center gap-2 h-9 px-3 text-sm font-medium rounded-md border border-border-bright text-foreground hover:bg-surface-elevated transition-colors">
+                <!-- Eksport całej bazy klientów — tylko admin (guard po stronie serwera w ClientController::export) -->
+                <a v-if="$page.props.auth?.user?.role === 'admin'" :href="route('clients.export')" class="inline-flex items-center gap-2 h-9 px-3 text-sm font-medium rounded-md border border-border-bright text-foreground hover:bg-surface-elevated transition-colors">
                     <Icons name="document-arrow-down" class="w-4 h-4" />
                     Eksport CSV
                 </a>

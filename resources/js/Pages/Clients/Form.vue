@@ -62,6 +62,13 @@ const form = useForm({
     postal_code: props.client?.postal_code || '',
     city: props.client?.city || '',
     country: props.client?.country || 'Polska',
+    // Adres dostawy — osobny od rejestrowego.
+    delivery_name: props.client?.delivery_name || '',
+    delivery_street: props.client?.delivery_street || '',
+    delivery_building_number: props.client?.delivery_building_number || '',
+    delivery_apartment_number: props.client?.delivery_apartment_number || '',
+    delivery_postal_code: props.client?.delivery_postal_code || '',
+    delivery_city: props.client?.delivery_city || '',
     contact_person: props.client?.contact_person || '',
     contact_email: props.client?.contact_email || '',
     contact_phone: props.client?.contact_phone || '',
@@ -120,6 +127,16 @@ function toggleArrayValue(arr, val) {
     else arr.push(val);
 }
 
+/** Wygoda: gdy towar jednak jedzie pod siedzibę, nie trzeba przepisywać ręcznie. */
+function skopiujAdresRejestrowy() {
+    form.delivery_name = form.delivery_name || form.name;
+    form.delivery_street = form.street;
+    form.delivery_building_number = form.building_number;
+    form.delivery_apartment_number = form.apartment_number;
+    form.delivery_postal_code = form.postal_code;
+    form.delivery_city = form.city;
+}
+
 async function fetchFromGus() {
     if (!form.nip || form.nip.replace(/[^0-9]/g, '').length < 10) {
         gusError.value = 'Wprowadź poprawny NIP (10 cyfr)';
@@ -130,7 +147,12 @@ async function fetchFromGus() {
     gusError.value = '';
     gusSuccess.value = '';
     try {
-        const response = await fetch(route('clients.lookup-nip', { nip: form.nip }));
+        // skip_existing przy edycji: przycisk „pobierz z GUS" na karcie istniejącego
+        // klienta ma odświeżyć adres, a nie zgłosić, że klient o tym NIP już istnieje.
+        const response = await fetch(route('clients.lookup-nip', {
+            nip: form.nip,
+            ...(isEditing ? { skip_existing: 1 } : {}),
+        }));
         const result = await response.json();
         if (result.success && result.data) {
             const data = result.data;
@@ -350,6 +372,52 @@ function submit() {
                         <div>
                             <label class="block text-sm font-medium text-foreground mb-1">Kraj</label>
                             <Input v-model="form.country" />
+                        </div>
+                    </div>
+
+                    <!-- Adres dostawy — osobny od rejestrowego. Siedziba firmy rzadko
+                         jest miejscem, do którego jedzie towar. Uzupełniony podstawia
+                         się automatycznie w zamówieniu. -->
+                    <div class="mt-5 pt-5 border-t border-slate-100 dark:border-slate-700">
+                        <div class="flex items-center justify-between gap-3 mb-3 flex-wrap">
+                            <div>
+                                <h3 class="text-sm font-semibold text-foreground">Adres dostawy</h3>
+                                <p class="text-xs text-foreground-muted">
+                                    Zostaw pusty, jeśli towar jedzie pod adres rejestrowy.
+                                </p>
+                            </div>
+                            <button type="button" @click="skopiujAdresRejestrowy"
+                                    class="text-xs text-brand-primary hover:underline">
+                                Skopiuj adres rejestrowy
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                            <div class="md:col-span-3">
+                                <label class="block text-sm font-medium text-foreground mb-1">Odbiorca</label>
+                                <Input v-model="form.delivery_name" placeholder="np. Magazyn główny" />
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-foreground mb-1">Ulica</label>
+                                <Input v-model="form.delivery_street" />
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-foreground mb-1">Nr bud.</label>
+                                    <Input v-model="form.delivery_building_number" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-foreground mb-1">Nr lok.</label>
+                                    <Input v-model="form.delivery_apartment_number" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-foreground mb-1">Kod pocztowy</label>
+                                <Input v-model="form.delivery_postal_code" placeholder="00-000" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-foreground mb-1">Miasto</label>
+                                <Input v-model="form.delivery_city" />
+                            </div>
                         </div>
                     </div>
                     <div v-if="form.type === 'company'" class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5 pt-5 border-t border-slate-100 dark:border-slate-700">

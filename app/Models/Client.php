@@ -28,6 +28,13 @@ class Client extends Model
         'postal_code',
         'city',
         'country',
+        // Adres dostawy — osobny od rejestrowego (siedziba ≠ miejsce dostawy).
+        'delivery_name',
+        'delivery_street',
+        'delivery_building_number',
+        'delivery_apartment_number',
+        'delivery_postal_code',
+        'delivery_city',
         'contact_person',
         'contact_email',
         'contact_phone',
@@ -46,6 +53,18 @@ class Client extends Model
             'birthday' => 'date',
             'profile' => 'array',
         ];
+    }
+
+    /**
+     * Czy klient ma uzupełniony własny adres dostawy.
+     *
+     * Ulica i miasto to minimum, przy którym adres da się w ogóle użyć — sama
+     * nazwa odbiorcy czy sam kod pocztowy nic nie dają, a zwracanie true dla
+     * takiego szczątka podstawiałoby do zamówienia niepełny adres.
+     */
+    public function hasDeliveryAddress(): bool
+    {
+        return !empty($this->delivery_street) && !empty($this->delivery_city);
     }
 
     // ==================== RELACJE ====================

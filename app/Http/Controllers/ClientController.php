@@ -13,9 +13,11 @@ use App\Support\License;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 use Inertia\Response;
-use Modules\PlayCentrala\Services\RingostatService;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ClientController extends Controller
@@ -108,6 +110,20 @@ class ClientController extends Controller
             ], 422);
         }
         
+        // skip_existing=1 → zawsze świeże dane z GUS. Przycisk „pobierz z GUS" na
+        // karcie ISTNIEJĄCEGO klienta ma odświeżyć adres, a nie meldować, że taki
+        // klient już jest — bo to oczywiste, skoro stoimy na jego karcie.
+        if ($request->boolean('skip_existing')) {
+            $data = $gus->getByNip($nip);
+
+            return $data
+                ? response()->json(['success' => true, 'data' => $data])
+                : response()->json([
+                    'success' => false,
+                    'message' => 'Nie znaleziono firmy o podanym NIP w rejestrach GUS/VAT',
+                ], 404);
+        }
+
         // Sprawdź czy klient z tym NIP już istnieje
         $existingClient = Client::whereRaw("REPLACE(REPLACE(REPLACE(nip, ' ', ''), '-', ''), '.', '') = ?", [$nip])
             ->first(['id', 'name', 'nip', 'type']);
@@ -154,6 +170,8 @@ class ClientController extends Controller
                 'email', 'phone', 'phone2', 'website',
                 'street', 'building_number', 'apartment_number',
                 'postal_code', 'city', 'country',
+                'delivery_name', 'delivery_street', 'delivery_building_number',
+                'delivery_apartment_number', 'delivery_postal_code', 'delivery_city',
                 'contact_person', 'contact_email', 'contact_phone',
                 'status', 'client_status', 'notes', 'birthday', 'profile',
             ]),
@@ -323,7 +341,6 @@ class ClientController extends Controller
         }
 
         ActivityLog::log('create', $client, "Utworzono klienta: {$client->name}");
-        $this->syncClientToRingostat($client);
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -413,7 +430,6 @@ class ClientController extends Controller
         }
 
         ActivityLog::log('create', $client, "Utworzono klienta: {$client->name}");
-        $this->syncClientToRingostat($client);
 
         return response()->json([
             'success'  => true,
@@ -460,6 +476,12 @@ class ClientController extends Controller
             'postal_code' => 'nullable|string|max:10',
             'city' => 'nullable|string|max:100',
             'country' => 'nullable|string|max:100',
+            'delivery_name' => 'nullable|string|max:255',
+            'delivery_street' => 'nullable|string|max:255',
+            'delivery_building_number' => 'nullable|string|max:20',
+            'delivery_apartment_number' => 'nullable|string|max:20',
+            'delivery_postal_code' => 'nullable|string|max:10',
+            'delivery_city' => 'nullable|string|max:255',
             'contact_person' => 'nullable|string|max:255',
             'contact_email' => 'nullable|email|max:255',
             'contact_phone' => 'nullable|string|max:20',
@@ -527,9 +549,7 @@ class ClientController extends Controller
             ->orderByRaw('COALESCE(sent_at, created_at) DESC')
             ->get(['id', 'subject', 'to_email', 'status', 'sent_at', 'created_at', 'error_message', 'user_id', 'email_template_id', 'html_content']);
 
-        $summaries = $client->summaries()
-            ->orderBy('generated_at', 'desc')
-            ->get(['id', 'summary', 'generated_at', 'client_visit_id']);
+        $summaries = $this->clientSummaries($client);
 
         return Inertia::render('Clients/Show', [
             'client' => $client,
@@ -538,6 +558,38 @@ class ClientController extends Controller
             'sentEmails' => $sentEmails,
             'summaries' => $summaries,
         ]);
+    }
+
+    /**
+     * Podsumowania AI wizyt klienta (zakładka w karcie klienta).
+     *
+     * Tabela `client_summaries` to spadek po planner-v2 — nie ma dla niej migracji
+     * w repo i nie tworzy jej żaden moduł, więc na świeżej instalacji nie istnieje.
+     * Wcześniej wołaliśmy tu nieistniejącą relację Client::summaries(), przez co
+     * CAŁA karta klienta kończyła się błędem. Czytamy defensywnie: brak tabeli =
+     * pusta zakładka.
+     *
+     * @return \Illuminate\Support\Collection<int, object>
+     */
+    protected function clientSummaries(Client $client): \Illuminate\Support\Collection
+    {
+        try {
+            if (!Schema::hasTable('client_summaries')) {
+                return collect();
+            }
+
+            return DB::table('client_summaries')
+                ->where('client_id', $client->id)
+                ->orderByDesc('generated_at')
+                ->get(['id', 'summary', 'generated_at', 'client_visit_id']);
+        } catch (\Throwable $e) {
+            Log::warning('Nie udało się pobrać podsumowań klienta', [
+                'client_id' => $client->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return collect();
+        }
     }
 
     /**
@@ -584,6 +636,12 @@ class ClientController extends Controller
             'postal_code' => 'nullable|string|max:10',
             'city' => 'nullable|string|max:100',
             'country' => 'nullable|string|max:100',
+            'delivery_name' => 'nullable|string|max:255',
+            'delivery_street' => 'nullable|string|max:255',
+            'delivery_building_number' => 'nullable|string|max:20',
+            'delivery_apartment_number' => 'nullable|string|max:20',
+            'delivery_postal_code' => 'nullable|string|max:10',
+            'delivery_city' => 'nullable|string|max:255',
             'contact_person' => 'nullable|string|max:255',
             'contact_email' => 'nullable|email|max:255',
             'contact_phone' => 'nullable|string|max:20',
@@ -637,7 +695,6 @@ class ClientController extends Controller
 
         ActivityLog::log('update', $client, "Zaktualizowano klienta: {$client->name}", $oldValues, $validated);
 
-        $this->syncClientToRingostat($client);
 
         return redirect()->route('clients.index')
             ->with('success', 'Klient został zaktualizowany.');
@@ -663,6 +720,15 @@ class ClientController extends Controller
      */
     public function export(Request $request): StreamedResponse
     {
+        // Eksport zrzuca CAŁĄ bazę klientów jednym żądaniem — to najbardziej wrażliwe
+        // dane w systemie, więc tylko administrator. Guard jest tutaj, a nie wyłącznie
+        // na trasie, bo kontroler jest jedynym miejscem, którego nie da się ominąć.
+        abort_unless(
+            $request->user()?->hasAdminRights(),
+            403,
+            'Eksport bazy klientów jest dostępny tylko dla administratora.'
+        );
+
         $headers = [
             'Nazwa', 'Nazwa skrócona', 'Typ', 'NIP', 'REGON', 'Email', 'Telefon', 'Telefon 2',
             'Strona www', 'Ulica', 'Nr budynku', 'Nr lokalu', 'Kod pocztowy', 'Miasto', 'Kraj',
@@ -883,21 +949,4 @@ class ClientController extends Controller
         return back();
     }
 
-    private function syncClientToRingostat(Client $client): void
-    {
-        if (empty($client->phone) && empty($client->phone2) && empty($client->contact_phone)) {
-            return;
-        }
-
-        try {
-            $service = app(RingostatService::class);
-            // Play Wirtualna Centralka nie ma sync kontaktów (zastąpiło Ringostat).
-            // Metoda syncContact() została usunięta — sprawdzamy defensywnie na wypadek przywrócenia.
-            if (method_exists($service, 'syncContact')) {
-                $service->syncContact($client);
-            }
-        } catch (\Throwable $e) {
-            // Non-blocking — nie blokujemy requestu gdyby sync kiedykolwiek failnął
-        }
-    }
 }
