@@ -44,9 +44,13 @@ class ModuleController extends Controller
     /**
      * Aktywuj moduł
      */
-    public function activate(Module $module)
+    public function activate(Module $module, Request $request)
     {
-        $result = $this->moduleService->activate($module);
+        // `with_deps` przychodzi z przycisku „Włącz razem z wymaganymi" — bez niego
+        // zachowanie jest jak dotąd: brakujący warunek daje odmowę z wyjaśnieniem.
+        $result = $request->boolean('with_deps')
+            ? $this->moduleService->activateWithDependencies($module)
+            : $this->moduleService->activate($module);
 
         if ($result['success']) {
             return back()->with('success', $result['message']);
@@ -91,9 +95,16 @@ class ModuleController extends Controller
         $settings = $request->input('settings', []);
 
         foreach ($settings as $key => $value) {
-            Setting::where('module', $module->name)
-                ->where('key', $key)
-                ->update(['value' => is_array($value) ? json_encode($value) : $value]);
+            // updateOrCreate, NIE update. Wiersze ustawień powstają przy instalacji
+            // z manifestu, ale moduł wgrany ręcznie, wzbogacony o nowe ustawienie
+            // w kolejnej wersji albo taki, przy którym instalacja się potknęła,
+            // nie ma ich wcale. `update()` na nieistniejącym wierszu nic nie robi
+            // i NIE zgłasza błędu — administrator widzi „Konfiguracja zapisana",
+            // a klucze API nigdzie nie trafiają.
+            Setting::updateOrCreate(
+                ['module' => $module->name, 'key' => $key],
+                ['value' => is_array($value) ? json_encode($value) : $value]
+            );
 
             Cache::forget("setting.{$module->name}.{$key}");
         }

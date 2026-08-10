@@ -52,6 +52,15 @@ class ModuleService
                     'order' => $manifest['order'] ?? 0,
                     'dependencies' => $manifest['dependencies'] ?? [],
                     'permissions' => $manifest['permissions'] ?? [],
+                    // module.json v2 — opis zdolności. Moduły w starym formacie
+                    // nadal działają: brak tych pól to po prostu moduł, który
+                    // niczego nie wnosi i niczego nie wymaga.
+                    'category' => $manifest['category'] ?? null,
+                    'vendor' => $manifest['vendor'] ?? null,
+                    'provides' => $manifest['provides'] ?? [],
+                    'requires' => $manifest['requires'] ?? [],
+                    'conflicts' => $manifest['conflicts'] ?? [],
+                    'bundle' => $manifest['bundle'] ?? null,
                 ]
             );
 
@@ -314,12 +323,22 @@ class ModuleService
      */
     public function activate(Module $module): array
     {
-        $missing = $module->checkDependencies();
+        $problems = $module->checkRequirements();
 
-        if (!empty($missing)) {
+        if (!empty($problems['conflicts'])) {
             return [
                 'success' => false,
-                'message' => 'Brakujące zależności: ' . implode(', ', $missing),
+                'message' => 'Moduł nie może działać równocześnie z: '
+                    . implode(', ', $problems['conflicts'])
+                    . '. Wyłącz go najpierw.',
+            ];
+        }
+
+        if (!empty($problems['missing'])) {
+            return [
+                'success' => false,
+                'message' => 'Ten moduł wymaga: ' . implode(', ', $problems['missing'])
+                    . '. Zainstaluj i włącz brakujące moduły, a potem spróbuj ponownie.',
             ];
         }
 
@@ -331,6 +350,48 @@ class ModuleService
     }
 
     /**
+     * Włącza moduł razem z wyłączonymi modułami, których wymaga.
+     *
+     * Działa tylko na tym, co jest już na dysku — pobranie brakującego modułu
+     * ze sklepu wymagałoby wiedzy, która wtyczka wnosi daną zdolność, a tej
+     * informacji serwer licencji na razie nie zwraca.
+     */
+    public function activateWithDependencies(Module $module): array
+    {
+        $doWlaczenia = $module->resolvableRequirements();
+
+        if ($doWlaczenia->isEmpty()) {
+            // Albo nie ma czego włączać, albo warunków nie da się spełnić
+            // lokalnie — w obu przypadkach zwykła ścieżka da właściwy komunikat.
+            return $this->activate($module);
+        }
+
+        $wlaczone = [];
+
+        foreach ($doWlaczenia as $zaleznosc) {
+            $wynik = $this->activate($zaleznosc);
+
+            if (!($wynik['success'] ?? false)) {
+                return [
+                    'success' => false,
+                    'message' => "Nie udało się włączyć wymaganego modułu „{$zaleznosc->display_name}”: "
+                        . ($wynik['message'] ?? 'nieznany błąd'),
+                ];
+            }
+
+            $wlaczone[] = $zaleznosc->display_name;
+        }
+
+        $wynik = $this->activate($module->fresh());
+
+        if ($wynik['success'] ?? false) {
+            $wynik['message'] = 'Włączono moduł wraz z wymaganymi: ' . implode(', ', $wlaczone);
+        }
+
+        return $wynik;
+    }
+
+    /**
      * Dezaktywuj moduł
      */
     public function deactivate(Module $module): array
@@ -339,16 +400,15 @@ class ModuleService
             return ['success' => false, 'message' => 'Nie można dezaktywować modułu systemowego'];
         }
 
-        // Sprawdź czy inne moduły nie zależą od tego
-        $dependents = Module::active()
-            ->where('id', '!=', $module->id)
-            ->get()
-            ->filter(fn($m) => in_array($module->name, $m->dependencies ?? []));
+        // Zależności po nazwie ORAZ po zdolności, którą tylko ten moduł wnosi.
+        $dependents = $module->dependents();
 
         if ($dependents->isNotEmpty()) {
             return [
                 'success' => false,
-                'message' => 'Inne aktywne moduły zależą od tego modułu: ' . $dependents->pluck('display_name')->join(', '),
+                'message' => 'Inne aktywne moduły zależą od tego modułu: '
+                    . $dependents->pluck('display_name')->join(', ')
+                    . '. Wyłącz je najpierw.',
             ];
         }
 
@@ -434,9 +494,28 @@ class ModuleService
             'version' => '1.0.0',
             'author' => $options['author'] ?? 'OVERMEDIA',
             'icon' => $options['icon'] ?? 'puzzle',
+            // Kategoria w marketplace — steruje grupowaniem listy modułów.
+            // Dozwolone wartości: patrz MarketplaceService::CATEGORY_LABELS.
+            'category' => $options['category'] ?? null,
+            // Producent integracji; null dla modułów czysto funkcjonalnych.
+            'vendor' => $options['vendor'] ?? null,
             'is_core' => false,
             'order' => 100,
             'dependencies' => [],
+            // Zdolności, które moduł REJESTRUJE w ProviderRegistry, np. ["telephony"].
+            // Deklaruj tylko to, co moduł faktycznie rejestruje w swoim
+            // ServiceProviderze — pusty wpis tutaj jest lepszy niż obietnica
+            // bez pokrycia, bo moduł zależny włączy się i padnie dopiero u klienta.
+            'provides' => $options['provides'] ?? [],
+            // Czego moduł potrzebuje. Preferuj ZDOLNOŚĆ zamiast nazwy modułu:
+            //   "capability:telephony"  — spełni to dowolna centrala
+            //   "module:leads"          — tylko ten konkretny moduł
+            'requires' => $options['requires'] ?? [],
+            // Z czym moduł nie może działać równolegle. Dostawcy tej samej
+            // zdolności zwykle deklarują tu własną kategorię.
+            'conflicts' => $options['conflicts'] ?? [],
+            // Pakiet licencyjny (overcrm-core, overcrm-ai, overcrm-telefonia…).
+            'bundle' => $options['bundle'] ?? 'overcrm-core',
             'permissions' => [
                 strtolower($name) . '_view' => 'Podgląd modułu ' . $moduleName,
                 strtolower($name) . '_manage' => 'Zarządzanie modułem ' . $moduleName,

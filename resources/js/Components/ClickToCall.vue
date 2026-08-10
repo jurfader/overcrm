@@ -11,19 +11,21 @@ const props = defineProps({
 const page = usePage();
 
 /**
- * Wybor providera VoIP na podstawie activeModules. Priorytet: Ringostat → Play.
- * Gdy zaden VoIP gateway nie aktywny — komponent ukryty.
+ * Komponent pyta o ZDOLNOŚĆ, nie o nazwę modułu.
+ *
+ * Wcześniej była tu lista `if`-ów po nazwach central (ringostat, playcentrala),
+ * więc każda nowa centrala wymagała zmiany w tym pliku. Teraz wystarczy, że
+ * moduł zarejestruje się jako dostawca telefonii — endpoint jest wspólny
+ * i mieszka w rdzeniu, a on sam deleguje do aktywnego dostawcy.
+ *
+ * Brak skonfigurowanej centrali = komponent w ogóle się nie renderuje.
  */
 const provider = computed(() => {
-    const modules = page.props.activeModules || [];
-    const names = modules.map(m => (typeof m === 'string' ? m : m.name));
-    if (names.includes('ringostat')) {
-        return { key: 'ringostat', endpoint: route('ringostat.callback') };
-    }
-    if (names.includes('playcentrala')) {
-        return { key: 'playcentrala', endpoint: route('playcentrala.callback') };
-    }
-    return null;
+    const capabilities = page.props.capabilities || [];
+
+    return capabilities.includes('telephony')
+        ? { endpoint: route('telephony.call') }
+        : null;
 });
 
 const showConfirm = ref(false);
@@ -73,7 +75,7 @@ function initiateCall() {
                 'inline-flex items-center justify-center rounded-lg transition',
                 size === 'sm' ? 'p-1 hover:bg-success/15' : 'p-1.5 hover:bg-success/15',
             ]"
-            :title="`Zadzwoń na ${phone} (${provider.key})`"
+            :title="`Zadzwoń na ${phone}`"
         >
             <Icons name="phone" :class="[size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4', 'text-success']" />
         </button>
@@ -95,7 +97,7 @@ function initiateCall() {
                     <span class="font-mono font-bold">{{ phone }}</span>
                 </p>
                 <p class="text-xs text-foreground-muted mb-3">
-                    Przez <span class="font-medium">{{ provider.key }}</span>
+                    Centrala oddzwoni najpierw na Twój numer wewnętrzny.
                 </p>
                 <div class="flex gap-2">
                     <button

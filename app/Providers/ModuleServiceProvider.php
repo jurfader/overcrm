@@ -32,19 +32,24 @@ class ModuleServiceProvider extends ServiceProvider
 
         try {
             if (Schema::hasTable('modules')) {
+                // Tabela modules jest ZRODLEM PRAWDY — takze gdy nie ma w niej zadnego
+                // aktywnego modulu. Wczesniej pusta lista znaczyla "zaladuj wszystko
+                // z dysku", wiec dezaktywacja modulu w panelu nic nie dawala, a kod
+                // nieaktywnych modulow (listenery, joby) wciaz wpinal sie w aplikacje.
                 $this->activeModuleNames = Module::where('is_active', true)
                     ->pluck('name')
                     ->toArray();
+                return;
             }
         } catch (\Exception $e) {
-            $this->activeModuleNames = [];
+            // Brak polaczenia z DB (np. przed konfiguracja .env) — fall-through nizej.
         }
 
-        if (empty($this->activeModuleNames)) {
-            $this->activeModuleNames = collect(File::directories($modulesPath))
-                ->map(fn($dir) => strtolower(basename($dir)))
-                ->toArray();
-        }
+        // Brak tabeli modules = instalacja przed migracjami. Rejestrujemy wszystko
+        // z dysku, zeby dalo sie w ogole uruchomic migracje i discover modulow.
+        $this->activeModuleNames = collect(File::directories($modulesPath))
+            ->map(fn($dir) => strtolower(basename($dir)))
+            ->toArray();
     }
 
     protected function registerActiveModules(): void
