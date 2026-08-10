@@ -10,10 +10,15 @@ class Status extends Model
 {
     use HasFactory;
 
+    /** Statusy zadań i statusy kalendarza to dwa rozłączne zbiory. */
+    public const CONTEXT_TASK = 'task';
+    public const CONTEXT_CALENDAR = 'calendar';
+
     protected $fillable = [
         'name',
         'slug',
         'type',
+        'context',
         'color',
         'bg_class',
         'order',
@@ -64,6 +69,18 @@ class Status extends Model
     /**
      * Statusy określonego typu
      */
+    /**
+     * Zawęża do statusów danego kontekstu ('task' albo 'calendar').
+     *
+     * Bez tego lista statusów zadania pokazywała kolory spotkań, a kalendarz —
+     * statusy zadań. Domyślnie 'calendar', bo tam trafiły wszystkie statusy
+     * istniejące przed rozdzieleniem.
+     */
+    public function scopeContext($query, string $context = self::CONTEXT_CALENDAR)
+    {
+        return $query->where('context', $context);
+    }
+
     public function scopeOfType($query, string $type)
     {
         return $query->where('type', $type);

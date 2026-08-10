@@ -10,6 +10,7 @@ import Icons from '@/Components/Icons.vue';
 const props = defineProps({
     status: Object,
     types: Object,
+    contexts: { type: Object, default: () => ({}) },
     colors: Object,
     nextOrder: Number,
 });
@@ -20,6 +21,9 @@ const form = useForm({
     name: props.status?.name || '',
     slug: props.status?.slug || '',
     type: props.status?.type || 'new',
+    // Kalendarz jako domyślny: statusy zadań to stały zestaw z instalacji,
+    // a admin najczęściej dodaje własne kolory/grupy spotkań.
+    context: props.status?.context || 'calendar',
     color: props.status?.color || '#3B82F6',
     order: props.status?.order ?? props.nextOrder ?? 0,
     is_default: props.status?.is_default || false,
@@ -91,6 +95,14 @@ function submit() {
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-foreground mb-1">Gdzie używany *</label>
+                            <Select v-model="form.context" :options="contexts" />
+                            <p class="text-xs text-foreground-muted mt-1">
+                                Statusy zadań i kalendarza to osobne listy.
+                            </p>
+                        </div>
+
                         <div>
                             <label class="block text-sm font-medium text-foreground mb-1">Typ *</label>
                             <Select v-model="form.type" :options="types" />

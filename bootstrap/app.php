@@ -25,6 +25,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\EnableDemoMode::class,
             \App\Http\Middleware\HandleInertiaRequests::class,
             \App\Http\Middleware\ShareModulesData::class,
+            // EnsureSetupComplete PRZED EnforceLicense — pierwszym krokiem kreatora
+            // jest aktywacja licencji, wiec /setup jest whitelistowane w obu.
+            \App\Http\Middleware\EnsureSetupComplete::class,
             \App\Http\Middleware\EnforceLicense::class,
         ]);
 

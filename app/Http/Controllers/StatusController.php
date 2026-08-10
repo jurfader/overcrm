@@ -23,6 +23,10 @@ class StatusController extends Controller
         return Inertia::render('Statuses/Index', [
             'statuses' => $statuses,
             'types' => Status::getTypes(),
+            'contexts' => [
+                Status::CONTEXT_CALENDAR => 'Kalendarz (spotkania)',
+                Status::CONTEXT_TASK => 'Zadania',
+            ],
             'colors' => Status::getColors(),
         ]);
     }
@@ -37,6 +41,10 @@ class StatusController extends Controller
         return Inertia::render('Statuses/Form', [
             'status' => null,
             'types' => Status::getTypes(),
+            'contexts' => [
+                Status::CONTEXT_CALENDAR => 'Kalendarz (spotkania)',
+                Status::CONTEXT_TASK => 'Zadania',
+            ],
             'colors' => Status::getColors(),
             'nextOrder' => $maxOrder + 1,
         ]);
@@ -51,6 +59,7 @@ class StatusController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:50|unique:statuses,slug',
             'type' => 'required|in:new,in_progress,done,cancelled',
+            'context' => 'required|in:task,calendar',
             'color' => 'required|string|max:7',
             'order' => 'required|integer|min:0',
             'is_default' => 'boolean',
@@ -80,6 +89,10 @@ class StatusController extends Controller
         return Inertia::render('Statuses/Form', [
             'status' => $status,
             'types' => Status::getTypes(),
+            'contexts' => [
+                Status::CONTEXT_CALENDAR => 'Kalendarz (spotkania)',
+                Status::CONTEXT_TASK => 'Zadania',
+            ],
             'colors' => Status::getColors(),
         ]);
     }
@@ -93,6 +106,7 @@ class StatusController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:50|unique:statuses,slug,' . $status->id,
             'type' => 'required|in:new,in_progress,done,cancelled',
+            'context' => 'required|in:task,calendar',
             'color' => 'required|string|max:7',
             'order' => 'required|integer|min:0',
             'is_default' => 'boolean',
