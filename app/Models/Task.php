@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
@@ -26,6 +27,14 @@ class Task extends Model
         'priority',
         'estimated_hours',
         'notes',
+        'due_time',
+        'recurrence_type',
+        'recurrence_interval',
+        'recurrence_weekdays',
+        'recurrence_until',
+        'recurrence_parent_id',
+        'reminder_offset_minutes',
+        'reminder_sent_at',
     ];
 
     protected function casts(): array
@@ -35,6 +44,9 @@ class Task extends Model
             'due_date' => 'date',
             'completed_at' => 'datetime',
             'estimated_hours' => 'integer',
+            'recurrence_weekdays' => 'array',
+            'recurrence_until' => 'date',
+            'reminder_sent_at' => 'datetime',
         ];
     }
 
@@ -54,6 +66,92 @@ class Task extends Model
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
+    }
+
+    /**
+     * Załączniki zadania.
+     */
+    public function files(): HasMany
+    {
+        return $this->hasMany(TaskFile::class)->latest();
+    }
+
+    /**
+     * Współpracownicy — osoby dopuszczone do zadania poza wykonawcą i autorem.
+     */
+    public function collaborators(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'task_collaborators')->withTimestamps();
+    }
+
+    // ==================== DOSTĘP ====================
+
+    /**
+     * Czy użytkownik ma prawo widzieć i edytować to zadanie.
+     *
+     * Reguła: administrator widzi wszystko, poza tym dostęp mają wyłącznie osoby
+     * powiązane z zadaniem — autor, wykonawca i współpracownicy. Bez tego każdy
+     * zalogowany widział zadania całej firmy, łącznie z zarządem.
+     */
+    public function isAccessibleBy(?User $user): bool
+    {
+        if (!$user) {
+            return false;
+        }
+
+        if ($user->hasAdminRights()) {
+            return true;
+        }
+
+        if ($this->created_by === $user->id || $this->assigned_to === $user->id) {
+            return true;
+        }
+
+        return $this->collaborators()->where('users.id', $user->id)->exists();
+    }
+
+    /**
+     * Ta sama reguła co isAccessibleBy(), ale wyrażona w SQL — do zawężania list.
+     *
+     * Świadomie NIE zawiera wyjątku dla administratora: kto go potrzebuje, ten
+     * po prostu nie nakłada tego scope'a. Wbudowanie wyjątku tutaj sprawiłoby,
+     * że scope „widoczne dla użytkownika X" znaczyłby co innego zależnie od roli.
+     */
+    public function scopeVisibleTo($query, int $userId)
+    {
+        return $query->where(function ($q) use ($userId) {
+            $q->where('created_by', $userId)
+                ->orWhere('assigned_to', $userId)
+                ->orWhereHas('collaborators', fn ($c) => $c->where('users.id', $userId));
+        });
+    }
+
+    /**
+     * Pełny termin zadania — data plus godzina, jeśli podana.
+     *
+     * Przypomnienia liczą się od tego momentu. Bez godziny zadanie traktujemy
+     * jako całodniowe i przyjmujemy koniec dnia, żeby „przypomnij dzień wcześniej"
+     * nie wypadało o północy poprzedniej doby.
+     */
+    public function getDueAtAttribute(): ?Carbon
+    {
+        if (!$this->due_date) {
+            return null;
+        }
+
+        $data = Carbon::parse($this->due_date);
+
+        return $this->due_time
+            ? $data->setTimeFromTimeString((string) $this->due_time)
+            : $data->endOfDay();
+    }
+
+    /**
+     * Zadanie należące do serii cyklicznej.
+     */
+    public function recurrenceParent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'recurrence_parent_id');
     }
 
     /**

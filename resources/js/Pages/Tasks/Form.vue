@@ -1,4 +1,5 @@
 <script setup>
+import { computed } from 'vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import Card from '@/Components/Card.vue';
 import Button from '@/Components/Button.vue';
@@ -8,6 +9,7 @@ import Textarea from '@/Components/Textarea.vue';
 import Icons from '@/Components/Icons.vue';
 
 const props = defineProps({
+    collaboratorIds: { type: Array, default: () => [] },
     task: Object,
     statuses: Array,
     clients: Array,
@@ -31,7 +33,50 @@ const form = useForm({
     priority: props.task?.priority || 'medium',
     estimated_hours: props.task?.estimated_hours || '',
     notes: props.task?.notes || '',
+    collaborators: props.collaboratorIds || [],
+    due_time: props.task?.due_time ? String(props.task.due_time).slice(0, 5) : '',
+    recurrence_type: props.task?.recurrence_type || '',
+    recurrence_interval: props.task?.recurrence_interval || 1,
+    recurrence_weekdays: props.task?.recurrence_weekdays || [],
+    recurrence_until: props.task?.recurrence_until || '',
+    reminder_offset_minutes: props.task?.reminder_offset_minutes ?? '',
 });
+
+const TYPY_CYKLU = [
+    { id: '', name: 'Bez powtarzania' },
+    { id: 'daily', name: 'Codziennie' },
+    { id: 'weekly', name: 'Co tydzień' },
+    { id: 'monthly', name: 'Co miesiąc' },
+    { id: 'yearly', name: 'Co rok' },
+];
+
+const DNI_TYGODNIA = [
+    { id: 1, skrot: 'Pn' }, { id: 2, skrot: 'Wt' }, { id: 3, skrot: 'Śr' },
+    { id: 4, skrot: 'Cz' }, { id: 5, skrot: 'Pt' }, { id: 6, skrot: 'So' }, { id: 7, skrot: 'Nd' },
+];
+
+// Przypomnienie ma sens tylko wtedy, gdy zadanie ma termin — inaczej nie ma
+// od czego odliczać.
+const OPCJE_PRZYPOMNIENIA = [
+    { id: '', name: 'Bez przypomnienia' },
+    { id: 15, name: '15 minut przed' },
+    { id: 60, name: 'godzinę przed' },
+    { id: 180, name: '3 godziny przed' },
+    { id: 1440, name: 'dzień przed' },
+    { id: 2880, name: '2 dni przed' },
+    { id: 10080, name: 'tydzień przed' },
+];
+
+function przelaczDzien(dzien) {
+    const i = form.recurrence_weekdays.indexOf(dzien);
+    if (i >= 0) form.recurrence_weekdays.splice(i, 1);
+    else form.recurrence_weekdays.push(dzien);
+}
+
+/** Autor i wykonawca mają dostęp z definicji — nie ma sensu ich tu dublować. */
+const wspolpracownicyDoWyboru = computed(() =>
+    props.users.filter(u => u.id !== form.assigned_to && u.id !== props.task?.created_by)
+);
 
 function submit() {
     if (isEditing) {
@@ -95,6 +140,22 @@ function submit() {
                             <Select v-model="form.assigned_to" :options="users" placeholder="Wybierz osobę" />
                         </div>
 
+                        <!-- Współpracownicy decydują o widoczności zadania: tylko autor,
+                             wykonawca i te osoby je zobaczą. -->
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-foreground mb-1">Współpracownicy</label>
+                            <div class="flex flex-wrap gap-2">
+                                <label v-for="u in wspolpracownicyDoWyboru" :key="u.id"
+                                       class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border-bright text-sm cursor-pointer hover:bg-surface-elevated transition-colors">
+                                    <input type="checkbox" :value="u.id" v-model="form.collaborators" class="rounded" />
+                                    {{ u.name }}
+                                </label>
+                            </div>
+                            <p class="text-xs text-foreground-muted mt-1">
+                                Osoby, które mają widzieć to zadanie oprócz Ciebie i wykonawcy.
+                            </p>
+                        </div>
+
                         <div>
                             <label class="block text-sm font-medium text-foreground mb-1">Data zgłoszenia</label>
                             <Input v-model="form.submit_date" type="date" />
@@ -102,13 +163,72 @@ function submit() {
 
                         <div>
                             <label class="block text-sm font-medium text-foreground mb-1">Termin realizacji</label>
-                            <Input v-model="form.due_date" type="date" />
+                            <div class="grid grid-cols-2 gap-2">
+                                <Input v-model="form.due_date" type="date" />
+                                <Input v-model="form.due_time" type="time" title="Godzina (opcjonalnie)" />
+                            </div>
+                            <p class="text-xs text-foreground-muted mt-1">
+                                Bez godziny zadanie jest całodniowe.
+                            </p>
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-foreground mb-1">Szacowany czas (godziny)</label>
                             <Input v-model="form.estimated_hours" type="number" min="0" />
                         </div>
+                    </div>
+
+                    <!-- Powtarzanie i przypomnienie mają sens tylko z terminem —
+                         bez niego nie ma od czego odliczać ani co przesuwać. -->
+                    <div v-if="form.due_date" class="pt-5 border-t border-slate-100 dark:border-slate-700 space-y-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-foreground mb-1">Przypomnienie</label>
+                                <Select v-model="form.reminder_offset_minutes" :options="OPCJE_PRZYPOMNIENIA" />
+                                <p class="text-xs text-foreground-muted mt-1">
+                                    Trafi do Ciebie, wykonawcy i współpracowników.
+                                </p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-foreground mb-1">Powtarzaj</label>
+                                <Select v-model="form.recurrence_type" :options="TYPY_CYKLU" />
+                            </div>
+                        </div>
+
+                        <div v-if="form.recurrence_type" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-foreground mb-1">Co ile</label>
+                                <Input v-model="form.recurrence_interval" type="number" min="1" max="365" />
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-foreground mb-1">Powtarzaj do (opcjonalnie)</label>
+                                <Input v-model="form.recurrence_until" type="date" />
+                                <p v-if="form.errors.recurrence_until" class="mt-1 text-sm text-red-600">{{ form.errors.recurrence_until }}</p>
+                            </div>
+
+                            <div v-if="form.recurrence_type === 'weekly'" class="md:col-span-2">
+                                <label class="block text-sm font-medium text-foreground mb-1">W dni</label>
+                                <div class="flex flex-wrap gap-2">
+                                    <button v-for="d in DNI_TYGODNIA" :key="d.id" type="button"
+                                            @click="przelaczDzien(d.id)"
+                                            :class="['h-9 w-11 rounded-md border text-sm font-medium transition-colors',
+                                                     form.recurrence_weekdays.includes(d.id)
+                                                        ? 'gradient-brand text-white border-transparent'
+                                                        : 'border-border-bright text-foreground-muted hover:bg-surface-elevated']">
+                                        {{ d.skrot }}
+                                    </button>
+                                </div>
+                                <p class="text-xs text-foreground-muted mt-1">
+                                    Nic nie zaznaczone — powtarzaj w ten sam dzień tygodnia co termin.
+                                </p>
+                            </div>
+                        </div>
+
+                        <p v-if="form.recurrence_type" class="text-xs text-foreground-muted">
+                            Kolejne zadanie powstanie automatycznie w chwili zamknięcia tego.
+                        </p>
                     </div>
                 </div>
             </Card>

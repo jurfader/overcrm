@@ -7,9 +7,11 @@ use App\Models\Client;
 use App\Models\Status;
 use App\Models\Task;
 use App\Models\User;
+use App\Services\TaskRecurrenceService;
 use App\Support\License;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -21,6 +23,14 @@ class TaskController extends Controller
     public function index(Request $request): Response
     {
         $query = Task::with(['status', 'client', 'assignee', 'creator']);
+
+        // Zawężenie do zadań, z którymi użytkownik ma cokolwiek wspólnego.
+        // Administrator widzi wszystko — reszta tylko swoje (autor, wykonawca,
+        // współpracownik). Musi stać PRZED filtrami, żeby żaden z nich nie mógł
+        // przypadkiem poszerzyć zbioru.
+        if (auth()->user() && !auth()->user()->hasAdminRights()) {
+            $query->visibleTo(auth()->id());
+        }
 
         // Filtrowanie
         if ($search = $request->get('search')) {
@@ -90,77 +100,15 @@ class TaskController extends Controller
                 'sort' => $sortBy,
                 'dir' => $sortDir,
             ],
-            'statuses' => Status::ordered()->get(),
+            'statuses' => Status::context(Status::CONTEXT_TASK)->ordered()->get(),
             'clients' => Client::active()->orderBy('name')->get(['id', 'name', 'short_name']),
             'users' => User::active()->orderBy('name')->get(['id', 'name']),
             'priorities' => Task::getPriorities(),
         ]);
     }
 
-    /**
-     * Widok Kanban
-     */
-    public function kanban(Request $request): Response
-    {
-        $statuses = Status::visible()->ordered()->get();
-        
-        $tasksByStatus = [];
-        foreach ($statuses as $status) {
-            $query = Task::with(['client', 'assignee'])
-                ->where('status_id', $status->id);
-            
-            if ($request->get('my_tasks') && auth()->user()) {
-                $query->assignedTo(auth()->id());
-            }
-            
-            $tasksByStatus[$status->id] = $query->orderBy('due_date')->get();
-        }
-
-        return Inertia::render('Tasks/Kanban', [
-            'statuses' => $statuses,
-            'tasksByStatus' => $tasksByStatus,
-            'filters' => [
-                'my_tasks' => $request->boolean('my_tasks'),
-            ],
-        ]);
-    }
-
-    /**
-     * Widok Timeline
-     */
-    public function timeline(Request $request): Response
-    {
-        $query = Task::with(['status', 'client', 'assignee'])
-            ->whereNotNull('due_date');
-
-        if ($request->get('my_tasks') && auth()->user()) {
-            $query->assignedTo(auth()->id());
-        }
-
-        if ($assignedTo = $request->get('assigned_to')) {
-            $query->where('assigned_to', $assignedTo);
-        }
-
-        // Zakres dat (domyślnie: 2 tygodnie wstecz + 4 do przodu)
-        $startDate = $request->get('start', now()->subWeeks(2)->toDateString());
-        $endDate = $request->get('end', now()->addWeeks(4)->toDateString());
-
-        $query->whereBetween('due_date', [$startDate, $endDate]);
-
-        $tasks = $query->orderBy('due_date')->get();
-
-        return Inertia::render('Tasks/Timeline', [
-            'tasks' => $tasks,
-            'users' => User::active()->orderBy('name')->get(['id', 'name']),
-            'statuses' => Status::ordered()->get(),
-            'filters' => [
-                'my_tasks' => $request->boolean('my_tasks'),
-                'assigned_to' => $request->get('assigned_to', ''),
-                'start' => $startDate,
-                'end' => $endDate,
-            ],
-        ]);
-    }
+    // Widoki Kanban i Osi czasu żyją w modułach (Kanban, Timeline) — wersje
+    // w tym kontrolerze nie miały żadnych tras i były nieosiągalne.
 
     /**
      * Formularz tworzenia
@@ -169,7 +117,7 @@ class TaskController extends Controller
     {
         return Inertia::render('Tasks/Form', [
             'task' => null,
-            'statuses' => Status::ordered()->get(),
+            'statuses' => Status::context(Status::CONTEXT_TASK)->ordered()->get(),
             'clients' => Client::active()->orderBy('name')->get(['id', 'name', 'short_name']),
             'users' => User::active()->orderBy('name')->get(['id', 'name']),
             'priorities' => Task::getPriorities(),
@@ -194,12 +142,27 @@ class TaskController extends Controller
             'priority' => 'required|in:low,medium,high,urgent',
             'estimated_hours' => 'nullable|integer|min:0',
             'notes' => 'nullable|string',
+            'collaborators' => 'nullable|array',
+            'collaborators.*' => 'integer|exists:users,id',
+            'due_time' => 'nullable|date_format:H:i',
+            'recurrence_type' => 'nullable|in:daily,weekly,monthly,yearly',
+            'recurrence_interval' => 'nullable|integer|min:1|max:365',
+            'recurrence_weekdays' => 'nullable|array',
+            'recurrence_weekdays.*' => 'integer|min:1|max:7',
+            'recurrence_until' => 'nullable|date|after_or_equal:due_date',
+            // 43200 minut = 30 dni. Więcej nie ma sensu: przypomnienie miesiąc
+            // przed terminem to już nie przypomnienie, tylko osobne zadanie.
+            'reminder_offset_minutes' => 'nullable|integer|min:0|max:43200',
         ]);
 
         $validated['created_by'] = auth()->id();
         $validated['submit_date'] = $validated['submit_date'] ?? now()->toDateString();
 
+        $wspolpracownicy = $validated['collaborators'] ?? [];
+        unset($validated['collaborators']);
+
         $task = Task::create($validated);
+        $this->syncCollaborators($task, $wspolpracownicy);
 
         ActivityLog::log('create', $task, "Utworzono zadanie: {$task->title}");
 
@@ -212,7 +175,9 @@ class TaskController extends Controller
      */
     public function show(Task $task): Response
     {
-        $task->load(['status', 'client', 'assignee', 'creator', 'comments.user']);
+        Gate::authorize('view', $task);
+
+        $task->load(['status', 'client', 'assignee', 'creator', 'comments.user', 'collaborators:id,name', 'files.user:id,name']);
 
         $activityLogs = null;
 
@@ -242,6 +207,14 @@ class TaskController extends Controller
         return Inertia::render('Tasks/Show', [
             'task' => $task,
             'activityLogs' => $activityLogs,
+            'files' => $task->files->map(fn ($f) => [
+                'id' => $f->id,
+                'name' => $f->name,
+                'size' => $f->readable_size,
+                'reachable' => $f->isReachable(),
+                'uploaded_by' => $f->user?->name,
+            ]),
+            'canManage' => $task->isAccessibleBy(auth()->user()),
         ]);
     }
 
@@ -250,6 +223,8 @@ class TaskController extends Controller
      */
     public function storeComment(Request $request, Task $task): RedirectResponse
     {
+        Gate::authorize('comment', $task);
+
         $validated = $request->validate([
             'body' => 'required|string|max:2000',
         ]);
@@ -282,9 +257,14 @@ class TaskController extends Controller
      */
     public function edit(Task $task): Response
     {
+        Gate::authorize('update', $task);
+
+        $task->load('collaborators:id');
+
         return Inertia::render('Tasks/Form', [
             'task' => $task,
-            'statuses' => Status::ordered()->get(),
+            'collaboratorIds' => $task->collaborators->pluck('id'),
+            'statuses' => Status::context(Status::CONTEXT_TASK)->ordered()->get(),
             'clients' => Client::active()->orderBy('name')->get(['id', 'name', 'short_name']),
             'users' => User::active()->orderBy('name')->get(['id', 'name']),
             'priorities' => Task::getPriorities(),
@@ -296,6 +276,8 @@ class TaskController extends Controller
      */
     public function update(Request $request, Task $task): RedirectResponse
     {
+        Gate::authorize('update', $task);
+
         License::guard('Edycja zadania wymaga ważnej licencji');
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -308,6 +290,17 @@ class TaskController extends Controller
             'priority' => 'required|in:low,medium,high,urgent',
             'estimated_hours' => 'nullable|integer|min:0',
             'notes' => 'nullable|string',
+            'collaborators' => 'nullable|array',
+            'collaborators.*' => 'integer|exists:users,id',
+            'due_time' => 'nullable|date_format:H:i',
+            'recurrence_type' => 'nullable|in:daily,weekly,monthly,yearly',
+            'recurrence_interval' => 'nullable|integer|min:1|max:365',
+            'recurrence_weekdays' => 'nullable|array',
+            'recurrence_weekdays.*' => 'integer|min:1|max:7',
+            'recurrence_until' => 'nullable|date|after_or_equal:due_date',
+            // 43200 minut = 30 dni. Więcej nie ma sensu: przypomnienie miesiąc
+            // przed terminem to już nie przypomnienie, tylko osobne zadanie.
+            'reminder_offset_minutes' => 'nullable|integer|min:0|max:43200',
         ]);
 
         // Sprawdź czy status się zmienił na końcowy
@@ -318,8 +311,17 @@ class TaskController extends Controller
             $validated['completed_at'] = null;
         }
 
+        $wspolpracownicy = $validated['collaborators'] ?? null;
+        unset($validated['collaborators']);
+
         $oldValues = $task->toArray();
         $task->update($validated);
+
+        // null = formularz w ogóle nie przysłał pola (np. szybka edycja) — wtedy
+        // nie ruszamy istniejącej listy. Pusta tablica = użytkownik usunął wszystkich.
+        if ($wspolpracownicy !== null) {
+            $this->syncCollaborators($task, $wspolpracownicy);
+        }
 
         ActivityLog::log('update', $task, "Zaktualizowano zadanie: {$task->title}", $oldValues, $validated);
 
@@ -328,10 +330,32 @@ class TaskController extends Controller
     }
 
     /**
+     * Ustawia współpracowników zadania.
+     *
+     * Autor i wykonawca są odfiltrowywani — oni mają dostęp z definicji, więc
+     * dublowanie ich na liście tylko myliłoby przy wyświetlaniu.
+     *
+     * @param array<int, int|string> $userIds
+     */
+    protected function syncCollaborators(Task $task, array $userIds): void
+    {
+        $ids = collect($userIds)
+            ->map(fn ($id) => (int) $id)
+            ->reject(fn (int $id) => $id === (int) $task->created_by || $id === (int) $task->assigned_to)
+            ->unique()
+            ->values()
+            ->all();
+
+        $task->collaborators()->sync($ids);
+    }
+
+    /**
      * Szybka zmiana statusu (AJAX)
      */
     public function updateStatus(Request $request, Task $task): RedirectResponse
     {
+        Gate::authorize('update', $task);
+
         $validated = $request->validate([
             'status_id' => 'required|exists:statuses,id',
         ]);
@@ -348,8 +372,23 @@ class TaskController extends Controller
 
         $oldStatus = $task->status;
         $oldValues = ['status_id' => $task->status_id, 'completed_at' => $task->completed_at];
+        $bylaOtwarta = !$task->completed_at;
 
         $task->update($updateData);
+
+        // Zamknięcie zadania cyklicznego rodzi kolejne wystąpienie. Robimy to
+        // dopiero TERAZ, a nie przy zakładaniu serii, żeby na liście zawsze było
+        // jedno otwarte zadanie zamiast setki wygenerowanych z góry.
+        if ($bylaOtwarta && $newStatus->is_final) {
+            $kolejne = app(TaskRecurrenceService::class)->createNextOccurrence($task);
+
+            if ($kolejne) {
+                return back()->with(
+                    'success',
+                    'Zadanie zamknięte. Utworzono kolejne na '.$kolejne->due_date->format('d.m.Y').'.'
+                );
+            }
+        }
 
         ActivityLog::log(
             'update',
@@ -367,6 +406,8 @@ class TaskController extends Controller
      */
     public function destroy(Task $task): RedirectResponse
     {
+        Gate::authorize('delete', $task);
+
         $title = $task->title;
         
         ActivityLog::log('delete', $task, "Usunięto zadanie: {$title}");

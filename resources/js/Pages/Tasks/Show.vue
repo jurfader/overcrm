@@ -13,7 +13,35 @@ const currentUser = computed(() => page.props.auth?.user);
 const props = defineProps({
     task: Object,
     activityLogs: Array,
+    files: { type: Array, default: () => [] },
+    canManage: { type: Boolean, default: false },
 });
+
+// ====================== ZAŁĄCZNIKI ======================
+const pliki = computed(() => props.files || []);
+const polePliku = ref(null);
+const wysylanie = ref(false);
+
+function wyslijPlik(zdarzenie) {
+    const plik = zdarzenie.target.files?.[0];
+    if (!plik) return;
+
+    wysylanie.value = true;
+    router.post(route('tasks.files.store', props.task.id), { file: plik }, {
+        forceFormData: true,
+        preserveScroll: true,
+        onFinish: () => {
+            wysylanie.value = false;
+            // Bez tego wybranie TEGO SAMEGO pliku drugi raz nie wywoła @change.
+            if (polePliku.value) polePliku.value.value = '';
+        },
+    });
+}
+
+function usunPlik(plik) {
+    if (!confirm(`Usunąć załącznik „${plik.name}"?`)) return;
+    router.delete(route('tasks.files.destroy', [props.task.id, plik.id]), { preserveScroll: true });
+}
 
 // Historia zmian — widoczna tylko gdy dane są przekazane (admin/manager)
 const showHistory = ref(false);
@@ -190,6 +218,40 @@ function deleteTask() {
                 <!-- Notatki -->
                 <Card v-if="task.notes" title="Notatki wewnętrzne">
                     <p class="text-foreground whitespace-pre-wrap">{{ task.notes }}</p>
+                </Card>
+
+                <!-- Załączniki. Plik trafia do aktywnego dostawcy plików
+                     (domyślnie dysk lokalny), więc włączenie modułu Dysku Google
+                     przeniesie nowe pliki do chmury bez zmian w tym widoku. -->
+                <Card title="Załączniki">
+                    <div v-if="pliki.length" class="space-y-2 mb-4">
+                        <div v-for="f in pliki" :key="f.id"
+                             class="flex items-center gap-3 p-2.5 rounded-lg surface-elevated">
+                            <Icons name="paperclip" class="w-4 h-4 text-foreground-muted shrink-0" />
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-foreground truncate">{{ f.name }}</p>
+                                <p class="text-xs text-foreground-muted">
+                                    {{ f.size }}<span v-if="f.uploaded_by"> · {{ f.uploaded_by }}</span>
+                                </p>
+                            </div>
+                            <a v-if="f.reachable" :href="route('tasks.files.download', [task.id, f.id])"
+                               class="text-xs text-brand-primary hover:underline shrink-0">Pobierz</a>
+                            <span v-else class="text-xs text-warning shrink-0"
+                                  title="Plik wgrany przez innego dostawcę niż aktywny">niedostępny</span>
+                            <button v-if="canManage" @click="usunPlik(f)"
+                                    class="text-xs text-destructive hover:underline shrink-0">Usuń</button>
+                        </div>
+                    </div>
+                    <p v-else class="text-sm text-foreground-muted mb-4">Brak załączników.</p>
+
+                    <div v-if="canManage">
+                        <input ref="polePliku" type="file" class="hidden" @change="wyslijPlik" />
+                        <Button variant="outline" size="sm" :disabled="wysylanie" @click="$refs.polePliku.click()">
+                            <Icons name="upload" class="w-4 h-4" />
+                            {{ wysylanie ? 'Wysyłanie…' : 'Dodaj załącznik' }}
+                        </Button>
+                        <p class="text-xs text-foreground-muted mt-1">Maksymalnie 20 MB na plik.</p>
+                    </div>
                 </Card>
 
                 <!-- Komentarze -->

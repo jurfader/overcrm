@@ -9,9 +9,18 @@ use Illuminate\Support\Facades\Schedule;
 |--------------------------------------------------------------------------
 */
 
-// Ringostat: sync połączeń + auto-analiza AI co 15 minut
-Schedule::command('ringostat:sync-analyze --hours=1 --min-duration=60 --limit=5')
-    ->everyFifteenMinutes()
+// UWAGA: nie harmonogramuj tu komend modułów. Moduł może być wyłączony albo
+// odinstalowany, a wtedy wpis wskazuje na nieistniejącą komendę i cron cicho
+// wykłada się co kilkanaście minut. Każdy moduł rejestruje swój harmonogram
+// we własnym ServiceProviderze — patrz PlayCentralaServiceProvider::boot().
+//
+// (Stał tu wpis 'ringostat:sync-analyze' wołający komendę, której nigdy nie było
+// w tym repo — synchronizacja połączeń Play i tak jedzie z modułu.)
+
+// Przypomnienia o zadaniach — co 5 minut. Komenda jest idempotentna
+// (`reminder_sent_at`), więc nakładające się przebiegi nic nie psują.
+Schedule::command('tasks:send-reminders')
+    ->everyFiveMinutes()
     ->withoutOverlapping()
     ->runInBackground();
 
