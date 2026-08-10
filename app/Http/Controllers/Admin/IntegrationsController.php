@@ -12,25 +12,46 @@ class IntegrationsController extends Controller
     public function __construct(protected ProviderRegistry $registry) {}
 
     /**
-     * Inertia shared `providersConfig` zwracane już w SettingController::index pod
-     * tab activeGroup='integrations'. Ten controller obsługuje tylko save (POST).
+     * Zapis wyboru dostawcy per kategoria zdolności.
+     *
+     * Obsługuje wszystkie kategorie, także te bez dostawcy rdzenia (telefonia, AI).
+     * Kategorie wieloaktywne ('notification') przychodzą jako lista włączonych
+     * kanałów, jednoaktywne jako pojedynczy klucz.
+     *
+     * Walidacja jest luźna z rozmysłem: kategorie zależą od tego, jakie moduły
+     * klient ma zainstalowane, więc sztywna lista pól w validate() rozjeżdżałaby
+     * się przy każdym nowym module. Zamiast tego setActive()/setEnabled()
+     * odrzucają nieznane klucze same.
      */
     public function update(Request $request): RedirectResponse
     {
-        $data = $request->validate([
-            'provider_product' => 'required|string|max:50',
-            'provider_order'   => 'required|string|max:50',
-            'provider_invoice' => 'required|string|max:50',
-        ]);
+        $errors = [];
 
-        try {
-            foreach (['product', 'order', 'invoice'] as $cat) {
-                $this->registry->setActive($cat, $data['provider_' . $cat]);
+        foreach ($this->registry->categories() as $category) {
+            $single = $request->input('provider_'.$category);
+            $multi = $request->input('providers_'.$category);
+
+            try {
+                if (in_array($category, ProviderRegistry::MULTI, true)) {
+                    if (is_array($multi)) {
+                        $this->registry->setEnabled($category, $multi);
+                    }
+
+                    continue;
+                }
+
+                if (is_string($single) && $single !== '') {
+                    $this->registry->setActive($category, $single);
+                }
+            } catch (\InvalidArgumentException $e) {
+                $errors[] = $e->getMessage();
             }
-        } catch (\InvalidArgumentException $e) {
-            return back()->with('error', $e->getMessage());
         }
 
-        return back()->with('success', 'Provider configuration zapisana');
+        if ($errors) {
+            return back()->with('error', implode(' ', $errors));
+        }
+
+        return back()->with('success', 'Zapisano wybór dostawców');
     }
 }

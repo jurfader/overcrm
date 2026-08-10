@@ -53,10 +53,19 @@ class MarginReportExporter
     private string $appName;
     private ?string $logoPath = null;
 
-    public function __construct(private FakturowniaService $fakturownia) {}
+    /**
+     * FakturowniaService pochodzi z modulu marketplace — parametr jest opcjonalny,
+     * zeby sam resolve klasy nie wywalal kontenera, gdy modulu nie ma. Brak serwisu
+     * wychodzi dopiero przy generate(), z czytelnym komunikatem.
+     */
+    public function __construct(private ?FakturowniaService $fakturownia = null) {}
 
     public function generate(array $params): string
     {
+        if (!$this->fakturownia) {
+            throw new \RuntimeException('Raport marżowości wymaga modułu Fakturownia — zainstaluj go w Panel administracyjny → Marketplace.');
+        }
+
         $this->params = $params;
         $this->appName = (string) (Setting::get('app_name', brand('name'), 'core') ?: brand('name'));
         // Konwersja hex z brand (#RRGGBB lub RRGGBB) na format PhpSpreadsheet (RRGGBB bez #)

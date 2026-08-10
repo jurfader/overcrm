@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PriceList;
+use App\Support\OptionalModule;
 use Modules\Fakturownia\Services\FakturowniaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -107,8 +108,16 @@ class PriceListController extends Controller
             ->with('success', 'Cennik został usunięty.');
     }
 
-    public function sync(PriceList $priceList, FakturowniaService $fakturownia)
+    public function sync(PriceList $priceList)
     {
+        // Fakturownia to modul z marketplace — bez niego endpoint musi zwrocic
+        // czytelny komunikat, a nie 500 z BindingResolutionException.
+        $fakturownia = OptionalModule::resolve(FakturowniaService::class);
+
+        if (!$fakturownia) {
+            return response()->json(['error' => 'Moduł Fakturownia nie jest zainstalowany — synchronizacja niedostępna.'], 422);
+        }
+
         if (!$priceList->sync_from_fakturownia) {
             return response()->json(['error' => 'Synchronizacja nie jest włączona dla tego cennika.'], 422);
         }

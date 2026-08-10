@@ -25,20 +25,28 @@ class SettingController extends Controller
             ->groupBy('group');
 
         $registry = app(ProviderRegistry::class);
-        $providers = [
-            'product' => [
-                'active' => $registry->activeKey('product'),
-                'options' => $registry->meta('product'),
-            ],
-            'order' => [
-                'active' => $registry->activeKey('order'),
-                'options' => $registry->meta('order'),
-            ],
-            'invoice' => [
-                'active' => $registry->activeKey('invoice'),
-                'options' => $registry->meta('invoice'),
-            ],
-        ];
+
+        // Wszystkie kategorie zdolności, nie tylko trzy pierwotne. Kategorie bez
+        // zarejestrowanego dostawcy są pomijane — pusty selektor „Telefonia"
+        // u klienta bez modułu centrali tylko myli.
+        $providers = [];
+
+        foreach (self::PROVIDER_CATEGORIES as $category => $label) {
+            $options = $registry->meta($category);
+
+            if (empty($options)) {
+                continue;
+            }
+
+            $providers[$category] = [
+                'label'    => $label,
+                'multi'    => in_array($category, ProviderRegistry::MULTI, true),
+                'active'   => $registry->activeKey($category),
+                'enabled'  => $registry->enabledKeys($category),
+                'optional' => in_array($category, ProviderRegistry::OPTIONAL, true),
+                'options'  => $options,
+            ];
+        }
 
         return Inertia::render('Admin/Settings/Index', [
             'settings' => $settings,
@@ -57,6 +65,23 @@ class SettingController extends Controller
             'providers' => $providers,
         ]);
     }
+
+    /**
+     * Kategorie zdolności pokazywane w Ustawienia → Integracje, w kolejności
+     * wyświetlania. Etykiety są tu, a nie w rejestrze, bo rejestr nie powinien
+     * wiedzieć nic o warstwie prezentacji.
+     */
+    protected const PROVIDER_CATEGORIES = [
+        'product'      => 'Produkty',
+        'order'        => 'Zamówienia',
+        'invoice'      => 'Faktury',
+        'telephony'    => 'Telefonia',
+        'shipping'     => 'Wysyłka',
+        'storage'      => 'Pliki',
+        'ai'           => 'AI — tekst',
+        'ai_audio'     => 'AI — transkrypcja audio',
+        'notification' => 'Kanały powiadomień',
+    ];
 
     /**
      * Zapisz ustawienia

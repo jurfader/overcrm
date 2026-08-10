@@ -37,8 +37,9 @@ createInertiaApp({
             }
         }
         
-        // Apply AppLayout to all pages except Auth pages and Welcome
-        if (!name.startsWith('Auth/') && name !== 'Welcome') {
+        // Apply AppLayout to all pages except Auth pages, Welcome i kreatora
+        // pierwszego uruchomienia (Setup/* to pelnoekranowy flow bez nawigacji).
+        if (!name.startsWith('Auth/') && !name.startsWith('Setup/') && name !== 'Welcome') {
             page.default.layout = page.default.layout || AppLayout;
         }
         

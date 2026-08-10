@@ -50,6 +50,12 @@ function handleLogoUpload(event) {
 }
 function removeLogo() { logoPreview.value = null; form.app_logo = null; }
 
+// Ponowne uruchomienie kreatora pierwszego uruchomienia (/setup)
+function restartSetup() {
+    if (!confirm('Uruchomić kreator konfiguracji? Zostaniesz przeniesiony do /setup — dane pozostaną nienaruszone.')) return;
+    router.post(route('setup.restart'));
+}
+
 const groupIcons = {
     general:      'settings',
     company:      'building-office',
@@ -169,6 +175,24 @@ const groupIcons = {
                                 <Input v-else v-model="form[setting.key]" />
                             </div>
                         </template>
+
+                        <!-- Kreator pierwszego uruchomienia — do ponownego przejścia -->
+                        <div v-if="activeGroup === 'general'" class="pt-6 border-t border-border">
+                            <div class="surface-elevated rounded-lg p-4 flex items-start gap-3 flex-wrap">
+                                <Icons name="cog" class="w-5 h-5 text-brand-primary shrink-0 mt-0.5" />
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-sm font-medium text-foreground">Kreator konfiguracji</p>
+                                    <p class="text-xs text-foreground-muted mt-0.5">
+                                        Przejdź ponownie przez konfigurację instancji (dane firmy, wygląd, dane startowe, moduły).
+                                        Nic nie zostanie skasowane — kreator tylko nadpisze to, co zapiszesz.
+                                    </p>
+                                </div>
+                                <Button variant="outline" size="sm" @click="restartSetup">
+                                    <Icons name="refresh" class="w-4 h-4" />
+                                    Uruchom kreator
+                                </Button>
+                            </div>
+                        </div>
                     </template>
                 </div>
             </div>

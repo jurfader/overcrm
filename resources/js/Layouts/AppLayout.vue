@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
+import Breadcrumbs from '@/Components/Breadcrumbs.vue';
 import FlashMessages from '@/Components/FlashMessages.vue';
 import Icons from '@/Components/Icons.vue';
 import KeyboardShortcutsHelp from '@/Components/KeyboardShortcutsHelp.vue';
@@ -19,6 +20,8 @@ const SIDEBAR_KEY = 'overcrm-sidebar-collapsed';
 const sidebarCollapsed = ref(false);
 const showUserMenu = ref(false);
 const showFloatingVisitSearch = ref(false);
+// Szuflada menu poniżej lg. Na dużym ekranie nieużywana — sidebar jest stały.
+const mobileMenuOpen = ref(false);
 
 onMounted(() => {
     try { sidebarCollapsed.value = localStorage.getItem(SIDEBAR_KEY) === '1'; } catch {}
@@ -35,6 +38,10 @@ function handleClickOutside(e) {
 }
 onMounted(() => document.addEventListener('click', handleClickOutside));
 onBeforeUnmount(() => document.removeEventListener('click', handleClickOutside));
+
+// Przejście na inną stronę zamyka szufladę — inaczej po kliknięciu w pozycję
+// menu użytkownik zostawał z otwartym menu nad nową treścią.
+router.on('navigate', () => { mobileMenuOpen.value = false; });
 
 // ====================== POWIADOMIENIE O DEPLOYU ======================
 const knownBuildVersion = ref(null);
@@ -158,11 +165,24 @@ const visibleAdmin = computed(() => navAdmin.filter(canAccess));
     <DemoBanner />
     <div class="min-h-screen flex">
         <!-- ====================== SIDEBAR ====================== -->
+        <!-- Przyciemnienie pod szufladą na mobile — klik zamyka menu. -->
+        <div
+            v-if="mobileMenuOpen"
+            class="fixed inset-0 z-30 bg-slate-900/70 lg:hidden"
+            @click="mobileMenuOpen = false"
+        />
+
         <aside
             :class="[
                 'fixed inset-y-0 left-0 z-40 glass border-r border-border flex flex-col',
-                'transition-all duration-300 ease-out',
-                sidebarCollapsed ? 'w-sidebar-collapsed' : 'w-sidebar',
+                'transition-transform duration-300 ease-out lg:transition-all',
+                // Poniżej lg sidebar jest szufladą: domyślnie wysunięty poza ekran,
+                // wjeżdża po kliknięciu hamburgera. Wcześniej był `fixed` bez
+                // żadnego breakpointu, więc na telefonie zasłaniał całą treść.
+                mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+                // Na mobile zawsze pełna szerokość menu — zwijanie ma sens
+                // tylko przy stałym sidebarze na dużym ekranie.
+                sidebarCollapsed ? 'w-sidebar lg:w-sidebar-collapsed' : 'w-sidebar',
             ]"
         >
             <!-- Logo -->
@@ -258,9 +278,24 @@ const visibleAdmin = computed(() => navAdmin.filter(canAccess));
         </aside>
 
         <!-- ====================== MAIN COLUMN ====================== -->
-        <div :class="['flex-1 flex flex-col min-w-0 transition-all duration-300', sidebarCollapsed ? 'pl-sidebar-collapsed' : 'pl-sidebar']">
+        <div :class="[
+            'flex-1 flex flex-col min-w-0 transition-all duration-300',
+            // Odsunięcie na sidebar tylko od lg — poniżej menu jest szufladą
+            // nad treścią, więc treść ma zajmować całą szerokość ekranu.
+            sidebarCollapsed ? 'pl-0 lg:pl-sidebar-collapsed' : 'pl-0 lg:pl-sidebar',
+        ]">
             <!-- ====================== TOPBAR ====================== -->
             <header class="sticky top-0 z-30 h-topbar glass border-b border-border flex items-center px-4 gap-3">
+                <!-- Hamburger — tylko poniżej lg, gdzie sidebar jest schowany. -->
+                <button
+                    @click="mobileMenuOpen = true"
+                    class="lg:hidden h-9 w-9 -ml-1 inline-flex items-center justify-center rounded-md text-foreground-muted hover:text-foreground hover:bg-surface-elevated transition-colors"
+                    title="Menu"
+                    aria-label="Otwórz menu"
+                >
+                    <Icons name="menu" class="w-5 h-5" />
+                </button>
+
                 <!-- Banner środowiska (np. „STAGING") -->
                 <div v-if="environmentBanner" class="px-3 py-1 rounded-md text-xs font-semibold gradient-subtle text-brand-primary border border-brand-primary/30">
                     {{ environmentBanner }}
@@ -358,6 +393,10 @@ const visibleAdmin = computed(() => navAdmin.filter(canAccess));
                     </div>
                 </Link>
 
+                <!-- Komponent sam się chowa, gdy ścieżka ma tylko jeden element
+                     (pulpit), więc można go renderować bezwarunkowo. Istniał
+                     w repo od dawna, ale nikt go nie wywoływał. -->
+                <Breadcrumbs />
                 <FlashMessages />
                 <slot />
             </main>

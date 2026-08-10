@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ActivityLog;
 use App\Models\Permission;
 use App\Models\User;
+use App\Support\OptionalModule;
 use Modules\Apilo\Services\ApiloService;
 use Modules\Fakturownia\Services\FakturowniaService;
 use Illuminate\Http\RedirectResponse;
@@ -17,12 +18,6 @@ use Inertia\Response;
 
 class UserController extends Controller
 {
-    protected FakturowniaService $fakturowniaService;
-
-    public function __construct(FakturowniaService $fakturowniaService)
-    {
-        $this->fakturowniaService = $fakturowniaService;
-    }
     /**
      * Lista użytkowników
      */
@@ -93,7 +88,7 @@ class UserController extends Controller
                 'inactive' => 'Nieaktywny',
             ],
             'permissions' => Permission::grouped(),
-            'fakturowniaDepartments' => $this->fakturowniaService->getDepartments(),
+            'fakturowniaDepartments' => $this->fakturowniaDepartmentsForUserForm(),
             'apiloPlatforms' => $this->apiloPlatformsForUserForm(),
         ]);
     }
@@ -175,7 +170,7 @@ class UserController extends Controller
                 'inactive' => 'Nieaktywny',
             ],
             'permissions' => Permission::grouped(),
-            'fakturowniaDepartments' => $this->fakturowniaService->getDepartments(),
+            'fakturowniaDepartments' => $this->fakturowniaDepartmentsForUserForm(),
             'apiloPlatforms' => $this->apiloPlatformsForUserForm(),
         ]);
     }
@@ -305,6 +300,31 @@ class UserController extends Controller
      *
      * @return array<int, array{id: mixed, name: string}>
      */
+    /**
+     * Oddziały Fakturowni do przypisania użytkownikowi (formularz).
+     *
+     * Fakturownia to moduł z marketplace — na instalacji bez niego type-hint
+     * w konstruktorze wywalał kontener ("Target class does not exist") i CAŁA
+     * lista użytkowników zwracała 500. Resolvujemy więc opcjonalnie: brak
+     * modułu = pole bez opcji.
+     *
+     * @return array<int, mixed>
+     */
+    protected function fakturowniaDepartmentsForUserForm(): array
+    {
+        $service = OptionalModule::resolve(FakturowniaService::class);
+
+        if (!$service) {
+            return [];
+        }
+
+        try {
+            return $service->getDepartments();
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
     protected function apiloPlatformsForUserForm(): array
     {
         try {

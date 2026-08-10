@@ -7,6 +7,7 @@ use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PriceListController;
 use App\Http\Controllers\ProductPickerController;
+use App\Http\Controllers\SetupController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\IntegrationLogController;
@@ -39,6 +40,31 @@ Route::get('/', function () {
     return redirect()->route('login');
 })->name('welcome');
 
+// Kreator pierwszego uruchomienia — dostępny gdy setup_completed != 1.
+// Whitelisted w EnsureSetupComplete i EnforceLicense (krok 1 = aktywacja klucza).
+// Bez 'verified'/'2fa': admin musi móc skonfigurować instancję zanim włączy 2FA.
+Route::middleware(['auth'])->prefix('setup')->name('setup.')->group(function () {
+    Route::get('/', [SetupController::class, 'show'])->name('show');
+
+    Route::post('/license',          [SetupController::class, 'activateLicense'])->name('license');
+    Route::post('/license/refresh',  [SetupController::class, 'refreshLicense'])->name('license.refresh');
+
+    Route::get('/lookup-nip',        [SetupController::class, 'lookupNip'])->name('lookup-nip');
+    Route::post('/company',          [SetupController::class, 'saveCompany'])->name('company');
+
+    Route::post('/branding',         [SetupController::class, 'saveBranding'])->name('branding');
+    Route::post('/branding/upload',  [SetupController::class, 'uploadBrandingAsset'])->name('branding.upload');
+    Route::delete('/branding/asset', [SetupController::class, 'removeBrandingAsset'])->name('branding.remove-asset');
+
+    Route::post('/baseline',         [SetupController::class, 'applyBaseline'])->name('baseline');
+    Route::post('/preferences',      [SetupController::class, 'savePreferences'])->name('preferences');
+    Route::post('/modules/install',  [SetupController::class, 'installModule'])->name('modules.install')->middleware('not-demo');
+
+    Route::post('/skip',             [SetupController::class, 'skipStep'])->name('skip');
+    Route::post('/complete',         [SetupController::class, 'complete'])->name('complete');
+    Route::post('/restart',          [SetupController::class, 'restart'])->name('restart');
+});
+
 // Licencja — zalogowany user musi móc tu wejść NAWET gdy licencja wygasła (whitelisted w EnforceLicense)
 Route::middleware(['auth'])->group(function () {
     Route::get('/license', [LicenseController::class, 'show'])->name('license.show');
@@ -69,6 +95,11 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
     })->name('build-version');
 
     // Dashboard
+    // Dzwonienie z aplikacji — jeden endpoint niezależny od tego, którą centralę
+    // ma klient. Rdzeń deleguje do aktywnego dostawcy zdolności 'telephony'.
+    Route::post('/telephony/call', [App\Http\Controllers\TelephonyController::class, 'call'])
+        ->name('telephony.call');
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/dashboard/layout', [DashboardController::class, 'saveLayout'])->name('dashboard.save-layout');
     Route::delete('/dashboard/layout', [DashboardController::class, 'resetLayout'])->name('dashboard.reset-layout');
@@ -100,6 +131,13 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
         Route::post('/', [TaskController::class, 'store'])->name('store')->middleware('permission:tasks_manage');
         Route::get('/{task}', [TaskController::class, 'show'])->name('show');
         Route::post('/{task}/comments', [TaskController::class, 'storeComment'])->name('comments.store');
+
+        // Załączniki. Dostęp pilnuje polityka zadania (kto widzi zadanie, ten
+        // widzi jego pliki), więc nie ma tu osobnego middleware uprawnień.
+        Route::get('/{task}/files', [App\Http\Controllers\TaskFileController::class, 'index'])->name('files.index');
+        Route::post('/{task}/files', [App\Http\Controllers\TaskFileController::class, 'store'])->name('files.store');
+        Route::get('/{task}/files/{file}', [App\Http\Controllers\TaskFileController::class, 'download'])->name('files.download');
+        Route::delete('/{task}/files/{file}', [App\Http\Controllers\TaskFileController::class, 'destroy'])->name('files.destroy');
         Route::delete('/{task}/comments/{comment}', [TaskController::class, 'destroyComment'])->name('comments.destroy');
         Route::get('/{task}/edit', [TaskController::class, 'edit'])->name('edit')->middleware('permission:tasks_manage');
         Route::put('/{task}', [TaskController::class, 'update'])->name('update')->middleware('permission:tasks_manage');
@@ -178,6 +216,8 @@ Route::middleware(['auth', 'verified', '2fa'])->group(function () {
         Route::put('/{visit}', [CalendarController::class, 'update'])->name('update');
         Route::delete('/{visit}', [CalendarController::class, 'destroy'])->name('destroy');
         Route::post('/{visit}/send-email', [VisitEmailController::class, 'send'])->name('send-email');
+        // Wysyłka idzie przez kolejkę, więc wynik odczytuje się osobno po tokenie.
+        Route::get('/send-email/{token}/status', [VisitEmailController::class, 'sendStatus'])->name('send-email-status');
         Route::post('/{visit}/preview-email', [VisitEmailController::class, 'preview'])->name('preview-email');
     });
 

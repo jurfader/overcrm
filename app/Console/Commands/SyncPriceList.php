@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\PriceList;
+use App\Support\OptionalModule;
 use Modules\Fakturownia\Services\FakturowniaService;
 use Illuminate\Console\Command;
 
@@ -11,8 +12,18 @@ class SyncPriceList extends Command
     protected $signature = 'pricelist:sync {id : ID cennika do synchronizacji}';
     protected $description = 'Synchronizuje ceny w cenniku z produktami Fakturowni';
 
-    public function handle(FakturowniaService $fakturownia): int
+    public function handle(): int
     {
+        // Modul opcjonalny (marketplace) — bez niego komenda konczy sie
+        // komunikatem, a nie fatal errorem przy resolvowaniu zaleznosci.
+        $fakturownia = OptionalModule::resolve(FakturowniaService::class);
+
+        if (!$fakturownia) {
+            $this->error('Moduł Fakturownia nie jest zainstalowany — brak źródła cen.');
+
+            return self::FAILURE;
+        }
+
         $priceList = PriceList::find($this->argument('id'));
 
         if (!$priceList) {

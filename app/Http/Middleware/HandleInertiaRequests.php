@@ -6,6 +6,7 @@ use App\Models\Module;
 use App\Models\Setting;
 use App\Models\User;
 use App\Support\License;
+use App\Support\Providers\ProviderRegistry;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -48,10 +49,17 @@ class HandleInertiaRequests extends Middleware
                 'openedVisitId' => fn () => $request->session()->get('openedVisitId'),
             ],
             'brand' => fn () => brand(),
+            // Zdolności dostępne w tej instalacji (telephony, ai, storage…).
+            // Front ukrywa na tej podstawie elementy UI, zamiast sprawdzać nazwy
+            // konkretnych modułów — dzięki temu przycisk „Analizuj rozmowę" działa
+            // tak samo z Play Centralą, jak z Ringostatem czy 3CX.
+            'capabilities' => fn () => app(ProviderRegistry::class)->capabilities(),
             'appLicensed' => fn () => License::ok(),
             'appSettings' => fn () => $this->getAppSettings(),
-            'inpostGeowidgetToken' => fn () => $this->getInpostToken(),
-            'inpostOrganizationId' => fn () => $this->getInpostOrganizationId(),
+            // Nazwy propsów zostają dla zgodności z istniejącym frontem, ale
+            // źródłem jest już aktywny dostawca wysyłki, a nie moduł po nazwie.
+            'inpostGeowidgetToken' => fn () => (string) ($this->getShippingPointConfig()['token'] ?? ''),
+            'inpostOrganizationId' => fn () => (string) ($this->getShippingPointConfig()['organization_id'] ?? ''),
             'inboxUnreadCount' => fn () => $request->user() ? $this->getInboxUnreadCount($request->user()) : 0,
             'ziggy' => fn () => [
                 ...(new Ziggy)->toArray(),
@@ -99,33 +107,31 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
-     * Token InPost Geowidget – tylko gdy moduł aktywny
+     * Konfiguracja widgetu wyboru punktu odbioru.
+     *
+     * Rdzeń NIE pyta już o moduł „inpost" po nazwie — pyta o zdolność wysyłki
+     * i o to, czy dostawca umie pokazywać punkty. Dzięki temu klient, który
+     * zamiast InPostu wdroży Furgonetkę, dostanie działający widget bez zmiany
+     * choćby jednej linii w rdzeniu.
+     *
+     * @return array<string, mixed>
      */
-    protected function getInpostToken(): string
+    protected function getShippingPointConfig(): array
     {
         try {
-            if (!Schema::hasTable('modules') || !Module::where('name', 'inpost')->where('is_active', true)->exists()) {
-                return '';
+            if (!Schema::hasTable('settings')) {
+                return [];
             }
-            $token = Setting::get('geowidget_token', null, 'inpost');
-            return (string) ($token ?: config('services.inpost.geowidget_token', ''));
-        } catch (\Exception $e) {
-            return '';
-        }
-    }
 
-    /**
-     * ID organizacji InPost – tylko gdy moduł aktywny
-     */
-    protected function getInpostOrganizationId(): string
-    {
-        try {
-            if (!Schema::hasTable('modules') || !Module::where('name', 'inpost')->where('is_active', true)->exists()) {
-                return '';
+            $provider = app(ProviderRegistry::class)->activeOrNull('shipping');
+
+            if (!$provider || !method_exists($provider, 'supportsPointPicking') || !$provider->supportsPointPicking()) {
+                return [];
             }
-            return (string) Setting::get('organization_id', config('services.inpost.organization_id', ''), 'inpost');
-        } catch (\Exception $e) {
-            return '';
+
+            return $provider->pointWidgetConfig();
+        } catch (\Throwable) {
+            return [];
         }
     }
 
