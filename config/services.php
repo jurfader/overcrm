@@ -6,7 +6,7 @@ return [
     //   node -e "const c=require('crypto');const k=c.createPrivateKey({key:'-----BEGIN PRIVATE KEY-----\n'+process.env.LICENSE_SIGNING_KEY+'\n-----END PRIVATE KEY-----',format:'pem'});console.log(c.createPublicKey(k).export({format:'der',type:'spki'}).slice(-32).toString('base64'))"
     // Pusta wartość = signature verification wyłączona (DEV mode, NIE w produkcji).
     'license' => [
-        'url'        => env('LICENSE_SERVER_URL', 'http://51.38.137.199:3002'),
+        'url'        => env('LICENSE_SERVER_URL', 'https://licenses.overmedia.pl'),
         'public_key' => env('LICENSE_SIGNING_PUBLIC_KEY', ''),
     ],
 

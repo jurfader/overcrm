@@ -33,7 +33,7 @@ set -euo pipefail
 
 # ── Defaults ─────────────────────────────────────────────────────────────────
 REPO="https://github.com/jurfader/overcrm.git"
-LICENSE_SERVER_URL="${LICENSE_SERVER_URL:-http://51.38.137.199:3002}"
+LICENSE_SERVER_URL="${LICENSE_SERVER_URL:-https://licenses.overmedia.pl}"
 NON_INTERACTIVE=0
 BRAND_NAME=""
 BRAND_PRIMARY=""

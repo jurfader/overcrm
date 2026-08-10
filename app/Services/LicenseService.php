@@ -35,7 +35,7 @@ class LicenseService
 
     protected function serverUrl(): string
     {
-        return rtrim(config('services.license.url', env('LICENSE_SERVER_URL', 'http://51.38.137.199:3002')), '/');
+        return rtrim(config('services.license.url', env('LICENSE_SERVER_URL', 'https://licenses.overmedia.pl')), '/');
     }
 
     protected function domain(): string
@@ -208,6 +208,12 @@ class LicenseService
                     'domain'         => $this->domain(),
                     'installationId' => $this->installationId(),
                     'metrics'        => $this->collectMetrics(),
+                    // Deklaracja zdolności klienta. Serwer licencji dokłada pole
+                    // `bundles` do PODPISYWANEGO payloadu wyłącznie wtedy, gdy o nie
+                    // poprosimy. Bez tego stary klient dostałby pole, którego nie
+                    // uwzględnia przy odtwarzaniu wiadomości — podpis by się rozjechał
+                    // i CRM zablokowałby się na INVALID_SIGNATURE.
+                    'supports'       => ['bundles'],
                 ]);
 
             $body = $resp->json() ?? [];
@@ -252,6 +258,12 @@ class LicenseService
                     'installationId' => $this->installationId(),
                     'metrics'        => $this->collectMetrics(),
                     'bindingToken'   => $this->loadBindingToken(),
+                    // Deklaracja zdolności klienta. Serwer licencji dokłada pole
+                    // `bundles` do PODPISYWANEGO payloadu wyłącznie wtedy, gdy o nie
+                    // poprosimy. Bez tego stary klient dostałby pole, którego nie
+                    // uwzględnia przy odtwarzaniu wiadomości — podpis by się rozjechał
+                    // i CRM zablokowałby się na INVALID_SIGNATURE.
+                    'supports'       => ['bundles'],
                 ]);
 
             $body = $resp->json() ?? [];
