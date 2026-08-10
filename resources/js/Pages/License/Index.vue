@@ -6,9 +6,22 @@ import Button from '@/Components/Button.vue';
 import Input from '@/Components/Input.vue';
 
 const props = defineProps({
-    license: { type: Object, required: true },
-    domain:  { type: String, required: true },
+    license:      { type: Object, required: true },
+    domain:       { type: String, required: true },
+    bundleLabels: { type: Object, default: () => ({}) },
 });
+
+// Wykupione pakiety. Serwer licencji przysyła same identyfikatory
+// ('overcrm-ai'), więc etykiety dokładamy tutaj. Nieznany identyfikator
+// pokazujemy takim, jaki przyszedł — lepiej surowa nazwa niż puste miejsce,
+// bo to od razu widać, że katalog rozjechał się z serwerem.
+const bundles = computed(() =>
+    (props.license.bundles || []).map((id) => ({
+        id,
+        label: props.bundleLabels[id] || id,
+        known: Boolean(props.bundleLabels[id]),
+    })),
+);
 
 const form = useForm({ license_key: '' });
 const refreshing = ref(false);
@@ -99,6 +112,46 @@ function formatDate(d) {
                     <Icons name="check" class="w-4 h-4" />
                     Licencja jest ważna — możesz korzystać z aplikacji.
                 </div>
+            </div>
+
+            <!-- Wykupione pakiety -->
+            <div v-if="license.is_valid" class="glass-card rounded-xl p-6 space-y-4">
+                <div>
+                    <h2 class="text-lg font-semibold text-foreground">Wykupione pakiety</h2>
+                    <p class="text-xs text-foreground-muted mt-1">
+                        Pakiety decydują, które moduły możesz zainstalować z marketplace'u.
+                    </p>
+                </div>
+
+                <div v-if="bundles.length" class="flex flex-wrap gap-2">
+                    <span
+                        v-for="b in bundles"
+                        :key="b.id"
+                        :title="b.id"
+                        :class="[
+                            'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border',
+                            b.known
+                                ? 'bg-brand-primary/10 text-brand-primary border-brand-primary/30'
+                                : 'bg-warning/10 text-warning border-warning/30',
+                        ]"
+                    >
+                        <Icons name="check" class="w-3.5 h-3.5" />
+                        {{ b.label }}
+                    </span>
+                </div>
+
+                <div v-else class="text-sm text-foreground-muted surface-elevated rounded-md p-3">
+                    Masz licencję podstawową — bez dodatkowych pakietów.
+                    Chcesz rozszerzyć CRM o AI, telefonię albo analitykę?
+                    Napisz na
+                    <a href="mailto:biuro@overmedia.pl?subject=Rozszerzenie licencji OVERCRM"
+                       class="text-brand-primary hover:underline">biuro@overmedia.pl</a>.
+                </div>
+
+                <p class="text-xs text-foreground-subtle">
+                    Po zakupie pakiet pojawi się tu w ciągu doby.
+                    Nie chcesz czekać — kliknij „Odśwież walidację” niżej.
+                </p>
             </div>
 
             <!-- Activate / Update key -->

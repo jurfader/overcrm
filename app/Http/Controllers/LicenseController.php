@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\LicenseService;
+use App\Services\MarketplaceService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -15,6 +16,10 @@ class LicenseController extends Controller
         return Inertia::render('License/Index', [
             'license' => $this->license->status(),
             'domain'  => parse_url(config('app.url'), PHP_URL_HOST),
+            // Nazwy pakietów do pokazania. Klient nie ma się domyślać, co
+            // znaczy 'overcrm-ai'. Etykiety trzymamy w jednym miejscu razem
+            // z resztą marketplace'u, żeby nie rozjechały się z nim po cichu.
+            'bundleLabels' => MarketplaceService::BUNDLE_LABELS,
         ]);
     }
 
