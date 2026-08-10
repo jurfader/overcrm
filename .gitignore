@@ -29,6 +29,10 @@ Thumbs.db
 test.html
 .claude/
 
+# Notatki robocze (analiza luk wzgledem planner-v2, wybor modulow do przeniesienia).
+MODULY_Z_PLANNERA.md
+PLAN_MODULOW.md
+
 # Moduly marketplace — instalowane przez /admin/marketplace, nie tracked w repo.
 # Lokalna kopia (rozwoj) zostaje na filesystem ale git je ignoruje. Production
 # pobiera ZIPy z license servera przez MarketplaceService.

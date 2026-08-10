@@ -24,7 +24,9 @@
 #       [--install-dir=/var/www/crm.example.com] \
 #       [--non-interactive]
 #
-# Po instalacji uruchom Nginx vhost (przykład w docs/) i ustaw cron:
+# Po instalacji uruchom Nginx vhost (przykład w docs/). Cron ustawiany jest
+# automatycznie — dwa wpisy w /etc/cron.d/overcrm-{domena}:
+#   * * * * * cd /var/www/{domain} && php artisan schedule:run
 #   * * * * * cd /var/www/{domain} && php artisan queue:work --stop-when-empty --max-time=55
 # ==============================================================================
 set -euo pipefail
@@ -234,14 +236,28 @@ chmod 640 "$INSTALL_DIR/.env"
 chown "$WEB_USER:$WEB_USER" "$INSTALL_DIR/.env"
 log_ok "Uprawnienia OK"
 
-# ── Cron queue worker ────────────────────────────────────────────────────────
-log_step "Konfiguracja cron dla queue worker"
-CRON_LINE="* * * * * cd ${INSTALL_DIR} && php artisan queue:work --stop-when-empty --max-time=55 >/dev/null 2>&1"
+# ── Cron: harmonogram + queue worker ─────────────────────────────────────────
+log_step "Konfiguracja cron (harmonogram i kolejka)"
 CRON_FILE="/etc/cron.d/overcrm-${DOMAIN//[^a-zA-Z0-9]/_}"
-echo "${CRON_LINE}" > "$CRON_FILE"
-echo "" >> "$CRON_FILE"
+{
+    echo "# OVERCRM — ${DOMAIN}"
+    # Harmonogram Laravela. BEZ TEGO WPISU nie działa nic cyklicznego:
+    # walidacja licencji, przypomnienia o zadaniach ani synchronizacje modułów.
+    # Wcześniej ustawiana była wyłącznie kolejka, przez co cały harmonogram
+    # milczał na każdej instalacji.
+    # Jako ${WEB_USER}, NIE root. Artisan tworzy pliki w storage/ i bootstrap/cache;
+    # uruchamiany jako root zostawiłby je z właścicielem root, a PHP-FPM (www-data)
+    # przestałby móc do nich pisać. Objaw: „Permission denied" w logach po pierwszym
+    # przebiegu crona.
+    echo "* * * * * ${WEB_USER} cd ${INSTALL_DIR} && php artisan schedule:run >/dev/null 2>&1"
+    # Worker kolejki. `--stop-when-empty` kończy proces po opróżnieniu kolejki,
+    # a `--max-time` gwarantuje, że nie zostanie w pamięci ze starym kodem
+    # po aktualizacji.
+    echo "* * * * * ${WEB_USER} cd ${INSTALL_DIR} && php artisan queue:work --stop-when-empty --max-time=55 >/dev/null 2>&1"
+    echo ""
+} > "$CRON_FILE"
 chmod 644 "$CRON_FILE"
-log_ok "Cron zapisany w $CRON_FILE"
+log_ok "Cron zapisany w $CRON_FILE (harmonogram + kolejka)"
 
 # ── Done ─────────────────────────────────────────────────────────────────────
 echo ""
@@ -259,4 +275,8 @@ echo "  1. Stwórz vhost Nginx z document_root: ${INSTALL_DIR}/public"
 echo "     (przykład: zobacz docs/INSTALL.md)"
 echo "  2. Wystaw certyfikat SSL (certbot albo Cloudflare proxy)"
 echo "  3. Zaloguj się na https://${DOMAIN}/login"
+echo ""
+echo -e "${CYAN}Po pierwszym logowaniu system przekieruje na /setup — kreator konfiguracji${NC}"
+echo -e "${CYAN}poprowadzi przez licencję, dane firmy, wygląd, dane startowe (statusy zadań,${NC}"
+echo -e "${CYAN}uprawnienia) oraz instalację modułów. Do tego czasu CRM jest zablokowany.${NC}"
 echo ""
