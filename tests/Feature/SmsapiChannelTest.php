@@ -153,6 +153,43 @@ class SmsapiChannelTest extends TestCase
         });
     }
 
+    /**
+     * Przy wyłączonej normalizacji polskie znaki wymuszają UCS-2, gdzie segment
+     * ma 70 znaków, nie 160. Sztywny limit 320 oznaczał wtedy PIĘĆ segmentów,
+     * choć komentarz obiecywał dwa — czyli 2,5× wyższy rachunek, niż zakładano.
+     */
+    public function test_polskie_znaki_bez_normalizacji_tna_do_dwoch_segmentow_ucs2(): void
+    {
+        Setting::set('smsapi_normalize', false, 'smsapi');
+        $this->fakeOk();
+
+        $this->kanal->send($this->makeUser('123456789'), 'Zamówienie', str_repeat('ą', 500));
+
+        Http::assertSent(function (Request $r) {
+            // 2 × 70 = 140, nie 320.
+            $this->assertLessThanOrEqual(140, mb_strlen($r['message']));
+
+            return true;
+        });
+    }
+
+    public function test_sam_ascii_bez_normalizacji_ma_pelne_dwa_segmenty_gsm7(): void
+    {
+        Setting::set('smsapi_normalize', false, 'smsapi');
+        $this->fakeOk();
+
+        // Bez znaków spoza ASCII wiadomość mieści się w GSM-7, więc obcinanie
+        // do 140 byłoby stratą — segment ma tu 160 znaków.
+        $this->kanal->send($this->makeUser('123456789'), 'Order', str_repeat('a', 500));
+
+        Http::assertSent(function (Request $r) {
+            $this->assertGreaterThan(140, mb_strlen($r['message']));
+            $this->assertLessThanOrEqual(320, mb_strlen($r['message']));
+
+            return true;
+        });
+    }
+
     public function test_blad_w_ciele_odpowiedzi_jest_tlumaczony(): void
     {
         // SMSAPI zwraca błąd w polu `error`, a nie kodem HTTP.

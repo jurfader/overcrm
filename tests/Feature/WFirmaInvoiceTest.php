@@ -129,6 +129,36 @@ class WFirmaInvoiceTest extends TestCase
         });
     }
 
+    /**
+     * `price_type` musi jechać jawnie jako `netto`.
+     *
+     * wFirma interpretuje `price` w pozycjach jako netto ALBO brutto zależnie
+     * od tego pola — nie od nazwy pola. Bez niego decydowało domyślne ustawienie
+     * konta klienta, więc ta sama instalacja mogła wystawiać poprawne faktury
+     * u jednego klienta i zawyżone o VAT u drugiego. Zamówienie niesie ceny
+     * netto, więc deklarujemy to wprost.
+     */
+    public function test_faktura_deklaruje_ceny_jako_netto(): void
+    {
+        Http::fake(['api2.wfirma.pl/*' => Http::response([
+            'invoices' => ['0' => ['invoice' => ['id' => '1', 'fullnumber' => 'FV 3/2026']]],
+            'status' => ['code' => 'OK'],
+        ], 200)]);
+
+        $this->provider->createFromOrder($this->makeOrder());
+
+        Http::assertSent(function (Request $r) {
+            $faktura = $r->data()['invoices']['0']['invoice'];
+
+            $this->assertSame('netto', $faktura['price_type']);
+            // Kontrola spójności: skoro deklarujemy netto, w pozycji ma być
+            // cena netto z zamówienia, a nie brutto.
+            $this->assertSame('500.00', $faktura['invoicecontents']['0']['invoicecontent']['price']);
+
+            return true;
+        });
+    }
+
     public function test_klient_bez_nipu_dostaje_tax_id_type_none(): void
     {
         Http::fake(['api2.wfirma.pl/*' => Http::response([
