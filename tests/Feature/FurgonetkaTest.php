@@ -117,13 +117,18 @@ class FurgonetkaTest extends TestCase
         $this->serwis->points(['search_phrase' => 'x']);
 
         Http::assertSent(function (Request $r) {
-            // `services` to jedyne pole obowiązkowe w filtrach — pusta lista
-            // dałaby 400.
+            // Pusta lista nie daje błędu, tylko 200 z pustym `points`.
+            // Dlatego domyślne uzupełnienie jest konieczne: bez niego klient
+            // zobaczyłby „brak punktów w okolicy” zamiast wyników.
             $this->assertNotEmpty($r['filters']['services']);
             $this->assertContains('inpost', $r['filters']['services']);
-            // GLS celowo NIE MA na liście: można do niego nadać przesyłkę,
-            // ale jego punktów nie da się wyszukać tym endpointem.
-            $this->assertNotContains('gls', $r['filters']['services']);
+
+            // GLS MUSI tu być. Wcześniej był celowo pominięty, na podstawie
+            // zapisu w dokumentacji, że jego punktów nie da się wyszukać tym
+            // endpointem. Sprawdzone na żywym API 2026-08-11: da się, zwraca
+            // komplet punktów GLS. Ten test pilnował błędnego założenia,
+            // przez które klient wysyłający GLS-em nie widział żadnego punktu.
+            $this->assertContains('gls', $r['filters']['services']);
 
             return true;
         });
