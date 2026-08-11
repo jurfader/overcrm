@@ -116,6 +116,13 @@ class MarketplaceService
                 'required_plan' => $plugin['requiredPlan'] ?? null,
                 'downloads'    => $plugin['downloads'] ?? 0,
                 'installed'    => $isInstalled,
+                // Pakiet wymagany do pobrania. Bez tego administrator dowiaduje
+                // się o braku uprawnienia dopiero po kliknięciu „Zainstaluj”
+                // i odmowie z serwera — a wtedy wygląda to na awarię, nie na
+                // brak wykupionego pakietu.
+                'bundle'       => $plugin['bundle'] ?? null,
+                'bundle_label' => self::BUNDLE_LABELS[$plugin['bundle'] ?? ''] ?? null,
+                'bundle_owned' => $this->license->hasBundle($plugin['bundle'] ?? null),
             ];
         })->values()->all();
 
