@@ -55,8 +55,10 @@ class BaseLinkerTest extends TestCase
         Http::assertSent(function (Request $r) {
             $this->assertSame('1-23-ABC', $r->header('X-BLToken')[0] ?? null);
             $this->assertSame('getOrderStatusList', $r['method']);
-            // Puste parametry muszą być obiektem JSON, nie tablicą — "[]"
-            // BaseLinker odrzuca jako nieprawidłowe argumenty.
+            // Blokada zachowania, nie wymóg API: sprawdzone na żywym API
+            // 2026-08-11, że "[]" i brak pola też przechodzą. "{}" jest
+            // poprawną reprezentacją pustego zbioru argumentów i nie zależy
+            // od tolerancji serwera, więc pilnujemy właśnie jego.
             $this->assertSame('{}', $r['parameters']);
 
             return true;

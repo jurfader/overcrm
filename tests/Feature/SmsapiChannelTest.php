@@ -14,6 +14,12 @@ use Tests\TestCase;
 /**
  * Kanał SMS przez SMSAPI.
  *
+ * Atrapy celują w `api.smsapi.pl`, nie `.com`. To nie jest szczegół: SMSAPI ma
+ * dwa rozłączne środowiska, a token z konta polskiego dostaje na .com
+ * odmowę autoryzacji 401 (sprawdzone na żywym API 2026-08-11). Wcześniej i kod,
+ * i te testy używały .com — moduł nie zadziałałby u żadnego polskiego klienta,
+ * a testy świeciły na zielono.
+ *
  * Największe ryzyko w tej integracji nie jest techniczne, tylko finansowe:
  * źle znormalizowany numer to SMS wysłany donikąd (zapłacony), a brak
  * `normalize` potraja koszt wiadomości z polskimi znakami. Stąd nacisk testów.
@@ -59,7 +65,7 @@ class SmsapiChannelTest extends TestCase
 
     protected function fakeOk(): void
     {
-        Http::fake(['api.smsapi.com/*' => Http::response([
+        Http::fake(['api.smsapi.pl/*' => Http::response([
             'count' => 1,
             'list' => [['id' => '1460969715572091219', 'points' => 0.16, 'number' => '48123456789', 'status' => 'QUEUE']],
         ], 200)]);
@@ -150,7 +156,7 @@ class SmsapiChannelTest extends TestCase
     public function test_blad_w_ciele_odpowiedzi_jest_tlumaczony(): void
     {
         // SMSAPI zwraca błąd w polu `error`, a nie kodem HTTP.
-        Http::fake(['api.smsapi.com/*' => Http::response(['error' => 103, 'message' => 'Insufficient funds'], 200)]);
+        Http::fake(['api.smsapi.pl/*' => Http::response(['error' => 103, 'message' => 'Insufficient funds'], 200)]);
 
         $wynik = $this->serwis->send('123456789', 'Test');
 
@@ -161,7 +167,7 @@ class SmsapiChannelTest extends TestCase
 
     public function test_nieudana_wysylka_nie_rzuca_wyjatkiem(): void
     {
-        Http::fake(['api.smsapi.com/*' => Http::response(['error' => 101], 401)]);
+        Http::fake(['api.smsapi.pl/*' => Http::response(['error' => 101], 401)]);
 
         // Powiadomienie jest efektem ubocznym — nie może wywrócić operacji,
         // która je wywołała. Kanał ma zwrócić false, nie rzucić.
