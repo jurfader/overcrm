@@ -53,6 +53,11 @@ class FurgonetkaTest extends TestCase
     {
         Setting::set('furgonetka_client_id', 'cid', 'furgonetka');
         Setting::set('furgonetka_client_secret', 'secret', 'furgonetka');
+        // Login i hasło są WYMAGANE, nie opcjonalne: Furgonetka wydaje token
+        // na grancie `password`, a token z client_credentials nie ma kontekstu
+        // użytkownika i dostaje 401 na każdym endpoincie konta.
+        Setting::set('furgonetka_username', 'kontakt@example.test', 'furgonetka');
+        Setting::set('furgonetka_password', 'tajne', 'furgonetka');
         Setting::set('furgonetka_default_service_id', '42', 'furgonetka');
     }
 
